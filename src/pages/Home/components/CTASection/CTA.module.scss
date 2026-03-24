@@ -1,0 +1,82 @@
+@use "../../../../components/styles/variables.scss" as vars;
+
+.ctaSection {
+  padding: 80px 0 120px;
+}
+
+.container {
+  max-width: 1068px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.ctaCard {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 40px;
+  padding: 80px 40px;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ctaButtons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+
+    @media (max-width: 576px) {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+}
+
+// Re-use các class button từ file chung nhưng tùy biến nhẹ cho CTA
+.btnPrimary {
+  background: vars.$primary-gradient;
+  padding: 16px 32px;
+  border-radius: 50px;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px -5px rgba(0, 255, 255, 0.4);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(51, 215, 209, 0.4);color: #fff;
+  }
+}
+
+.btnSecondary {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px 32px;
+  border-radius: 50px;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+}

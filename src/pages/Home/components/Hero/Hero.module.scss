@@ -1,0 +1,100 @@
+@use "../../../../components/styles/variables.scss" as vars;
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  .video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  padding: 0 20px;
+  max-width: 1068px;
+  text-align: center;
+}
+
+.heroBadge {
+  display: inline-block;
+  padding: 8px 16px;
+  background: rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(170, 59, 255, 0.2);
+  border-radius: 100px;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.8rem;
+  backdrop-filter: blur(10px);
+}
+
+.heroTitle {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-top: 14px;
+  color: #1e293b;
+  letter-spacing: 0.1rem; // Chỉnh lại cho đỡ bị thưa quá
+}
+
+.gradientText {
+  background: vars.$primary-gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.heroSearchWrapper {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-radius: 60px;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: vars.$shadow-lg;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-12px);
+    background: rgba(250, 246, 246, 0.9);
+  }
+}
+
+.premiumSearchWidget {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.btnSearchSubmit {
+  background: linear-gradient(135deg, #33d7d1 0%, #00ced1 50%, #008b8b 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(51, 215, 209, 0.3);
+  }
+}
+// Thêm các class con như searchField, fieldInfo từ file gốc của bạn vào đây...
