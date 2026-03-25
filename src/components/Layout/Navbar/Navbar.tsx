@@ -46,17 +46,12 @@ const Navbar: React.FC = () => {
           >
             Khám phá
           </Link>
+
           <Link
-            to="/itinerary"
-            className={isActive("/itinerary") ? styles.active : ""}
+            to="/sample"
+            className={isActive("/sample") ? styles.active : ""}
           >
-            Lộ trình
-          </Link>
-          <Link
-            to="/ai-suggestions"
-            className={isActive("/ai-suggestions") ? styles.active : ""}
-          >
-            Gợi ý AI
+            Lịch trình mẫu
           </Link>
           <Link to="/news" className={isActive("/news") ? styles.active : ""}>
             Tin tức

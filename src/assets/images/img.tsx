@@ -1,3 +1,3 @@
 import logo from "./img/logo.png";
-import dragonbridge from "./img/dragonbridge.jpg";
-export { logo, dragonbridge };
+import dragonBridge from "./img/dragonbridge.jpg";
+export { logo, dragonBridge };

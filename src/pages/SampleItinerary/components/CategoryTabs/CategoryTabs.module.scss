@@ -1,0 +1,38 @@
+.tabsContainer {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  padding-top: 120px;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+
+  .tabBtn {
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: 1px solid #edf2f7;
+    background: #fff;
+    color: #4a5568;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      border-color: #ff7a00;
+      color: #ff7a00;
+      background: #fffaf5;
+    }
+
+    &.active {
+      background: #ff7a00;
+      color: #fff;
+      border-color: #ff7a00;
+      box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
+    }
+  }
+}

@@ -37,22 +37,22 @@ $max-width: 1200px;
     &:has(> div:hover), 
     &:has(> div:has([data-is-playing="true"])) {
       > div {
-        flex: 0 0 calc(20% - 20px) !important; // Thu nhỏ các card khác
+        flex: 0 0 calc(25% - 20px) !important; // Thu nhỏ các card khác (từ 20% lên 25%)
         opacity: 0.6;
         filter: grayscale(0.5) blur(1px);
         @media (max-width: 1100px) {
-           flex: 0 0 calc(30% - 15px) !important;
+           flex: 0 0 calc(35% - 15px) !important;
         }
       }
 
       > div:hover,
       > div:has([data-is-playing="true"]) {
-        flex: 0 0 calc(60% - 10px) !important; // Mở rộng card đang chọn
+        flex: 0 0 calc(50% - 10px) !important; // Mở rộng card đang chọn (từ 60% xuống 50%)
         opacity: 1;
         filter: grayscale(0) blur(0);
         z-index: 10;
         @media (max-width: 1100px) {
-           flex: 0 0 calc(70% - 10px) !important;
+           flex: 0 0 calc(65% - 10px) !important;
         }
       }
     }
