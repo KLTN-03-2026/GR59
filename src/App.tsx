@@ -14,7 +14,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Planner from "./pages/Planner/Planner";
 import Profile from "./pages/Profile/Profile";
 import Admin from "./pages/Admin/AdminDashboard";
-import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import ForgotPassword from "./pages/Auth/ForgotPassword/ForgotPassword";
 
 function App() {
   return (
