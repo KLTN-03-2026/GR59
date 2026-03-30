@@ -36,7 +36,7 @@ const ExpertItinerary: React.FC = () => {
           </ul>
 
           <a
-            href="/optimization"
+            href="/sample"
             className={`${styles.btnPrimary} ${styles.shadowBtn}`}
           >
             Xem Lịch Trình Mẫu

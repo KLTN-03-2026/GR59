@@ -4,6 +4,8 @@
   background-color: transparent;
   position: relative;
   z-index: 2;
+  margin-top: 140px;
+  margin-bottom: 40px;
 }
 
 .headerWrapper {
@@ -141,8 +143,27 @@
   padding: 10px 5px 30px;
   scrollbar-width: none; // Firefox
 
-  &::-webkit-scrollbar {
-    display: none;
+  &.gridContent {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding-bottom: 50px;
+    height: auto;
+    overflow: visible;
+
+    @media (max-width: 992px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+
+    .locationCard {
+      flex: none;
+      width: 100%;
+      min-width: 0;
+    }
   }
 }
 
@@ -228,6 +249,7 @@
     margin-bottom: 17px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -276,16 +298,18 @@
   align-items: center;
   gap: 10px;
   padding: 14px 32px;
-  border: 2px solid #33d7d1;
-  color: #33d7d1;
+  color: white;
+  background-color: #33d7d1;
+  border: 1px solid #feffff;
   border-radius: 50px;
   font-weight: 700;
   text-decoration: none;
   transition: all 0.3s ease;
 
   &:hover {
-    background: #33d7d1;
-    color: white;
+    background: #f5f6f6;
+    color: #33d7d1;
+    border: 1px solid #33d7d1;
     box-shadow: 0 10px 20px rgba(51, 215, 209, 0.3);
   }
 }
