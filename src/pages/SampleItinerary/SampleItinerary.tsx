@@ -13,194 +13,14 @@ import AICustomCTA from "./components/AICustomCTA/AICustomCTA";
 
 // Import Types
 import type { ItineraryType, FilterState } from "./types";
+import { getSampleItineraries } from "../../services/itineraryService";
 
-// Dữ liệu mẫu (12 mục)
-const MOCK_ITINERARIES: ItineraryType[] = [
-  {
-    id: 1,
-    title: "Hành trình Di sản miền Trung",
-    image: "https://images.unsplash.com/photo-1559592490-67245a494447?q=80&w=800",
-    price: 1500000,
-    maxPeople: 5,
-    location: "Đà Nẵng",
-    duration: "3 Ngày 2 Đêm",
-    rating: 4.9,
-    category: "culture",
-    steps: [
-      { time: "08:00", activity: "Đón khách tại sân bay Đà Nẵng", dist: "2km từ TT" },
-      { time: "10:00", activity: "Check-in Bán đảo Sơn Trà", dist: "10km từ TT" },
-      { time: "12:00", activity: "Thưởng thức Mì Quảng chính gốc", dist: "3km từ TT" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Khám phá Phố Cổ Hội An",
-    image: "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=800",
-    price: 850000,
-    maxPeople: 2,
-    location: "Hội An",
-    duration: "1 Ngày",
-    rating: 4.8,
-    category: "culture",
-    steps: [
-      { time: "15:00", activity: "Di chuyển đi Hội An", dist: "30km từ TT" },
-      { time: "17:00", activity: "Thăm Chùa Cầu & Nhà Cổ", dist: "30.5km từ TT" },
-      { time: "19:00", activity: "Ăn tối & Thả đèn hoa đăng", dist: "30.5km từ TT" },
-    ],
-  },
-  {
-    id: 3,
-    title: "Nghỉ dưỡng biển Mỹ Khê",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800",
-    price: 2500000,
-    maxPeople: 4,
-    location: "Đà Nẵng",
-    duration: "2 Ngày 1 Đêm",
-    rating: 4.9,
-    category: "beach",
-    steps: [
-      { time: "09:00", activity: "Tắm biển & Chụp hình", dist: "1km từ TT" },
-      { time: "14:00", activity: "Chơi các trò chơi nước", dist: "1.2km từ TT" },
-    ],
-  },
-  {
-    id: 4,
-    title: "Tour Tiết Kiệm Ngũ Hành Sơn",
-    image: "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=800",
-    price: 450000,
-    maxPeople: 10,
-    location: "Đà Nẵng",
-    duration: "1 Ngày",
-    rating: 4.7,
-    category: "nature",
-    steps: [
-      { time: "08:30", activity: "Thăm làng đá Non Nước", dist: "12km từ TT" },
-      { time: "10:00", activity: "Leo núi Ngũ Hành Sơn", dist: "12km từ TT" },
-    ],
-  },
-  {
-    id: 5,
-    title: "Chinh phục đỉnh Bàn Cờ",
-    image: "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
-    price: 600000,
-    maxPeople: 2,
-    location: "Đà Nẵng",
-    duration: "Half day",
-    rating: 4.6,
-    category: "adventure",
-    steps: [
-      { time: "05:00", activity: "Đón bình minh đỉnh Bàn Cờ", dist: "15km từ TT" },
-      { time: "07:30", activity: "Ăn sáng cafe view biển", dist: "5km từ TT" },
-    ],
-  },
-  {
-    id: 6,
-    title: "Lặn ngắm san hô Cù Lao Chàm",
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800",
-    price: 1200000,
-    maxPeople: 8,
-    location: "Hội An",
-    duration: "1 Ngày",
-    rating: 4.8,
-    category: "beach",
-    steps: [
-      { time: "08:00", activity: "Cano đi Cù Lao Chàm", dist: "45km từ TT" },
-      { time: "10:30", activity: "Lặn ngắm san hô bãi Bắc", dist: "46km từ TT" },
-    ],
-  },
-  {
-    id: 7,
-    title: "Camping Rừng Dừa Bảy Mẫu",
-    image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=800",
-    price: 950000,
-    maxPeople: 15,
-    location: "Hội An",
-    duration: "2 Ngày 1 Đêm",
-    rating: 4.5,
-    category: "nature",
-    steps: [
-      { time: "14:00", activity: "Check-in lều trại", dist: "35km từ TT" },
-      { time: "19:00", activity: "Tiệc BBQ ngoài trời", dist: "35km từ TT" },
-    ],
-  },
-  {
-    id: 8,
-    title: "City Tour Đà Nẵng về đêm",
-    image: "https://images.unsplash.com/photo-1599708153386-efdb71593ef0?q=80&w=800",
-    price: 350000,
-    maxPeople: 4,
-    location: "Đà Nẵng",
-    duration: "4 Tiếng",
-    rating: 4.7,
-    category: "culture",
-    steps: [
-      { time: "19:00", activity: "Ngắm Cầu Rồng phun lửa", dist: "0km từ TT" },
-      { time: "21:00", activity: "Dạo Chợ đêm Sơn Trà", dist: "1km từ TT" },
-    ],
-  },
-  {
-    id: 9,
-    title: "Yoga thiền tại rừng Sơn Trà",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800",
-    price: 700000,
-    maxPeople: 6,
-    location: "Đà Nẵng",
-    duration: "1 Ngày",
-    rating: 4.9,
-    category: "nature",
-    steps: [
-      { time: "06:00", activity: "Yoga đón bình minh", dist: "12km từ TT" },
-      { time: "09:00", activity: "Thiền trà thảo mộc", dist: "12km từ TT" },
-    ],
-  },
-  {
-    id: 10,
-    title: "Trekking Suối Mơ - Ba Na",
-    image: "https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=800",
-    price: 550000,
-    maxPeople: 12,
-    location: "Đà Nẵng",
-    duration: "1 Ngày",
-    rating: 4.6,
-    category: "adventure",
-    steps: [
-      { time: "07:30", activity: "Leo núi lội suối", dist: "25km từ TT" },
-      { time: "12:00", activity: "Ăn trưa picnic bên suối", dist: "26km từ TT" },
-    ],
-  },
-  {
-    id: 11,
-    title: "Tham quan Thánh địa Mỹ Sơn",
-    image: "https://images.unsplash.com/photo-1590424600010-84518429661c?q=80&w=800",
-    price: 1100000,
-    maxPeople: 4,
-    location: "Hội An",
-    duration: "1 Ngày",
-    rating: 4.8,
-    category: "culture",
-    steps: [
-      { time: "08:30", activity: "Khám phá tháp cổ Chăm Pa", dist: "50km từ TT" },
-      { time: "11:30", activity: "Thưởng thức múa Apsara", dist: "50km từ TT" },
-    ],
-  },
-  {
-    id: 12,
-    title: "Tiệc tối lãng mạn ven biển",
-    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=800",
-    price: 3200000,
-    maxPeople: 2,
-    location: "Đà Nẵng",
-    duration: "3 Tiếng",
-    rating: 5.0,
-    category: "beach",
-    steps: [
-      { time: "18:00", activity: "Đón hoàng hôn trên biển", dist: "2km từ TT" },
-      { time: "19:30", activity: "Tiệc tối 5 sao private", dist: "2km từ TT" },
-    ],
-  },
-];
 
 const SampleItinerary: React.FC = () => {
+  const [itineraries, setItineraries] = useState<ItineraryType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [filters, setFilters] = useState<FilterState>({
     location: "all",
     priceRange: "all",
@@ -212,6 +32,20 @@ const SampleItinerary: React.FC = () => {
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
+    const fetchItineraries = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getSampleItineraries();
+        setItineraries(response.data.DT);
+      } catch (err) {
+        console.error("Lỗi khi lấy lộ trình mẫu:", err);
+        setError("Không thể tải dữ liệu lộ trình. Vui lòng thử lại sau.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItineraries();
     AOS.init({
       duration: 1000,
       once: true,
@@ -220,7 +54,8 @@ const SampleItinerary: React.FC = () => {
   }, []);
 
   const filteredData = useMemo(() => {
-    return MOCK_ITINERARIES.filter((item) => {
+    if (!itineraries) return [];
+    return itineraries.filter((item) => {
       const matchLoc = filters.location === "all" || item.location === filters.location;
       const matchPeople = item.maxPeople >= filters.people;
       
@@ -233,7 +68,7 @@ const SampleItinerary: React.FC = () => {
 
       return matchLoc && matchPeople && matchPrice && matchCat;
     });
-  }, [filters, activeCategory]);
+  }, [filters, activeCategory, itineraries]);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -263,7 +98,17 @@ const SampleItinerary: React.FC = () => {
           </div>
 
           <div className={styles.itineraryGrid}>
-            {displayedData.length > 0 ? (
+            {isLoading ? (
+              <div className={styles.loadingState}>
+                <div className={styles.spinner}></div>
+                <p>Đang tải dữ liệu lộ trình...</p>
+              </div>
+            ) : error ? (
+              <div className={styles.errorState}>
+                <p>{error}</p>
+                <button onClick={() => window.location.reload()} className={styles.retryBtn}>Thử lại</button>
+              </div>
+            ) : displayedData.length > 0 ? (
               displayedData.map((itinerary, index) => (
                 <div key={itinerary.id} data-aos="fade-up" data-aos-delay={index * 100}>
                   <ItineraryCard data={itinerary} />

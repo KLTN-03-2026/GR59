@@ -1,16 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   RocketLaunch,
   Compass,
   MapPin,
-  CalendarBlank,
   Users,
   Sparkle,
+  CurrencyCircleDollar,
 } from "phosphor-react";
 
-import flatpickr from "flatpickr";
-import "flatpickr/dist/flatpickr.min.css"; // Đảm bảo đã import CSS của thư viện
+import { toast } from "react-toastify";
 import VideoHome from "../../../../assets/video/Da_Nang.mp4";
 import styles from "../../Home.module.scss";
 
@@ -83,57 +82,56 @@ const VIETNAM_PROVINCES = [
 const Hero: React.FC = () => {
   const navigate = useNavigate();
   const [dest, setDest] = useState("");
-  const [dates, setDates] = useState("");
+  const [budget, setBudget] = useState("");
   const [guests, setGuests] = useState("");
 
-  const dateInputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
-    if (!dateInputRef.current) return;
-
-    // Khởi tạo Flatpickr
-    const fp = flatpickr(dateInputRef.current, {
-      mode: "range",
-      minDate: "today",
-      dateFormat: "d/m/Y",
-      allowInput: false,
-      locale: {
-        rangeSeparator: " - ",
-      },
-      // Cập nhật state ngay khi người dùng chọn ngày
-      onChange: (selectedDates, dateStr) => {
-        setDates(dateStr);
-      },
-    });
-
-    // Cleanup khi component bị hủy (Tránh rò rỉ bộ nhớ)
-    return () => {
-      if (fp) {
-        if (Array.isArray(fp)) {
-          // Nếu là mảng, duyệt qua từng cái để destroy
-          fp.forEach((instance) => instance.destroy());
-        } else {
-          // Nếu là đối tượng đơn lẻ
-          fp.destroy();
-        }
-      }
-    };
+    // Không còn khởi tạo Flatpickr ở Hero, người dùng sẽ chọn ngày ở Planner
   }, []);
+
+  const checkAuth = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warn("Vui lòng đăng nhập để bắt đầu hành trình của bạn! 👋");
+      navigate("/auth");
+      return false;
+    }
+    return true;
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!checkAuth()) return;
+
     // 1. Đóng gói dữ liệu vào một Object
     const tripData = {
       destination: dest,
-      dateRange: dates,
+      budget: budget,
       totalGuests: guests,
-      // Bạn có thể thêm các thông tin ẩn khác ở đây
       searchAt: new Date().toISOString(),
     };
 
     // 2. Truyền đi thông qua tham số thứ 2 của navigate
     navigate("/planner", { state: tripData });
+  };
+
+  const handleStartJourney = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warn("Chào bạn! Hãy đăng nhập để bắt đầu lên kế hoạch nhé! ✨");
+      navigate("/auth");
+      return;
+    }
+    navigate("/planner", {
+      state: {
+        destination: dest,
+        budget: budget,
+        totalGuests: guests,
+        searchAt: new Date().toISOString(),
+      },
+    });
   };
 
   return (
@@ -171,7 +169,11 @@ const Hero: React.FC = () => {
           data-aos="fade-up"
           data-aos-delay="800"
         >
-          <Link to="/planner" className={`${styles.btn} ${styles.btnPrimary}`}>
+          <Link
+            to="/planner"
+            onClick={handleStartJourney}
+            className={`${styles.btn} ${styles.btnPrimary}`}
+          >
             <RocketLaunch weight="fill" /> Bắt đầu hành trình
           </Link>
           <Link
@@ -217,18 +219,16 @@ const Hero: React.FC = () => {
             {/* Field: Ngày tháng */}
             <div className={styles.searchField}>
               <div className={styles.fieldIcon}>
-                <CalendarBlank weight="duotone" />
+                <CurrencyCircleDollar weight="duotone" />
               </div>
               <div className={styles.fieldInfo}>
-                <label>Ngày đi - Ngày về</label>
+                <label>Ngân sách</label>
                 <input
                   type="text"
-                  ref={dateInputRef}
-                  id="dates-input"
-                  placeholder="Thêm ngày"
+                  placeholder="Ngân sách dự kiến"
                   required
-                  // value={dates} // Bỏ value để Flatpickr tự quản lý UI, tránh bị React reset khi re-render
-                  readOnly // Quan trọng: Để Flatpickr kiểm soát hoàn toàn
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
                 />
               </div>
             </div>

@@ -11,123 +11,32 @@ import FilterBar from "./components/FilterBar/FilterBar";
 import TravelCard from "./components/TravelCard/TravelCard";
 import AIRecommendations from "./components/AIRecommendations/AIRecommendations";
 
-const MOCK_DATA = [
-  {
-    id: 1,
-    title: "Nhà hàng Biển Xanh",
-    rating: 4.8,
-    distance: "1.2km",
-    description: "Hải sản tươi sống",
-    category: "restaurant",
-    image: "https://picsum.photos/400/300",
-    isHot: true,
-    previewVideo: VideoHome,
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1555510544-4464392c427f?auto=format&fit=crop&w=800&q=80",
-    title: "Phố Cổ Hội An",
-    rating: 4.8,
-    distance: "800km",
-    description: "Vẻ đẹp hoài cổ về đêm",
-    category: "culture",
-    previewVideo:
-      "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761",
-  },
-  {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&w=800&q=80",
-    title: "Bà Nà Hills",
-    rating: 4.7,
-    distance: "750km",
-    description: "Đường lên tiên cảnh",
-    category: "popular",
-    previewVideo:
-      "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761",
-  },
-  {
-    id: 4,
-    image:
-      "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=800&q=80",
-    title: "Đảo Phú Quốc",
-    rating: 4.9,
-    distance: "1200km",
-    description: "Thiên đường nghỉ dưỡng",
-    category: "beach",
-    previewVideo:
-      "https://player.vimeo.com/external/403814144.sd.mp4?s=6953f93c20058b845dfd7cd6ecf7b49cb2e0ef75&profile_id=139&oauth2_token_id=57447761",
-  },
-  {
-    id: 5,
-    title: "Vịnh Hạ Long",
-    rating: 4.9,
-    distance: "150km",
-    description: "Kỳ quan thiên nhiên thế giới",
-    category: "popular",
-    image: "https://images.unsplash.com/photo-1559592442-7e18ad73d631?auto=format&fit=crop&w=800&q=80",
-    previewVideo: "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761",
-  },
-  {
-    id: 6,
-    title: "Sapa - Fansipan",
-    rating: 4.8,
-    distance: "300km",
-    description: "Nóc nhà Đông Dương",
-    category: "popular",
-    image: "https://images.unsplash.com/photo-1504457047772-27fad17438e2?auto=format&fit=crop&w=800&q=80",
-    previewVideo: VideoHome,
-  },
-  {
-    id: 7,
-    title: "Cố đô Huế",
-    rating: 4.7,
-    distance: "700km",
-    description: "Di sản văn hóa cố đô",
-    category: "culture",
-    image: "https://images.unsplash.com/photo-1599708153386-efdb71593ef0?auto=format&fit=crop&w=800&q=80",
-    previewVideo: VideoHome,
-  },
-  {
-    id: 8,
-    title: "Mũi Né - Phan Thiết",
-    rating: 4.6,
-    distance: "1600km",
-    description: "Đồi cát bay và biển xanh",
-    category: "beach",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
-    previewVideo: VideoHome,
-  },
-  {
-    id: 9,
-    title: "Chợ Bến Thành",
-    rating: 4.5,
-    distance: "1700km",
-    description: "Biểu tượng Sài Gòn",
-    category: "popular",
-    image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=800&q=80",
-    previewVideo: VideoHome,
-  },
-  {
-    id: 10,
-    title: "Nha Trang Beach",
-    rating: 4.8,
-    distance: "1300km",
-    description: "Vịnh biển đẹp nhất thế giới",
-    category: "beach",
-    image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80",
-    previewVideo: VideoHome,
-  },
-];
+import { getPlaces, type HighlightItem } from "../../services/highlightService";
 
 const Explore: React.FC = () => {
+  const [places, setPlaces] = useState<HighlightItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getPlaces();
+        setPlaces(response.data.DT);
+      } catch (err) {
+        console.error("Lỗi khi tải dữ liệu khám phá:", err);
+        setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPlaces();
     AOS.init({
       duration: 800,
       once: true,
@@ -146,7 +55,7 @@ const Explore: React.FC = () => {
     setCurrentPage(1); // Reset to first page when changing category
   };
 
-  const filteredData = MOCK_DATA.filter((item) => {
+  const filteredData = places.filter((item) => {
     const matchesCategory =
       activeCategory === "all" || item.category === activeCategory;
     const matchesSearch = item.title
@@ -183,14 +92,32 @@ const Explore: React.FC = () => {
         </div>
 
         <div className={styles.cardGrid}>
-          {displayedData.length > 0 ? (
+          {isLoading ? (
+            <div className={styles.loadingState}>
+              <div className={styles.spinner}></div>
+              <p>Đang tải dữ liệu khám phá...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.errorState}>
+              <p>{error}</p>
+              <button onClick={() => window.location.reload()} className={styles.retryBtn}>Thử lại</button>
+            </div>
+          ) : displayedData.length > 0 ? (
             displayedData.map((location, index) => (
               <div
                 key={location.id}
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
               >
-                <TravelCard {...location} />
+                <TravelCard
+                  image={location.img}
+                  title={location.title}
+                  rating={Number(location.rating)}
+                  distance="800km" // Giả định khoảng cách
+                  description={location.desc}
+                  isHot={location.isHot}
+                  previewVideo={location.previewVideo || VideoHome}
+                />
               </div>
             ))
           ) : (

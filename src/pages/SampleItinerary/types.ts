@@ -5,15 +5,16 @@ export interface TimelineStep {
 }
 
 export interface ItineraryType {
-  id: number;
+  id: string | number;
   title: string;
-  image: string;
+  img: string;
   price: number;
   maxPeople: number;
   location: string;
   duration: string;
   rating: number;
-  category: "all" | "beach" | "culture" | "nature" | "adventure";
+  category: string;
+  type?: string;
   steps: TimelineStep[];
 }
 

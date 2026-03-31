@@ -23,132 +23,6 @@
     }
   ],
   "travel-plans": [],
-  "highlight_locations": [
-    {
-      "id": "1",
-      "title": "Phố cổ Hội An",
-      "location": "Quảng Nam",
-      "rating": "4.8",
-      "reviews": "1.2k",
-      "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
-      "desc": "Hội An nổi tiếng với vẻ đẹp lãng mạn, cổ kính, yên bình với những ngôi nhà cổ.",
-      "type": "pin"
-    },
-    {
-      "id": "2",
-      "title": "Vịnh Hạ Long",
-      "location": "Quảng Ninh",
-      "rating": "4.9",
-      "reviews": "3.5k",
-      "img": "https://images.unsplash.com/photo-1528605105345-5344ea20e269?auto=format&fit=crop&q=80&w=800",
-      "desc": "Di sản thiên nhiên thế giới với hàng nghìn hòn đảo kỳ vĩ, hang động tuyệt đẹp.",
-      "type": "pin"
-    },
-    {
-      "id": "3",
-      "title": "Thành phố Đà Lạt",
-      "location": "Lâm Đồng",
-      "rating": "4.7",
-      "reviews": "2.8k",
-      "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
-      "desc": "Thành phố ngàn hoa với khí hậu mát mẻ quanh năm và nhiều cảnh điểm lãng mạn.",
-      "type": "pin"
-    },
-    {
-      "id": "4",
-      "title": "Cố đô Huế",
-      "location": "Thừa Thiên Huế",
-      "rating": "4.8",
-      "reviews": "2.1k",
-      "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
-      "desc": "Quần thể di tích lịch sử với cung điện, lăng tẩm mang đậm dấu ấn triều Nguyễn.",
-      "type": "pin"
-    },
-    {
-      "id": "5",
-      "title": "Đảo Ngọc Phú Quốc",
-      "location": "Kiên Giang",
-      "rating": "4.9",
-      "reviews": "4.2k",
-      "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
-      "desc": "Thiên đường nghỉ dưỡng với những bãi cát trắng mịn và làn nước trong xanh.",
-      "type": "pin"
-    }
-    
-  ],
-  "highlight_hotels": [
-    {
-      "id": "4",
-      "title": "InterContinental Resort",
-      "location": "Đà Nẵng",
-      "rating": "4.9",
-      "reviews": "2.2k",
-      "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
-      "desc": "Khu nghỉ dưỡng sang trọng bậc nhất tọa lạc tại bán đảo Sơn Trà.",
-      "type": "bed"
-    },
-    {
-      "id": "5",
-      "title": "Topas Ecolodge",
-      "location": "Sapa",
-      "rating": "4.7",
-      "reviews": "1.8k",
-      "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
-      "desc": "Trải nghiệm nghỉ dưỡng giữa thiên nhiên hoang sơ với hồ bơi vô cực.",
-      "type": "bed"
-    },
-    {
-      "id": "9",
-      "title": "Six Senses Ninh Van Bay",
-      "location": "Nha Trang",
-      "rating": "4.9",
-      "reviews": "1.5k",
-      "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
-      "desc": "Khu nghỉ dưỡng biệt lập với các villa nằm giữa vách đá và biển cả.",
-      "type": "bed"
-    },
-    {
-      "id": "10",
-      "title": "Hotel de la Coupole",
-      "location": "Sapa",
-      "rating": "4.8",
-      "reviews": "2.5k",
-      "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
-      "desc": "Sự kết hợp hoàn hảo giữa văn hóa bản địa Sapa và phong cách Pháp thượng lưu.",
-      "type": "bed"
-    }
-  ],
-  "highlight_restaurants": [
-    {
-      "id": "6",
-      "title": "Nhà hàng Gạo",
-      "location": "TP HCM",
-      "rating": "4.5",
-      "reviews": "950",
-      "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
-      "desc": "Mang đến hương vị ẩm thực Việt Nam tinh tế giữa không gian Đông Dương.",
-      "type": "food"
-    },{
-      "id": "11",
-      "title": "Pizza 4P's Bến Thành",
-      "location": "TP HCM",
-      "rating": "4.8",
-      "reviews": "5.6k",
-      "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
-      "desc": "Ẩm thực Ý mang phong cách Nhật Bản với phô mai thủ công tự làm nổi tiếng.",
-      "type": "food"
-    },
-    {
-      "id": "12",
-      "title": "Tầm Vị",
-      "location": "Hà Nội",
-      "rating": "4.6",
-      "reviews": "1.1k",
-      "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
-      "desc": "Nhà hàng đạt sao Michelin với mâm cơm gia đình miền Bắc truyền thống.",
-      "type": "food"
-    }
-  ],
   "testimonials": [
     {
       "id": "1",
@@ -176,6 +50,411 @@
       "color": "bgPurple",
       "text": "Tính năng bản đồ kéo thả hoạt động cực mượt. Có thêm cảnh báo thời tiết là điểm cộng!",
       "delay": "500"
+    }
+  ],
+  "places": [
+    {
+      "id": "1",
+      "title": "Phố cổ Hội An",
+      "location": "Quảng Nam",
+      "rating": "4.8",
+      "reviews": "1.2k",
+      "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
+      "desc": "Hội An nổi tiếng với vẻ đẹp lãng mạn, cổ kính, yên bình với những ngôi nhà cổ.",
+      "type": "pin",
+      "category": "culture",
+      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "2",
+      "title": "Vịnh Hạ Long",
+      "location": "Quảng Ninh",
+      "rating": "4.9",
+      "reviews": "3.5k",
+      "img": "https://images.unsplash.com/photo-1528605105345-5344ea20e269?auto=format&fit=crop&q=80&w=800",
+      "desc": "Di sản thiên nhiên thế giới với hàng nghìn hòn đảo kỳ vĩ, hang động tuyệt đẹp.",
+      "type": "pin",
+      "category": "popular",
+      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "3",
+      "title": "Thành phố Đà Lạt",
+      "location": "Lâm Đồng",
+      "rating": "4.7",
+      "reviews": "2.8k",
+      "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
+      "desc": "Thành phố ngàn hoa với khí hậu mát mẻ quanh năm và nhiều cảnh điểm lãng mạn.",
+      "type": "pin",
+      "category": "nature",
+      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "4",
+      "title": "Cố đô Huế",
+      "location": "Thừa Thiên Huế",
+      "rating": "4.8",
+      "reviews": "2.1k",
+      "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
+      "desc": "Quần thể di tích lịch sử với cung điện, lăng tẩm mang đậm dấu ấn triều Nguyễn.",
+      "type": "pin",
+      "category": "culture",
+      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "5",
+      "title": "Đảo Ngọc Phú Quốc",
+      "location": "Kiên Giang",
+      "rating": "4.9",
+      "reviews": "4.2k",
+      "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
+      "desc": "Thiên đường nghỉ dưỡng với những bãi cát trắng mịn và làn nước trong xanh.",
+      "type": "pin",
+      "category": "beach",
+      "previewVideo": "https://player.vimeo.com/external/403814144.sd.mp4?s=6953f93c20058b845dfd7cd6ecf7b49cb2e0ef75&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "6",
+      "title": "InterContinental Resort",
+      "location": "Đà Nẵng",
+      "rating": "4.9",
+      "reviews": "2.2k",
+      "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
+      "desc": "Khu nghỉ dưỡng sang trọng bậc nhất tọa lạc tại bán đảo Sơn Trà.",
+      "type": "bed",
+      "category": "popular",
+      "previewVideo": "https://player.vimeo.com/external/403814144.sd.mp4?s=6953f93c20058b845dfd7cd6ecf7b49cb2e0ef75&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "7",
+      "title": "Topas Ecolodge",
+      "location": "Sapa",
+      "rating": "4.7",
+      "reviews": "1.8k",
+      "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
+      "desc": "Trải nghiệm nghỉ dưỡng giữa thiên nhiên hoang sơ với hồ bơi vô cực.",
+      "type": "bed",
+      "category": "nature"
+    },
+    {
+      "id": "8",
+      "title": "Six Senses Ninh Van Bay",
+      "location": "Nha Trang",
+      "rating": "4.9",
+      "reviews": "1.5k",
+      "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
+      "desc": "Khu nghỉ dưỡng biệt lập với các villa nằm giữa vách đá và biển cả.",
+      "type": "bed",
+      "category": "beach"
+    },
+    {
+      "id": "9",
+      "title": "Hotel de la Coupole",
+      "location": "Sapa",
+      "rating": "4.8",
+      "reviews": "2.5k",
+      "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
+      "desc": "Sự kết hợp hoàn hảo giữa văn hóa bản địa Sapa và phong cách Pháp thượng lưu.",
+      "type": "bed",
+      "category": "culture"
+    },
+    {
+      "id": "10",
+      "title": "Nhà hàng Gạo",
+      "location": "TP HCM",
+      "rating": "4.5",
+      "reviews": "950",
+      "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
+      "desc": "Mang đến hương vị ẩm thực Việt Nam tinh tế giữa không gian Đông Dương.",
+      "type": "food",
+      "category": "restaurant"
+    },
+    {
+      "id": "11",
+      "title": "Pizza 4P's Bến Thành",
+      "location": "TP HCM",
+      "rating": "4.8",
+      "reviews": "5.6k",
+      "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
+      "desc": "Ẩm thực Ý mang phong cách Nhật Bản với phô mai thủ công tự làm nổi tiếng.",
+      "type": "food",
+      "category": "restaurant"
+    },
+    {
+      "id": "12",
+      "title": "Tầm Vị",
+      "location": "Hà Nội",
+      "rating": "4.6",
+      "reviews": "1.1k",
+      "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
+      "desc": "Nhà hàng đạt sao Michelin với mâm cơm gia đình miền Bắc truyền thống.",
+      "type": "food",
+      "category": "restaurant"
+    },
+    {
+      "id": "13",
+      "title": "Nhà hàng Biển Xanh",
+      "location": "Đà Nẵng",
+      "rating": "4.8",
+      "reviews": "1.2k",
+      "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
+      "desc": "Hải sản tươi sống bên bờ biển.",
+      "type": "food",
+      "category": "restaurant",
+      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "14",
+      "title": "Bà Nà Hills",
+      "location": "Đà Nẵng",
+      "rating": "4.7",
+      "reviews": "10k",
+      "img": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&q=80&w=800",
+      "desc": "Đường lên tiên cảnh với Cầu Vàng nổi tiếng thế giới.",
+      "type": "pin",
+      "category": "popular",
+      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "15",
+      "title": "Sapa - Fansipan",
+      "location": "Lào Cai",
+      "rating": "4.8",
+      "reviews": "8.5k",
+      "img": "https://images.unsplash.com/photo-1504457047772-27fad17438e2?auto=format&fit=crop&q=80&w=800",
+      "desc": "Nóc nhà Đông Dương với biển mây bạt ngàn.",
+      "type": "pin",
+      "category": "popular",
+      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "16",
+      "title": "Mũi Né - Phan Thiết",
+      "location": "Bình Thuận",
+      "rating": "4.6",
+      "reviews": "5.2k",
+      "img": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800",
+      "desc": "Đồi cát bay và biển xanh nắng vàng.",
+      "type": "pin",
+      "category": "beach",
+      "previewVideo": "https://player.vimeo.com/external/403814144.sd.mp4?s=6953f93c20058b845dfd7cd6ecf7b49cb2e0ef75&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "17",
+      "title": "Chợ Bến Thành",
+      "location": "TP HCM",
+      "rating": "4.5",
+      "reviews": "15.6k",
+      "img": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=800",
+      "desc": "Biểu tượng văn hóa và ẩm thực của Sài Gòn.",
+      "type": "pin",
+      "category": "popular",
+      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+    },
+    {
+      "id": "18",
+      "title": "Bãi biển Nha Trang",
+      "location": "Khánh Hòa",
+      "rating": "4.8",
+      "reviews": "12.5k",
+      "img": "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&q=80&w=800",
+      "desc": "Vịnh biển đẹp nhất thế giới với nhiều hoạt động giải trí.",
+      "type": "pin",
+      "category": "beach"
+    },
+    {
+      "id": "19",
+      "title": "Hành trình Di sản miền Trung",
+      "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?q=80&w=800",
+      "price": 1500000,
+      "maxPeople": 5,
+      "location": "Đà Nẵng",
+      "duration": "3 Ngày 2 Đêm",
+      "rating": 4.9,
+      "category": "culture",
+      "type": "itinerary",
+      "steps": [
+        { "time": "08:00", "activity": "Đón khách tại sân bay Đà Nẵng", "dist": "2km từ TT" },
+        { "time": "10:00", "activity": "Check-in Bán đảo Sơn Trà", "dist": "10km từ TT" },
+        { "time": "12:00", "activity": "Thưởng thức Mì Quảng chính gốc", "dist": "3km từ TT" }
+      ]
+    },
+    {
+      "id": "20",
+      "title": "Khám phá Phố Cổ Hội An",
+      "img": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=800",
+      "price": 850000,
+      "maxPeople": 2,
+      "location": "Hội An",
+      "duration": "1 Ngày",
+      "rating": 4.8,
+      "category": "culture",
+      "type": "itinerary",
+      "steps": [
+        { "time": "15:00", "activity": "Di chuyển đi Hội An", "dist": "30km từ TT" },
+        { "time": "17:00", "activity": "Thăm Chùa Cầu & Nhà Cổ", "dist": "30.5km từ TT" },
+        { "time": "19:00", "activity": "Ăn tối & Thả đèn hoa đăng", "dist": "30.5km từ TT" }
+      ]
+    },
+    {
+      "id": "21",
+      "title": "Nghỉ dưỡng biển Mỹ Khê",
+      "img": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800",
+      "price": 2500000,
+      "maxPeople": 4,
+      "location": "Đà Nẵng",
+      "duration": "2 Ngày 1 Đêm",
+      "rating": 4.9,
+      "category": "beach",
+      "type": "itinerary",
+      "steps": [
+        { "time": "09:00", "activity": "Tắm biển & Chụp hình", "dist": "1km từ TT" },
+        { "time": "14:00", "activity": "Chơi các trò chơi nước", "dist": "1.2km từ TT" }
+      ]
+    },
+    {
+      "id": "22",
+      "title": "Tour Tiết Kiệm Ngũ Hành Sơn",
+      "img": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=800",
+      "price": 450000,
+      "maxPeople": 10,
+      "location": "Đà Nẵng",
+      "duration": "1 Ngày",
+      "rating": 4.7,
+      "category": "nature",
+      "type": "itinerary",
+      "steps": [
+        { "time": "08:30", "activity": "Thăm làng đá Non Nước", "dist": "12km từ TT" },
+        { "time": "10:00", "activity": "Leo núi Ngũ Hành Sơn", "dist": "12km từ TT" }
+      ]
+    },
+    {
+      "id": "23",
+      "title": "Chinh phục đỉnh Bàn Cờ",
+      "img": "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
+      "price": 600000,
+      "maxPeople": 2,
+      "location": "Đà Nẵng",
+      "duration": "Half day",
+      "rating": 4.6,
+      "category": "adventure",
+      "type": "itinerary",
+      "steps": [
+        { "time": "05:00", "activity": "Đón bình minh đỉnh Bàn Cờ", "dist": "15km từ TT" },
+        { "time": "07:30", "activity": "Ăn sáng cafe view biển", "dist": "5km từ TT" }
+      ]
+    },
+    {
+      "id": "24",
+      "title": "Lặn ngắm san hô Cù Lao Chàm",
+      "img": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800",
+      "price": 1200000,
+      "maxPeople": 8,
+      "location": "Hội An",
+      "duration": "1 Ngày",
+      "rating": 4.8,
+      "category": "beach",
+      "type": "itinerary",
+      "steps": [
+        { "time": "08:00", "activity": "Cano đi Cù Lao Chàm", "dist": "45km từ TT" },
+        { "time": "10:30", "activity": "Lặn ngắm san hô bãi Bắc", "dist": "46km từ TT" }
+      ]
+    },
+    {
+      "id": "25",
+      "title": "Camping Rừng Dừa Bảy Mẫu",
+      "img": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=800",
+      "price": 950000,
+      "maxPeople": 15,
+      "location": "Hội An",
+      "duration": "2 Ngày 1 Đêm",
+      "rating": 4.5,
+      "category": "nature",
+      "type": "itinerary",
+      "steps": [
+        { "time": "14:00", "activity": "Check-in lều trại", "dist": "35km từ TT" },
+        { "time": "19:00", "activity": "Tiệc BBQ ngoài trời", "dist": "35km từ TT" }
+      ]
+    },
+    {
+      "id": "26",
+      "title": "City Tour Đà Nẵng về đêm",
+      "img": "https://images.unsplash.com/photo-1599708153386-efdb71593ef0?q=80&w=800",
+      "price": 350000,
+      "maxPeople": 4,
+      "location": "Đà Nẵng",
+      "duration": "4 Tiếng",
+      "rating": 4.7,
+      "category": "culture",
+      "type": "itinerary",
+      "steps": [
+        { "time": "19:00", "activity": "Ngắm Cầu Rồng phun lửa", "dist": "0km từ TT" },
+        { "time": "21:00", "activity": "Dạo Chợ đêm Sơn Trà", "dist": "1km từ TT" }
+      ]
+    },
+    {
+      "id": "27",
+      "title": "Yoga thiền tại rừng Sơn Trà",
+      "img": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800",
+      "price": 700000,
+      "maxPeople": 6,
+      "location": "Đà Nẵng",
+      "duration": "1 Ngày",
+      "rating": 4.9,
+      "category": "nature",
+      "type": "itinerary",
+      "steps": [
+        { "time": "06:00", "activity": "Yoga đón bình minh", "dist": "12km từ TT" },
+        { "time": "09:00", "activity": "Thiền trà thảo mộc", "dist": "12km từ TT" }
+      ]
+    },
+    {
+      "id": "28",
+      "title": "Trekking Suối Mơ - Ba Na",
+      "img": "https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=800",
+      "price": 550000,
+      "maxPeople": 12,
+      "location": "Đà Nẵng",
+      "duration": "1 Ngày",
+      "rating": 4.6,
+      "category": "adventure",
+      "type": "itinerary",
+      "steps": [
+        { "time": "07:30", "activity": "Leo núi lội suối", "dist": "25km từ TT" },
+        { "time": "12:00", "activity": "Ăn trưa picnic bên suối", "dist": "26km từ TT" }
+      ]
+    },
+    {
+      "id": "29",
+      "title": "Tham quan Thánh địa Mỹ Sơn",
+      "img": "https://images.unsplash.com/photo-1590424600010-84518429661c?q=80&w=800",
+      "price": 1100000,
+      "maxPeople": 4,
+      "location": "Hội An",
+      "duration": "1 Ngày",
+      "rating": 4.8,
+      "category": "culture",
+      "type": "itinerary",
+      "steps": [
+        { "time": "08:30", "activity": "Khám phá tháp cổ Chăm Pa", "dist": "50km từ TT" },
+        { "time": "11:30", "activity": "Thưởng thức múa Apsara", "dist": "50km từ TT" }
+      ]
+    },
+    {
+      "id": "30",
+      "title": "Tiệc tối lãng mạn ven biển",
+      "img": "https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=800",
+      "price": 3200000,
+      "maxPeople": 2,
+      "location": "Đà Nẵng",
+      "duration": "3 Tiếng",
+      "rating": 5.0,
+      "category": "beach",
+      "type": "itinerary",
+      "steps": [
+        { "time": "18:00", "activity": "Đón hoàng hôn trên biển", "dist": "2km từ TT" },
+        { "time": "19:30", "activity": "Tiệc tối 5 sao private", "dist": "2km từ TT" }
+      ]
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

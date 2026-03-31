@@ -11,7 +11,7 @@ const ItineraryCard: React.FC<Props> = ({ data }) => {
   return (
     <div className={styles.card}>
       <div className={styles.imageWrapper}>
-        <img src={data.image} alt={data.title} loading="lazy" />
+        <img src={data.img} alt={data.title} loading="lazy" />
         <div className={styles.overlayTags}>
           <span className={styles.priceBadge}>
             <Coins size={16} weight="fill" />

@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 import styles from "./Planner.module.scss";
 
 import StepProgressBar from "./components/StepProgressBar/StepProgressBar";
@@ -16,17 +20,84 @@ const INTERESTS: InterestOption[] = [
 ];
 
 const Planner: React.FC = () => {
+  const location = useLocation();
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // Nhận dữ liệu từ trang Hero nếu có
+  const heroData = location.state as {
+    destination?: string;
+    budget?: string;
+    totalGuests?: string;
+  } | null;
+
   const [formData, setFormData] = useState<PlannerFormData>({
-    destination: "",
+    destination: heroData?.destination || "",
     travelDate: "",
     interests: ["Ẩm thực", "Thiên nhiên"],
-    budget: "Tiết kiệm (Dưới 5 triệu)",
-    peopleGroup: "Gia đình / Nhóm bạn",
+    budget: heroData?.budget || "",
+    peopleGroup: heroData?.totalGuests || "",
   });
+
+  useEffect(() => {
+    if (heroData) {
+      setFormData((prev) => ({
+        ...prev,
+        destination: heroData.destination || prev.destination,
+        budget: heroData.budget || prev.budget,
+        peopleGroup: heroData.totalGuests || prev.peopleGroup,
+      }));
+    }
+  }, [heroData]);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để truy cập trang lập kế hoạch! 🛡️");
+      navigate("/auth");
+    }
+  }, [navigate]);
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
   }, []);
+
+  // Khởi tạo Flatpickr một lần duy nhất
+  useEffect(() => {
+    let fp: any;
+    if (dateInputRef.current) {
+      fp = flatpickr(dateInputRef.current, {
+        mode: "range",
+        minDate: "today",
+        dateFormat: "d/m/Y",
+        locale: {
+          rangeSeparator: " - ",
+        },
+        onChange: (_, dateStr) => {
+          setFormData((prev) => ({ ...prev, travelDate: dateStr }));
+        },
+      });
+
+      // Nếu có dữ liệu từ Hero truyền sang, set vào Flatpickr
+      if (formData.travelDate) {
+        fp.setDate(formData.travelDate);
+      }
+    }
+    return () => {
+      if (fp) fp.destroy();
+    };
+  }, []); // Chỉ chạy 1 lần khi mount
+
+  // Đồng bộ lại Flatpickr nếu travelDate thay đổi từ bên ngoài (ví dụ từ heroData useEffect)
+  useEffect(() => {
+    if (dateInputRef.current) {
+      const fp = (dateInputRef.current as any)._flatpickr;
+      if (fp && formData.travelDate && fp.input.value !== formData.travelDate) {
+        fp.setDate(formData.travelDate);
+      }
+    }
+  }, [formData.travelDate]);
 
   const handleToggleInterest = (id: string) => {
     setFormData((prev) => ({
@@ -75,7 +146,14 @@ const Planner: React.FC = () => {
               <label>THỜI GIAN</label>
               <div className={styles.inputWrapper}>
                 <i className="ph-duotone ph-calendar-blank"></i>
-                <input type="text" placeholder="Chọn ngày" id="plan-dates" />
+                <input
+                  type="text"
+                  placeholder="Chọn ngày"
+                  id="plan-dates"
+                  ref={dateInputRef}
+                  value={formData.travelDate}
+                  readOnly
+                />
               </div>
             </div>
           </div>
@@ -103,28 +181,35 @@ const Planner: React.FC = () => {
         <div className={styles.row}>
           <div className={styles.inputGroup}>
             <label>
-              <i className="ph-fill ph-money"></i> Ngân sách
+              <i className="ph-fill ph-money"></i> NGÂN SÁCH
             </label>
-            <div className={styles.selectWrapper}>
-                <select className={styles.select}>
-                <option>Tiết kiệm (Dưới 5 triệu)</option>
-                <option>Tiêu chuẩn (5 - 15 triệu)</option>
-                <option>Cao cấp (Trên 15 triệu)</option>
-                </select>
-                <i className="ph-bold ph-caret-down"></i>
+            <div className={styles.inputWrapper}>
+              <i className="ph-duotone ph-currency-circle-dollar"></i>
+              <input
+                type="text"
+                placeholder="Ví dụ: 5 triệu VNĐ"
+                value={formData.budget}
+                onChange={(e) =>
+                  setFormData({ ...formData, budget: e.target.value })
+                }
+              />
             </div>
           </div>
           <div className={styles.inputGroup}>
             <label>
-              <i className="ph-fill ph-users"></i> Số Người
+              <i className="ph-fill ph-users"></i> SỐ NGƯỜI
             </label>
-            <div className={styles.selectWrapper}>
-                <select className={styles.select}>
-                <option>Gia định / Nhóm bạn</option>
-                <option>Cặp đôi</option>
-                <option>Đi một mình</option>
-                </select>
-                <i className="ph-bold ph-caret-down"></i>
+            <div className={styles.inputWrapper}>
+              <i className="ph-duotone ph-users"></i>
+              <input
+                type="number"
+                min="0"
+                placeholder="Số người"
+                value={formData.peopleGroup}
+                onChange={(e) =>
+                  setFormData({ ...formData, peopleGroup: e.target.value })
+                }
+              />
             </div>
           </div>
         </div>
