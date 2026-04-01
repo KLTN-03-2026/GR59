@@ -47,6 +47,7 @@ function App() {
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
+        style={{ zIndex: 99999 }}
         newestOnTop={false}
         closeOnClick={false}
         rtl={false}

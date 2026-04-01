@@ -9,21 +9,7 @@
     "cover": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop",
     "badge": "Thành viên Vàng",
     "joinDate": "01/2023",
-    "location": "TP. Hồ Chí Minh, VN",
-    "savedTrips": [
-      {
-        "id": 1,
-        "title": "Hạ Long - 3 ngày 2 đêm",
-        "image": "https://images.unsplash.com/photo-1598018554441-b4d717311ce7?auto=format&fit=crop&q=80&w=400",
-        "timeAgo": "2 giờ trước"
-      },
-      {
-        "id": 2,
-        "title": "Đà Lạt - Phố Sương Mù",
-        "image": "https://images.unsplash.com/photo-1589136142558-9469d4434661?auto=format&fit=crop&q=80&w=400",
-        "timeAgo": "3 ngày trước"
-      }
-    ]
+    "location": "TP. Hồ Chí Minh, VN"
   },
   "users": [
     {
@@ -54,6 +40,14 @@
       "createdAt": "2026-03-28T06:41:45.262Z"
     }
   ],
+  "saved_trips": [
+    {
+      "id": "1",
+      "title": "Phố cổ Hội An",
+      "image": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
+      "timeAgo": "Vừa xong"
+    }
+  ],
   "travel-plans": [],
   "hotels": [
     {
@@ -64,7 +58,8 @@
       "reviews": "2.4k",
       "type": "RESORT",
       "status": "HOẠT ĐỘNG",
-      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "AZ-2051",
@@ -74,7 +69,8 @@
       "reviews": "1.8k",
       "type": "CỔ ĐIỂN",
       "status": "BẢO TRÌ",
-      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "AZ-0992",
@@ -84,7 +80,8 @@
       "reviews": "942",
       "type": "HIỆN ĐẠI",
       "status": "HOẠT ĐỘNG",
-      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "AZ-3301",
@@ -94,7 +91,8 @@
       "reviews": "3.1k",
       "type": "RESORT",
       "status": "HOẠT ĐỘNG",
-      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "AZ-4412",
@@ -104,7 +102,8 @@
       "reviews": "1.7k",
       "type": "HIỆN ĐẠI",
       "status": "HOẠT ĐỘNG",
-      "image": "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "AZ-5523",
@@ -114,7 +113,8 @@
       "reviews": "1.5k",
       "type": "RESORT",
       "status": "BẢO TRÌ",
-      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     }
   ],
   "restaurants": [
@@ -126,7 +126,8 @@
       "reviews": "1.2k",
       "cuisine": "VIỆT NAM",
       "status": "ĐANG MỞ",
-      "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "RS-5502",
@@ -136,7 +137,8 @@
       "reviews": "987",
       "cuisine": "CHÂU ÂU",
       "status": "ĐANG MỞ",
-      "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "RS-3311",
@@ -146,7 +148,8 @@
       "reviews": "2.8k",
       "cuisine": "VIỆT NAM",
       "status": "TẠM ĐÓNG",
-      "image": "https://images.unsplash.com/photo-1555126634-323283e090fa?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1555126634-323283e090fa?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "RS-6614",
@@ -156,7 +159,8 @@
       "reviews": "5.6k",
       "cuisine": "CHÂU ÂU",
       "status": "ĐANG MỞ",
-      "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     },
     {
       "id": "RS-7725",
@@ -166,7 +170,8 @@
       "reviews": "1.1k",
       "cuisine": "VIỆT NAM",
       "status": "ĐANG MỞ",
-      "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=80&h=80&fit=crop"
+      "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=80&h=80&fit=crop",
+      "previewVideo": ""
     }
   ],
   "dashboard_stats": [
@@ -301,7 +306,6 @@
       "color": "#10b981"
     }
   ],
-  
   "testimonials": [
     {
       "id": "1",
@@ -342,7 +346,7 @@
       "desc": "Hội An nổi tiếng với vẻ đẹp lãng mạn, cổ kính, yên bình với những ngôi nhà cổ.",
       "type": "pin",
       "category": "culture",
-      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "2",
@@ -354,7 +358,7 @@
       "desc": "Di sản thiên nhiên thế giới với hàng nghìn hòn đảo kỳ vĩ, hang động tuyệt đẹp.",
       "type": "pin",
       "category": "popular",
-      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "3",
@@ -366,7 +370,7 @@
       "desc": "Thành phố ngàn hoa với khí hậu mát mẻ quanh năm và nhiều cảnh điểm lãng mạn.",
       "type": "pin",
       "category": "nature",
-      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "4",
@@ -378,7 +382,7 @@
       "desc": "Quần thể di tích lịch sử với cung điện, lăng tẩm mang đậm dấu ấn triều Nguyễn.",
       "type": "pin",
       "category": "culture",
-      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "5",
@@ -390,7 +394,7 @@
       "desc": "Thiên đường nghỉ dưỡng với những bãi cát trắng mịn và làn nước trong xanh.",
       "type": "pin",
       "category": "beach",
-      "previewVideo": "https://player.vimeo.com/external/403814144.sd.mp4?s=6953f93c20058b845dfd7cd6ecf7b49cb2e0ef75&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "6",
@@ -402,7 +406,7 @@
       "desc": "Khu nghỉ dưỡng sang trọng bậc nhất tọa lạc tại bán đảo Sơn Trà.",
       "type": "bed",
       "category": "popular",
-      "previewVideo": "https://player.vimeo.com/external/403814144.sd.mp4?s=6953f93c20058b845dfd7cd6ecf7b49cb2e0ef75&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "7",
@@ -413,7 +417,8 @@
       "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
       "desc": "Trải nghiệm nghỉ dưỡng giữa thiên nhiên hoang sơ với hồ bơi vô cực.",
       "type": "bed",
-      "category": "nature"
+      "category": "nature",
+      "previewVideo": ""
     },
     {
       "id": "8",
@@ -424,7 +429,8 @@
       "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
       "desc": "Khu nghỉ dưỡng biệt lập với các villa nằm giữa vách đá và biển cả.",
       "type": "bed",
-      "category": "beach"
+      "category": "beach",
+      "previewVideo": ""
     },
     {
       "id": "9",
@@ -435,7 +441,8 @@
       "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
       "desc": "Sự kết hợp hoàn hảo giữa văn hóa bản địa Sapa và phong cách Pháp thượng lưu.",
       "type": "bed",
-      "category": "culture"
+      "category": "culture",
+      "previewVideo": ""
     },
     {
       "id": "10",
@@ -446,7 +453,8 @@
       "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
       "desc": "Mang đến hương vị ẩm thực Việt Nam tinh tế giữa không gian Đông Dương.",
       "type": "food",
-      "category": "restaurant"
+      "category": "restaurant",
+      "previewVideo": ""
     },
     {
       "id": "11",
@@ -457,7 +465,8 @@
       "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
       "desc": "Ẩm thực Ý mang phong cách Nhật Bản với phô mai thủ công tự làm nổi tiếng.",
       "type": "food",
-      "category": "restaurant"
+      "category": "restaurant",
+      "previewVideo": ""
     },
     {
       "id": "12",
@@ -468,7 +477,8 @@
       "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
       "desc": "Nhà hàng đạt sao Michelin với mâm cơm gia đình miền Bắc truyền thống.",
       "type": "food",
-      "category": "restaurant"
+      "category": "restaurant",
+      "previewVideo": ""
     },
     {
       "id": "13",
@@ -480,7 +490,7 @@
       "desc": "Hải sản tươi sống bên bờ biển.",
       "type": "food",
       "category": "restaurant",
-      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "14",
@@ -492,7 +502,7 @@
       "desc": "Đường lên tiên cảnh với Cầu Vàng nổi tiếng thế giới.",
       "type": "pin",
       "category": "popular",
-      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "15",
@@ -504,7 +514,7 @@
       "desc": "Nóc nhà Đông Dương với biển mây bạt ngàn.",
       "type": "pin",
       "category": "popular",
-      "previewVideo": "https://player.vimeo.com/external/517090081.sd.mp4?s=9897fb94e1e8b2ed3f07a781bcf7b25206253c15&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "16",
@@ -516,7 +526,7 @@
       "desc": "Đồi cát bay và biển xanh nắng vàng.",
       "type": "pin",
       "category": "beach",
-      "previewVideo": "https://player.vimeo.com/external/403814144.sd.mp4?s=6953f93c20058b845dfd7cd6ecf7b49cb2e0ef75&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "17",
@@ -528,7 +538,7 @@
       "desc": "Biểu tượng văn hóa và ẩm thực của Sài Gòn.",
       "type": "pin",
       "category": "popular",
-      "previewVideo": "https://player.vimeo.com/external/434045526.sd.mp4?s=c27dbed94f09d8d641d4f208c903a58e8011116c&profile_id=139&oauth2_token_id=57447761"
+      "previewVideo": ""
     },
     {
       "id": "18",
@@ -539,7 +549,8 @@
       "img": "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&q=80&w=800",
       "desc": "Vịnh biển đẹp nhất thế giới với nhiều hoạt động giải trí.",
       "type": "pin",
-      "category": "beach"
+      "category": "beach",
+      "previewVideo": ""
     },
     {
       "id": "19",
@@ -553,10 +564,23 @@
       "category": "culture",
       "type": "itinerary",
       "steps": [
-        { "time": "08:00", "activity": "Đón khách tại sân bay Đà Nẵng", "dist": "2km từ TT" },
-        { "time": "10:00", "activity": "Check-in Bán đảo Sơn Trà", "dist": "10km từ TT" },
-        { "time": "12:00", "activity": "Thưởng thức Mì Quảng chính gốc", "dist": "3km từ TT" }
-      ]
+        {
+          "time": "08:00",
+          "activity": "Đón khách tại sân bay Đà Nẵng",
+          "dist": "2km từ TT"
+        },
+        {
+          "time": "10:00",
+          "activity": "Check-in Bán đảo Sơn Trà",
+          "dist": "10km từ TT"
+        },
+        {
+          "time": "12:00",
+          "activity": "Thưởng thức Mì Quảng chính gốc",
+          "dist": "3km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "20",
@@ -570,10 +594,23 @@
       "category": "culture",
       "type": "itinerary",
       "steps": [
-        { "time": "15:00", "activity": "Di chuyển đi Hội An", "dist": "30km từ TT" },
-        { "time": "17:00", "activity": "Thăm Chùa Cầu & Nhà Cổ", "dist": "30.5km từ TT" },
-        { "time": "19:00", "activity": "Ăn tối & Thả đèn hoa đăng", "dist": "30.5km từ TT" }
-      ]
+        {
+          "time": "15:00",
+          "activity": "Di chuyển đi Hội An",
+          "dist": "30km từ TT"
+        },
+        {
+          "time": "17:00",
+          "activity": "Thăm Chùa Cầu & Nhà Cổ",
+          "dist": "30.5km từ TT"
+        },
+        {
+          "time": "19:00",
+          "activity": "Ăn tối & Thả đèn hoa đăng",
+          "dist": "30.5km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "21",
@@ -587,9 +624,18 @@
       "category": "beach",
       "type": "itinerary",
       "steps": [
-        { "time": "09:00", "activity": "Tắm biển & Chụp hình", "dist": "1km từ TT" },
-        { "time": "14:00", "activity": "Chơi các trò chơi nước", "dist": "1.2km từ TT" }
-      ]
+        {
+          "time": "09:00",
+          "activity": "Tắm biển & Chụp hình",
+          "dist": "1km từ TT"
+        },
+        {
+          "time": "14:00",
+          "activity": "Chơi các trò chơi nước",
+          "dist": "1.2km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "22",
@@ -603,9 +649,18 @@
       "category": "nature",
       "type": "itinerary",
       "steps": [
-        { "time": "08:30", "activity": "Thăm làng đá Non Nước", "dist": "12km từ TT" },
-        { "time": "10:00", "activity": "Leo núi Ngũ Hành Sơn", "dist": "12km từ TT" }
-      ]
+        {
+          "time": "08:30",
+          "activity": "Thăm làng đá Non Nước",
+          "dist": "12km từ TT"
+        },
+        {
+          "time": "10:00",
+          "activity": "Leo núi Ngũ Hành Sơn",
+          "dist": "12km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "23",
@@ -619,9 +674,18 @@
       "category": "adventure",
       "type": "itinerary",
       "steps": [
-        { "time": "05:00", "activity": "Đón bình minh đỉnh Bàn Cờ", "dist": "15km từ TT" },
-        { "time": "07:30", "activity": "Ăn sáng cafe view biển", "dist": "5km từ TT" }
-      ]
+        {
+          "time": "05:00",
+          "activity": "Đón bình minh đỉnh Bàn Cờ",
+          "dist": "15km từ TT"
+        },
+        {
+          "time": "07:30",
+          "activity": "Ăn sáng cafe view biển",
+          "dist": "5km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "24",
@@ -635,9 +699,18 @@
       "category": "beach",
       "type": "itinerary",
       "steps": [
-        { "time": "08:00", "activity": "Cano đi Cù Lao Chàm", "dist": "45km từ TT" },
-        { "time": "10:30", "activity": "Lặn ngắm san hô bãi Bắc", "dist": "46km từ TT" }
-      ]
+        {
+          "time": "08:00",
+          "activity": "Cano đi Cù Lao Chàm",
+          "dist": "45km từ TT"
+        },
+        {
+          "time": "10:30",
+          "activity": "Lặn ngắm san hô bãi Bắc",
+          "dist": "46km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "25",
@@ -651,9 +724,18 @@
       "category": "nature",
       "type": "itinerary",
       "steps": [
-        { "time": "14:00", "activity": "Check-in lều trại", "dist": "35km từ TT" },
-        { "time": "19:00", "activity": "Tiệc BBQ ngoài trời", "dist": "35km từ TT" }
-      ]
+        {
+          "time": "14:00",
+          "activity": "Check-in lều trại",
+          "dist": "35km từ TT"
+        },
+        {
+          "time": "19:00",
+          "activity": "Tiệc BBQ ngoài trời",
+          "dist": "35km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "26",
@@ -667,9 +749,18 @@
       "category": "culture",
       "type": "itinerary",
       "steps": [
-        { "time": "19:00", "activity": "Ngắm Cầu Rồng phun lửa", "dist": "0km từ TT" },
-        { "time": "21:00", "activity": "Dạo Chợ đêm Sơn Trà", "dist": "1km từ TT" }
-      ]
+        {
+          "time": "19:00",
+          "activity": "Ngắm Cầu Rồng phun lửa",
+          "dist": "0km từ TT"
+        },
+        {
+          "time": "21:00",
+          "activity": "Dạo Chợ đêm Sơn Trà",
+          "dist": "1km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "27",
@@ -683,9 +774,18 @@
       "category": "nature",
       "type": "itinerary",
       "steps": [
-        { "time": "06:00", "activity": "Yoga đón bình minh", "dist": "12km từ TT" },
-        { "time": "09:00", "activity": "Thiền trà thảo mộc", "dist": "12km từ TT" }
-      ]
+        {
+          "time": "06:00",
+          "activity": "Yoga đón bình minh",
+          "dist": "12km từ TT"
+        },
+        {
+          "time": "09:00",
+          "activity": "Thiền trà thảo mộc",
+          "dist": "12km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "28",
@@ -699,9 +799,18 @@
       "category": "adventure",
       "type": "itinerary",
       "steps": [
-        { "time": "07:30", "activity": "Leo núi lội suối", "dist": "25km từ TT" },
-        { "time": "12:00", "activity": "Ăn trưa picnic bên suối", "dist": "26km từ TT" }
-      ]
+        {
+          "time": "07:30",
+          "activity": "Leo núi lội suối",
+          "dist": "25km từ TT"
+        },
+        {
+          "time": "12:00",
+          "activity": "Ăn trưa picnic bên suối",
+          "dist": "26km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "29",
@@ -715,9 +824,18 @@
       "category": "culture",
       "type": "itinerary",
       "steps": [
-        { "time": "08:30", "activity": "Khám phá tháp cổ Chăm Pa", "dist": "50km từ TT" },
-        { "time": "11:30", "activity": "Thưởng thức múa Apsara", "dist": "50km từ TT" }
-      ]
+        {
+          "time": "08:30",
+          "activity": "Khám phá tháp cổ Chăm Pa",
+          "dist": "50km từ TT"
+        },
+        {
+          "time": "11:30",
+          "activity": "Thưởng thức múa Apsara",
+          "dist": "50km từ TT"
+        }
+      ],
+      "previewVideo": ""
     },
     {
       "id": "30",
@@ -727,24 +845,65 @@
       "maxPeople": 2,
       "location": "Đà Nẵng",
       "duration": "3 Tiếng",
-      "rating": 5.0,
+      "rating": 5,
       "category": "beach",
       "type": "itinerary",
       "steps": [
-        { "time": "18:00", "activity": "Đón hoàng hôn trên biển", "dist": "2km từ TT" },
-        { "time": "19:30", "activity": "Tiệc tối 5 sao private", "dist": "2km từ TT" }
-      ]
+        {
+          "time": "18:00",
+          "activity": "Đón hoàng hôn trên biển",
+          "dist": "2km từ TT"
+        },
+        {
+          "time": "19:30",
+          "activity": "Tiệc tối 5 sao private",
+          "dist": "2km từ TT"
+        }
+      ],
+      "previewVideo": ""
     }
   ],
   "aiRecommendations": [
-    { "id": 1, "title": "Địa điểm HOT #1", "image": "https://picsum.photos/200/120?sig=1" },
-    { "id": 2, "title": "Địa điểm HOT #2", "image": "https://picsum.photos/200/120?sig=2" },
-    { "id": 3, "title": "Địa điểm HOT #3", "image": "https://picsum.photos/200/120?sig=3" },
-    { "id": 4, "title": "Địa điểm HOT #4", "image": "https://picsum.photos/200/120?sig=4" },
-    { "id": 5, "title": "Địa điểm HOT #5", "image": "https://picsum.photos/200/120?sig=5" },
-    { "id": 6, "title": "Địa điểm HOT #6", "image": "https://picsum.photos/200/120?sig=6" },
-    { "id": 7, "title": "Địa điểm HOT #7", "image": "https://picsum.photos/200/120?sig=7" },
-    { "id": 8, "title": "Địa điểm HOT #8", "image": "https://picsum.photos/200/120?sig=8" }
+    {
+      "id": 1,
+      "title": "Địa điểm HOT #1",
+      "image": "https://picsum.photos/200/120?sig=1"
+    },
+    {
+      "id": 2,
+      "title": "Địa điểm HOT #2",
+      "image": "https://picsum.photos/200/120?sig=2"
+    },
+    {
+      "id": 3,
+      "title": "Địa điểm HOT #3",
+      "image": "https://picsum.photos/200/120?sig=3"
+    },
+    {
+      "id": 4,
+      "title": "Địa điểm HOT #4",
+      "image": "https://picsum.photos/200/120?sig=4"
+    },
+    {
+      "id": 5,
+      "title": "Địa điểm HOT #5",
+      "image": "https://picsum.photos/200/120?sig=5"
+    },
+    {
+      "id": 6,
+      "title": "Địa điểm HOT #6",
+      "image": "https://picsum.photos/200/120?sig=6"
+    },
+    {
+      "id": 7,
+      "title": "Địa điểm HOT #7",
+      "image": "https://picsum.photos/200/120?sig=7"
+    },
+    {
+      "id": 8,
+      "title": "Địa điểm HOT #8",
+      "image": "https://picsum.photos/200/120?sig=8"
+    }
   ],
   "$schema": "./node_modules/json-server/schema.json"
 }

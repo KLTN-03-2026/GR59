@@ -119,7 +119,7 @@ const Navbar: React.FC = () => {
                 <Link to="/profile" className={styles.dropdownItem}>
                   <UserCircle size={20} /> Trang cá nhân
                 </Link>
-                <Link to="/planner" className={styles.dropdownItem}>
+                <Link to="/dashboard" className={styles.dropdownItem}>
                   <MapTrifold size={20} /> Lịch trình của tôi
                 </Link>
                 <Link to="/ai-suggestions" className={styles.dropdownItem}>

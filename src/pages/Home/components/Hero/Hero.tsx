@@ -79,7 +79,11 @@ const VIETNAM_PROVINCES = [
   "Yên Bái",
 ];
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  userName: string | null;
+}
+
+const Hero: React.FC<HeroProps> = ({ userName }) => {
   const navigate = useNavigate();
   const [dest, setDest] = useState("");
   const [budget, setBudget] = useState("");
@@ -153,8 +157,17 @@ const Hero: React.FC = () => {
           data-aos="fade-up"
           data-aos-delay="400"
         >
-          Hành trình Du lịch <br />
-          <span className={styles.gradientText}>Thông minh với AI</span>
+          {userName ? (
+            <>
+              Chào mừng trở lại, <br />
+              <span className={styles.gradientText}>{userName}!</span>
+            </>
+          ) : (
+            <>
+              Hành trình Du lịch <br />
+              <span className={styles.gradientText}>Thông minh với AI</span>
+            </>
+          )}
         </h1>
         <p
           className={styles.heroDescription}
@@ -223,13 +236,38 @@ const Hero: React.FC = () => {
               </div>
               <div className={styles.fieldInfo}>
                 <label>Ngân sách</label>
-                <input
-                  type="text"
-                  placeholder="Ngân sách dự kiến"
+                <select
                   required
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
-                />
+                  style={{
+                    border: "none",
+                    outline: "none",
+                    background: "transparent",
+                    width: "100%",
+                    fontSize: "15px",
+                    fontWeight: "600",
+                    color: "#1e293b",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                >
+                  <option value="" disabled hidden>
+                    Ngân sách dự kiến...
+                  </option>
+                  <option value="Dưới 5 triệu">
+                    Tiết kiệm (Dưới 5 triệu VNĐ)
+                  </option>
+                  <option value="5 - 10 triệu">
+                    Tiêu chuẩn (5 - 10 triệu VNĐ)
+                  </option>
+                  <option value="10 - 20 triệu">
+                    Thoải mái (10 - 20 triệu VNĐ)
+                  </option>
+                  <option value="Trên 20 triệu">
+                    Cao cấp (Trên 20 triệu VNĐ)
+                  </option>
+                </select>
               </div>
             </div>
 

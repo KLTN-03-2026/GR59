@@ -3,11 +3,24 @@ import instance from "../utils/AxiosCustomize";
 
 // --- Interfaces ---
 export interface UserData {
-  id: string;
-  username: string;
+  id: number | string;
+  username?: string; // Tạm giữ lại nếu nơi khác đang cần
+  fullName?: string;
   email: string;
   password?: string;
   accessToken?: string;
+  createdAt?: string;
+  role?: string;
+  status?: string;
+  avatarUrl?: string | null;
+  isActive?: boolean;
+}
+
+export interface AuthResponseData {
+  accessToken: string;
+  refreshToken: string;
+  type: string | null;
+  user: UserData;
 }
 
 export interface BackendResponse<T = unknown> {
@@ -16,17 +29,16 @@ export interface BackendResponse<T = unknown> {
   DT: T;
 }
 
-// 1. Đăng ký
+// 1. Đăng ký (Thay API thật)
 export const postSignUp = (
   username: string,
   email: string,
   pass: string,
-): Promise<AxiosResponse<BackendResponse<UserData>>> => {
-  return instance.post<BackendResponse<UserData>>("/users", {
-    username,
-    email,
+): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
+  return instance.post<BackendResponse<AuthResponseData>>("/auth/register", {
+    fullName: username, // Gán username từ form vào fullName của BE
+    email: email,
     password: pass,
-    createdAt: new Date().toISOString(),
   });
 };
 

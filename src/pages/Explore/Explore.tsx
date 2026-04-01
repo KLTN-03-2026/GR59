@@ -12,9 +12,16 @@ import TravelCard from "./components/TravelCard/TravelCard";
 import AIRecommendations from "./components/AIRecommendations/AIRecommendations";
 
 import { getPlaces, type HighlightItem } from "../../services/highlightService";
+import {
+  getSavedTrips,
+  addSavedTrip,
+  removeSavedTrip,
+  type SavedTrip,
+} from "../../services/profileService";
 
 const Explore: React.FC = () => {
   const [places, setPlaces] = useState<HighlightItem[]>([]);
+  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -23,11 +30,15 @@ const Explore: React.FC = () => {
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
-    const fetchPlaces = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await getPlaces();
-        setPlaces(response.data.DT);
+        const [placesRes, savedTripsRes] = await Promise.all([
+          getPlaces(),
+          getSavedTrips(),
+        ]);
+        setPlaces(placesRes.data.DT);
+        setSavedTrips(savedTripsRes.data.DT || []);
       } catch (err) {
         console.error("Lỗi khi tải dữ liệu khám phá:", err);
         setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
@@ -36,7 +47,7 @@ const Explore: React.FC = () => {
       }
     };
 
-    fetchPlaces();
+    fetchData();
     AOS.init({
       duration: 800,
       once: true,
@@ -57,7 +68,9 @@ const Explore: React.FC = () => {
 
   const filteredData = places.filter((item) => {
     const matchesCategory =
-      activeCategory === "all" ? item.type !== "itinerary" : item.type === activeCategory;
+      activeCategory === "all"
+        ? item.type !== "itinerary"
+        : item.type === activeCategory;
     const matchesSearch = item.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -66,11 +79,47 @@ const Explore: React.FC = () => {
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayedData = filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const displayedData = filteredData.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE,
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 400, behavior: "smooth" });
+  };
+
+  const handleToggleLike = async (location: HighlightItem) => {
+    const savedTrip = savedTrips.find((trip) => trip.id == location.id);
+    const originalSavedTrips = [...savedTrips];
+
+    if (savedTrip) {
+      // Optimistically remove
+      setSavedTrips(savedTrips.filter((trip) => trip.id != location.id));
+      try {
+        await removeSavedTrip(savedTrip.id);
+      } catch (error) {
+        console.error("Lỗi khi bỏ lưu chuyến đi:", error);
+        // Revert on error
+        setSavedTrips(originalSavedTrips);
+      }
+    } else {
+      const newTrip: SavedTrip = {
+        id: location.id,
+        title: location.title,
+        image: location.img,
+        timeAgo: "Vừa xong",
+      };
+      // Optimistically add
+      setSavedTrips([...savedTrips, newTrip]);
+      try {
+        await addSavedTrip(newTrip);
+      } catch (error) {
+        console.error("Lỗi khi lưu chuyến đi:", error);
+        // Revert on error
+        setSavedTrips(originalSavedTrips);
+      }
+    }
   };
 
   return (
@@ -100,7 +149,12 @@ const Explore: React.FC = () => {
           ) : error ? (
             <div className={styles.errorState}>
               <p>{error}</p>
-              <button onClick={() => window.location.reload()} className={styles.retryBtn}>Thử lại</button>
+              <button
+                onClick={() => window.location.reload()}
+                className={styles.retryBtn}
+              >
+                Thử lại
+              </button>
             </div>
           ) : displayedData.length > 0 ? (
             displayedData.map((location, index) => (
@@ -117,6 +171,8 @@ const Explore: React.FC = () => {
                   description={location.desc}
                   isHot={location.isHot}
                   previewVideo={location.previewVideo || VideoHome}
+                  isLiked={savedTrips.some((t) => t.id == location.id)}
+                  onToggleLike={() => handleToggleLike(location)}
                 />
               </div>
             ))
@@ -130,39 +186,39 @@ const Explore: React.FC = () => {
         {totalPages > 1 && (
           <div className={styles.paginationContainer} data-aos="fade-up">
             <button
-              className={styles.pageNavBtn}
-              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
+              className={styles.pageBtn}
+              aria-label="Trang trước"
+              title="Trang trước"
             >
-              <CaretLeft size={18} weight="bold" /> Prev
+              <CaretLeft size={20} />
             </button>
-            
-            <div className={styles.pageNumbers}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  className={`${styles.pageBtn} ${
-                    currentPage === page ? styles.activePage : ""
-                  }`}
-                  onClick={() => handlePageChange(page)}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
-
+            {Array.from({ length: totalPages }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => handlePageChange(idx + 1)}
+                className={`${styles.pageBtn} ${currentPage === idx + 1 ? styles.active : ""}`}
+              >
+                {idx + 1}
+              </button>
+            ))}
             <button
-              className={styles.pageNavBtn}
-              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
+              className={styles.pageBtn}
+              aria-label="Trang tiếp theo"
+              title="Trang tiếp theo"
             >
-              Next <CaretRight size={18} weight="bold" />
+              <CaretRight size={20} />
             </button>
           </div>
         )}
-        {/* Tích hợp AI Recommendations */}
-        <AIRecommendations />
       </main>
+
+      <div data-aos="fade-up" data-aos-delay="200">
+        <AIRecommendations />
+      </div>
     </div>
   );
 };

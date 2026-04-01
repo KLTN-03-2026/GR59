@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import VideoHome from "../../assets/video/Da_Nang.mp4";
 
 import AOS from "aos";
@@ -15,8 +15,11 @@ import Testimonials from "./components/Testimonials/Testimonials";
 import HighlightLocations from "./components/HighlightLocations/HighlightLocations";
 import CTASection from "./components/CTASection/CTASection";
 import Hero from "./components/Hero/Hero";
+import { getProfile } from "../../services/profileService";
 
 const Home: React.FC = () => {
+  const [userName, setUserName] = useState<string | null>(null);
+
   useEffect(() => {
     AOS.init({
       duration: 1000,
@@ -29,6 +32,32 @@ const Home: React.FC = () => {
       dateFormat: "d/m/Y",
       // locale: Vietnamese
     });
+
+    const fetchUser = async () => {
+      // 1. Kiểm tra trạng thái đăng nhập trước (ví dụ lấy token)
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setUserName(null); // Đảm bảo gỡ tên nếu chưa đăng nhập
+        return;
+      }
+
+      // 2. Nếu đã đăng nhập thì mới gọi dữ liệu
+      try {
+        const res = await getProfile();
+        if (res?.data?.DT?.name) {
+          setUserName(res.data.DT.name);
+        } else {
+          const localName = localStorage.getItem("username");
+          if (localName) setUserName(localName);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin người dùng:", error);
+        const localName = localStorage.getItem("username");
+        if (localName) setUserName(localName);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   return (
@@ -40,7 +69,7 @@ const Home: React.FC = () => {
             <source src={VideoHome} type="video/mp4" />
             Trình duyệt của bạn không hỗ trợ thẻ video.
           </video>
-          <Hero />
+          <Hero userName={userName} />
         </section>
 
         {/* Timeline Section */}

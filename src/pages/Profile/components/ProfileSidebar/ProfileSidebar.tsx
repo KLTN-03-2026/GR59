@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./ProfileSidebar.module.scss";
 
 import type { SavedTrip } from "../../../../services/profileService";
@@ -8,17 +8,31 @@ interface Props {
 }
 
 const ProfileSidebar: React.FC<Props> = ({ savedTrips = [] }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const displayedTrips = isExpanded ? savedTrips : savedTrips.slice(0, 3);
+
   return (
     <div className={styles.sidebar}>
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <span>
-            <i className="ph-fill ph-bookmarks"></i> Chuyến đi đã lưu
+            <i className="ph-fill ph-bookmarks"></i> Địa điểm yêu thích
           </span>
-          <a href="#">Xem tất cả</a>
+          {savedTrips.length > 3 && (
+            <a 
+              href="#" 
+              onClick={(e) => {
+                e.preventDefault();
+                setIsExpanded(!isExpanded);
+              }}
+            >
+              {isExpanded ? "Thu gọn" : "Xem tất cả"}
+            </a>
+          )}
         </div>
         <div className={styles.tripList}>
-          {savedTrips.map((trip) => (
+          {displayedTrips.map((trip) => (
             <div key={trip.id} className={styles.tripItem}>
               <div className={styles.imageWrapper}>
                 <img src={trip.image} alt={trip.title} />

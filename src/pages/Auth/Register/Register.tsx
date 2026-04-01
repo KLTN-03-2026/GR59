@@ -61,14 +61,14 @@ const Register: React.FC<Props> = ({ onToggle }) => {
       return toast.error("Mật khẩu xác nhận không khớp!");
     if (!terms) return toast.warn("Bạn cần đồng ý với điều khoản!");
 
-    // --- 2. Gọi API MockAPI ---
+    // --- 2. Gọi API Thật (Backend) ---
     setIsLoading(true);
     try {
       // Gọi service (File axios-customize đã bọc sẵn EC, EM, DT)
       const res = await postSignUp(cleanName, cleanEmail, formData.pass);
 
       if (res.data && res.data.EC === 0) {
-        toast.success("Đăng ký thành công! 🎉");
+        toast.success(res.data.EM);
         setTimeout(() => {
           navigate("/auth?mode=login");
         }, 1500);
@@ -78,8 +78,8 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     } catch (error: unknown) {
       // Xử lý lỗi mà không dùng 'any'
       if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as { EM?: string };
-        toast.error(serverError?.EM || "Lỗi kết nối server MockAPI");
+        const serverError = error.response?.data as { EM?: string; message?: string };
+        toast.error(serverError?.EM || serverError?.message || "Lỗi xử lý từ server");
       } else {
         toast.error("Đã xảy ra lỗi không xác định");
       }

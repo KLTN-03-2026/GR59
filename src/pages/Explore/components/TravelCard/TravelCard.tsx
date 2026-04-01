@@ -10,6 +10,8 @@ interface Props {
   description: string;
   isHot?: boolean;
   previewVideo?: string;
+  isLiked?: boolean;
+  onToggleLike?: () => void;
 }
 
 const TravelCard: React.FC<Props> = ({
@@ -20,9 +22,15 @@ const TravelCard: React.FC<Props> = ({
   description,
   isHot,
   previewVideo,
+  isLiked = false,
+  onToggleLike,
 }) => {
-  const [isLiked, setIsLiked] = React.useState(false);
+  const [localLiked, setLocalLiked] = React.useState(isLiked);
   const [isHovered, setIsHovered] = React.useState(false);
+
+  React.useEffect(() => {
+    setLocalLiked(isLiked);
+  }, [isLiked]);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
@@ -63,30 +71,33 @@ const TravelCard: React.FC<Props> = ({
             muted
             loop
             playsInline
+            autoPlay
           />
         )}
 
         <div className={styles.imageOverlay} />
 
         <button
-          className={`${styles.heartBtn} ${isLiked ? styles.liked : ""}`}
+          className={`${styles.heartBtn} ${localLiked ? styles.liked : ""}`}
           onClick={(e) => {
             e.stopPropagation();
-            setIsLiked(!isLiked);
+            setLocalLiked(!localLiked);
+            if (onToggleLike) onToggleLike();
           }}
           aria-label="Yêu thích"
         >
           <div style={{ fontSize: "1rem" }}>
             <Heart
               size={24}
-              weight={isLiked ? "fill" : "bold"}
-              color={isLiked ? "#ff4d4d" : "currentColor"}
+              weight={localLiked ? "fill" : "bold"}
+              color={localLiked ? "#ff4d4d" : "currentColor"}
             />
           </div>
         </button>
 
         {isPlaying && (
           <button
+            aria-label="Dừng video"
             className={styles.btnCloseVideo}
             onClick={(e) => {
               e.stopPropagation();

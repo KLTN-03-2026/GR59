@@ -10,6 +10,8 @@ import styles from "./Planner.module.scss";
 import StepProgressBar from "./components/StepProgressBar/StepProgressBar";
 import InterestItem from "./components/InterestItem/InterestItem";
 import type { PlannerFormData, InterestOption } from "./types";
+import { postTravelPlan } from "../../services/plannerService";
+import { getPlaces } from "../../services/highlightService";
 
 const INTERESTS: InterestOption[] = [
   { id: "Ẩm thực", icon: "ph-fill ph-fork-knife", color: "#f97316" },
@@ -37,6 +39,47 @@ const Planner: React.FC = () => {
     budget: heroData?.budget || "",
     peopleGroup: heroData?.totalGuests || "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [userLocationLatLng, setUserLocationLatLng] = useState<string | null>(null);
+  const [userLocationStatus, setUserLocationStatus] = useState<string>("Đang dò vị trí...");
+
+  // Lấy vị trí hiện tại của người dùng khi vừa vào trang
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setUserLocationLatLng(`${lat},${lng}`);
+          setUserLocationStatus("Vị trí hiện tại của bạn");
+        },
+        (error) => {
+          console.error("Lỗi lấy vị trí:", error);
+          setUserLocationStatus("Việt Nam"); // Fallback
+        }
+      );
+    } else {
+      setUserLocationStatus("Việt Nam"); // Fallback
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const res = await getPlaces();
+        if (res.data && res.data.DT) {
+          // Lọc ra danh sách tên các thành phố độc nhất
+          const uniqueTitles = Array.from(new Set(res.data.DT.map((item) => item.title)));
+          setSuggestions(uniqueTitles);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải gợi ý địa điểm:", error);
+      }
+    };
+    fetchDestinations();
+  }, []);
 
   useEffect(() => {
     if (heroData) {
@@ -110,6 +153,65 @@ const Planner: React.FC = () => {
     }));
   };
 
+  const handleSubmit = async () => {
+    // Basic validation
+    if (!formData.destination || !formData.travelDate || !formData.budget || !formData.peopleGroup) {
+      toast.warning("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+      return;
+    }
+
+    if (formData.interests.length === 0) {
+      toast.warning("Vui lòng chọn ít nhất 1 phong cách du lịch!");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await postTravelPlan(formData);
+      toast.success("AI đang thiết kế lộ trình cho bạn, chờ chút nhé! 🤖");
+      // Sau khi gọi API thành công, redirect sang trang dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Lỗi khi lưu kế hoạch chuyến đi:", error);
+      toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const [debouncedDestination, setDebouncedDestination] = useState(formData.destination);
+
+  // Chống nháy (debounce) khi người dùng đang gõ phím
+  // Bản đồ chỉ nhận lệnh update URL sau khi người dùng dừng gõ 1 giây
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedDestination(formData.destination);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [formData.destination]);
+
+  // Sinh ra URL iframe dựa trên vị trí hiển tại và điểm đến
+  let mapIframeUrl = "";
+  if (debouncedDestination && userLocationLatLng) {
+    // Nếu có cả 2 -> Tính toán tuyến đường (Directions)
+    // Thêm chữ ", Việt Nam" để Google Map không bị nhầm lẫn với các địa danh ở nước ngoài
+    mapIframeUrl = `https://maps.google.com/maps?saddr=${encodeURIComponent(userLocationLatLng)}&daddr=${encodeURIComponent(debouncedDestination + ", Việt Nam")}&output=embed`;
+  } else if (debouncedDestination) {
+    // Chỉ có điểm đến -> Ghim điểm đến
+    mapIframeUrl = `https://maps.google.com/maps?q=${encodeURIComponent(debouncedDestination + ", Việt Nam")}&t=&z=12&ie=UTF8&iwloc=&output=embed`;
+  } else if (userLocationLatLng) {
+    // Chỉ có vị trí hiện tại -> Ghim vị trí hiện tại
+    mapIframeUrl = `https://maps.google.com/maps?q=${encodeURIComponent(userLocationLatLng)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+  } else {
+    // Không có gì -> Hiển thị mặc định Việt Nam
+    mapIframeUrl = `https://maps.google.com/maps?q=Vietnam&t=&z=6&ie=UTF8&iwloc=&output=embed`;
+  }
+    
+  // Hiển thị text lên UI
+  const displayTitle = debouncedDestination
+    ? debouncedDestination
+    : userLocationStatus;
+
   return (
     <div className={styles.plannerWrapper}>
       <div className={styles.bgDecoration}></div>
@@ -138,8 +240,31 @@ const Planner: React.FC = () => {
                   type="text" 
                   placeholder="Bạn muốn đi đâu?" 
                   value={formData.destination} 
-                  onChange={(e) => setFormData({...formData, destination: e.target.value})}
+                  onChange={(e) => {
+                    setFormData({...formData, destination: e.target.value});
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 />
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul className={styles.suggestions}>
+                    {suggestions
+                      .filter((s) => s.toLowerCase().includes((formData.destination || "").toLowerCase()))
+                      .map((s, idx) => (
+                        <li 
+                          key={idx} 
+                          onMouseDown={(e) => {
+                            e.preventDefault(); // Tránh onBlur fire trước khi click
+                            setFormData({...formData, destination: s});
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          <i className="ph-fill ph-map-pin"></i> {s}
+                        </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
             <div className={styles.inputGroup}>
@@ -183,16 +308,23 @@ const Planner: React.FC = () => {
             <label>
               <i className="ph-fill ph-money"></i> NGÂN SÁCH
             </label>
-            <div className={styles.inputWrapper}>
-              <i className="ph-duotone ph-currency-circle-dollar"></i>
-              <input
-                type="text"
-                placeholder="Ví dụ: 5 triệu VNĐ"
+            <div className={styles.selectWrapper}>
+              <select
+                className={styles.select}
                 value={formData.budget}
                 onChange={(e) =>
                   setFormData({ ...formData, budget: e.target.value })
                 }
-              />
+              >
+                <option value="" disabled hidden>
+                  Chọn ngân sách dự kiến...
+                </option>
+                <option value="Dưới 5 triệu">Tiết kiệm (Dưới 5 triệu VNĐ)</option>
+                <option value="5 - 10 triệu">Tiêu chuẩn (5 - 10 triệu VNĐ)</option>
+                <option value="10 - 20 triệu">Thoải mái (10 - 20 triệu VNĐ)</option>
+                <option value="Trên 20 triệu">Cao cấp (Trên 20 triệu VNĐ)</option>
+              </select>
+              <i className="ph-bold ph-caret-down"></i>
             </div>
           </div>
           <div className={styles.inputGroup}>
@@ -215,8 +347,16 @@ const Planner: React.FC = () => {
         </div>
 
         <div className={styles.submitWrapper}>
-          <button className={styles.btnSubmit}>
-            <i className="ph-bold ph-lightning"></i> Tối ưu hóa lộ trình AI
+          <button 
+            className={styles.btnSubmit} 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <span><i className="ph-bold ph-spinner ph-spin"></i> Đang xử lý...</span>
+            ) : (
+              <span><i className="ph-bold ph-lightning"></i> Tối ưu hóa lộ trình AI</span>
+            )}
           </button>
           <span className={styles.footerNote}>Mất khoảng 5-10 giây để xử lý dữ liệu thông minh</span>
         </div>
@@ -227,30 +367,17 @@ const Planner: React.FC = () => {
           {/* Real Google Maps Embed */}
           <iframe
             title="Google Maps"
-            width="100%"
+            width="120%"
             height="100%"
             style={{ border: 0 }}
-            src={`https://www.google.com/maps?q=${encodeURIComponent(formData.destination || "Vietnam")}&output=embed&z=12`}
+            src={mapIframeUrl}
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           ></iframe>
           
-          <div className={styles.mapInfoBox}>
-            <div className={styles.infoTop}>
-              <h4>{formData.destination || "Việt Nam"}</h4>
-              <div className={styles.infoActions}>
-                <i className="ph-bold ph-note-pencil"></i>
-                <i className="ph-bold ph-arrow-bend-up-right"></i>
-              </div>
-            </div>
-            <p>{formData.destination || "Việt Nam"}</p>
-            <p className={styles.rating}>Đang hiển thị trên bản đồ</p>
-          </div>
+         
 
-          <div className={styles.mapExpandBtn}>
-            <i className="ph-bold ph-arrows-out"></i>
-          </div>
         </div>
       </section>
     </div>

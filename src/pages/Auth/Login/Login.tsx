@@ -73,6 +73,9 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         // Lưu thông tin vào LocalStorage
         localStorage.setItem("token", `mock_token_${user.id}`);
         localStorage.setItem("username", user.username);
+        // Lưu thêm thông tin để hiển thị ở trang Profile
+        if (user.email) localStorage.setItem("email", user.email);
+        if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
 
         toast.success(`Chào mừng ${user.username} trở lại! 👋`);
         navigate("/");
