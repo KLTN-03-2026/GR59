@@ -31,12 +31,12 @@ export interface BackendResponse<T = unknown> {
 
 // 1. Đăng ký (Thay API thật)
 export const postSignUp = (
-  username: string,
+  username: string, // thực chất đây là full name người dùng nhập
   email: string,
   pass: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>("/auth/register", {
-    fullName: username, // Gán username từ form vào fullName của BE
+    full_name: username, // Sửa lại thành full_name như Postman yêu cầu
     email: email,
     password: pass,
   });
