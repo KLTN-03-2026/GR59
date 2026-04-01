@@ -5,24 +5,276 @@
       "username": "nguyễn quang long",
       "email": "nguyenquanglong100285@gmail.com",
       "password": "Long123123",
+      "role": "ADMIN",
+      "status": "ACTIVE",
       "createdAt": "2026-03-28T03:43:40.064Z"
     },
     {
+      "id": "ivOX48lxqP0",
       "username": "test",
       "email": "test@gmail.com",
       "password": "Long123456",
-      "createdAt": "2026-03-28T06:22:35.339Z",
-      "id": "ivOX48lxqP0"
+      "role": "USER",
+      "status": "ACTIVE",
+      "createdAt": "2026-03-28T06:22:35.339Z"
     },
     {
+      "id": "YRd7pk4rKY8",
       "username": "skjgggggg",
       "email": "adsdd@gmai.com",
       "password": "Long02012004",
-      "createdAt": "2026-03-28T06:41:45.262Z",
-      "id": "YRd7pk4rKY8"
+      "role": "USER",
+      "status": "INACTIVE",
+      "createdAt": "2026-03-28T06:41:45.262Z"
     }
   ],
   "travel-plans": [],
+  "hotels": [
+    {
+      "id": "AZ-1024",
+      "name": "Grand Azure Resort",
+      "location": "Đà Nẵng, Việt Nam",
+      "rating": 4.9,
+      "reviews": "2.4k",
+      "type": "RESORT",
+      "status": "HOẠT ĐỘNG",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "AZ-2051",
+      "name": "Slate Heritage Palace",
+      "location": "Hà Nội, Việt Nam",
+      "rating": 4.7,
+      "reviews": "1.8k",
+      "type": "CỔ ĐIỂN",
+      "status": "BẢO TRÌ",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "AZ-0992",
+      "name": "Emerald Bay Suites",
+      "location": "Phú Quốc, Việt Nam",
+      "rating": 4.5,
+      "reviews": "942",
+      "type": "HIỆN ĐẠI",
+      "status": "HOẠT ĐỘNG",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "AZ-3301",
+      "name": "The Pearl Danang",
+      "location": "Đà Nẵng, Việt Nam",
+      "rating": 4.8,
+      "reviews": "3.1k",
+      "type": "RESORT",
+      "status": "HOẠT ĐỘNG",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "AZ-4412",
+      "name": "Topas Ecolodge",
+      "location": "Sapa, Lào Cai",
+      "rating": 4.7,
+      "reviews": "1.7k",
+      "type": "HIỆN ĐẠI",
+      "status": "HOẠT ĐỘNG",
+      "image": "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "AZ-5523",
+      "name": "Six Senses Ninh Van Bay",
+      "location": "Nha Trang, Khánh Hòa",
+      "rating": 4.9,
+      "reviews": "1.5k",
+      "type": "RESORT",
+      "status": "BẢO TRÌ",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=80&h=80&fit=crop"
+    }
+  ],
+  "restaurants": [
+    {
+      "id": "RS-4821",
+      "name": "The Azure Kitchen",
+      "location": "Quận 1, TP. Hồ Chí Minh",
+      "rating": 4.8,
+      "reviews": "1.2k",
+      "cuisine": "VIỆT NAM",
+      "status": "ĐANG MỞ",
+      "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "RS-5502",
+      "name": "Saigon Garden Bistro",
+      "location": "Quận 3, TP. Hồ Chí Minh",
+      "rating": 4.6,
+      "reviews": "987",
+      "cuisine": "CHÂU ÂU",
+      "status": "ĐANG MỞ",
+      "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "RS-3311",
+      "name": "Hà Nội Old Quarter Pho",
+      "location": "Hoàn Kiếm, Hà Nội",
+      "rating": 4.9,
+      "reviews": "2.8k",
+      "cuisine": "VIỆT NAM",
+      "status": "TẠM ĐÓNG",
+      "image": "https://images.unsplash.com/photo-1555126634-323283e090fa?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "RS-6614",
+      "name": "Pizza 4P's Bến Thành",
+      "location": "Quận 1, TP. Hồ Chí Minh",
+      "rating": 4.8,
+      "reviews": "5.6k",
+      "cuisine": "CHÂU ÂU",
+      "status": "ĐANG MỞ",
+      "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=80&h=80&fit=crop"
+    },
+    {
+      "id": "RS-7725",
+      "name": "Tầm Vị Fine Dining",
+      "location": "Hoàn Kiếm, Hà Nội",
+      "rating": 4.6,
+      "reviews": "1.1k",
+      "cuisine": "VIỆT NAM",
+      "status": "ĐANG MỞ",
+      "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=80&h=80&fit=crop"
+    }
+  ],
+  "dashboard_stats": [
+    {
+      "id": "1",
+      "label": "TỔNG LƯỢT TRUY CẬP",
+      "value": "1.28M",
+      "trend": "+12% so với T9",
+      "trendUp": true,
+      "icon": "Eye",
+      "colorClass": "bgBlue"
+    },
+    {
+      "id": "2",
+      "label": "NGƯỜI DÙNG HOẠT ĐỘNG",
+      "value": "85,200",
+      "trend": "+8.4% so với T9",
+      "trendUp": true,
+      "icon": "Users",
+      "colorClass": "bgEmerald"
+    },
+    {
+      "id": "3",
+      "label": "CHUYẾN ĐI ĐÃ TẠO",
+      "value": "456k",
+      "trend": "+21% so với T9",
+      "trendUp": true,
+      "icon": "AirplaneTilt",
+      "colorClass": "bgOrange"
+    },
+    {
+      "id": "4",
+      "label": "ĐÁNH GIÁ MỚI",
+      "value": "12,480",
+      "trend": "+5% so với T9",
+      "trendUp": true,
+      "icon": "Star",
+      "colorClass": "bgPurple"
+    }
+  ],
+  "recent_activity": [
+    {
+      "id": "1",
+      "time": "14:20",
+      "date": "24/03/2026",
+      "user": "Nguyễn Văn An",
+      "email": "an.nguyen@email.com",
+      "action": "Tạo chuyến đi \"Hà Nội → Sapa 3N2Đ\"",
+      "status": "Hoàn tất",
+      "color": "bgEmerald",
+      "avatarId": 1
+    },
+    {
+      "id": "2",
+      "time": "13:55",
+      "date": "24/03/2026",
+      "user": "Trần Thị Mai",
+      "email": "mai.tran@email.com",
+      "action": "Cập nhật đánh giá Vinpearl Nha Trang",
+      "status": "Đang xử lý",
+      "color": "bgBlue",
+      "avatarId": 2
+    },
+    {
+      "id": "3",
+      "time": "12:10",
+      "date": "24/03/2026",
+      "user": "Lê Minh Quân",
+      "email": "quan.lm@email.com",
+      "action": "Đăng ký tài khoản mới — xác minh email",
+      "status": "Hoàn tất",
+      "color": "bgEmerald",
+      "avatarId": 3
+    },
+    {
+      "id": "4",
+      "time": "11:30",
+      "date": "24/03/2026",
+      "user": "Phạm Hoàng Nam",
+      "email": "nam.ph@email.com",
+      "action": "Hủy chuyến đi \"Khám phá Phú Quốc\"",
+      "status": "Đã hủy",
+      "color": "bgAmber",
+      "avatarId": 4
+    },
+    {
+      "id": "5",
+      "time": "10:05",
+      "date": "24/03/2026",
+      "user": "Hoàng Thu Thủy",
+      "email": "thuy.ht@email.com",
+      "action": "Đặt khách sạn Grand Azure Resort",
+      "status": "Hoàn tất",
+      "color": "bgEmerald",
+      "avatarId": 5
+    }
+  ],
+  "popular_locations": [
+    {
+      "id": "1",
+      "name": "Đà Nẵng",
+      "value": "85k",
+      "pct": 85,
+      "color": "#2563eb"
+    },
+    {
+      "id": "2",
+      "name": "Hà Nội",
+      "value": "72k",
+      "pct": 72,
+      "color": "#3b82f6"
+    },
+    {
+      "id": "3",
+      "name": "Phú Quốc",
+      "value": "64k",
+      "pct": 64,
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "4",
+      "name": "TP. Hồ Chí Minh",
+      "value": "58k",
+      "pct": 58,
+      "color": "#f97316"
+    },
+    {
+      "id": "5",
+      "name": "Nha Trang",
+      "value": "42k",
+      "pct": 42,
+      "color": "#10b981"
+    }
+  ],
   "highlight_locations": [
     {
       "id": "1",
@@ -74,7 +326,6 @@
       "desc": "Thiên đường nghỉ dưỡng với những bãi cát trắng mịn và làn nước trong xanh.",
       "type": "pin"
     }
-    
   ],
   "highlight_hotels": [
     {
@@ -128,7 +379,8 @@
       "img": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800",
       "desc": "Mang đến hương vị ẩm thực Việt Nam tinh tế giữa không gian Đông Dương.",
       "type": "food"
-    },{
+    },
+    {
       "id": "11",
       "title": "Pizza 4P's Bến Thành",
       "location": "TP HCM",

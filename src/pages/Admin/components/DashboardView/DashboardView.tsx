@@ -3,31 +3,25 @@ import styles from '../_shared.module.scss';
 import StatCard from '../StatCard/StatCard';
 import { Download, Calendar } from "@phosphor-icons/react";
 import { motion } from 'framer-motion';
+import { useDashboardStats, useRecentActivity, usePopularLocations } from '../../hooks/useAdminData';
+import { ErrorBanner, LoadingRows, SkeletonCards } from '../_shared/AdminFeedback';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+} as const;
+const rowVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+} as const;
 
 const DashboardView: React.FC = () => {
-  const recentActivity = [
-    { time: '14:20', date: '24/10/2023', user: 'Nguyễn Văn An', email: 'an.nguyen@email.com', action: 'Tạo chuyến đi "Hà Nội → Sapa 3N2Đ"', status: 'Hoàn tất', color: 'bgEmerald', avatarId: 1 },
-    { time: '13:55', date: '24/10/2023', user: 'Trần Thị Mai', email: 'mai.tran@email.com', action: 'Cập nhật đánh giá Vinpearl Nha Trang', status: 'Đang xử lý', color: 'bgBlue', avatarId: 2 },
-    { time: '12:10', date: '24/10/2023', user: 'Lê Minh Quân', email: 'quan.lm@email.com', action: 'Đăng ký tài khoản mới — xác minh email', status: 'Hoàn tất', color: 'bgEmerald', avatarId: 3 },
-    { time: '11:30', date: '24/10/2023', user: 'Phạm Hoàng Nam', email: 'nam.ph@email.com', action: 'Hủy chuyến đi "Khám phá Phú Quốc"', status: 'Đã hủy', color: 'bgAmber', avatarId: 4 },
-  ];
+  const { data: stats, loading: statsLoading, error: statsError, refetch: refetchStats } = useDashboardStats();
+  const { data: activities, loading: actLoading, error: actError, refetch: refetchAct } = useRecentActivity();
+  const { data: locations, loading: locLoading, error: locError, refetch: refetchLoc } = usePopularLocations();
 
-  const locations = [
-    { name: 'Đà Nẵng', value: '85k', pct: 85, color: '#2563eb' },
-    { name: 'Hà Nội', value: '72k', pct: 72, color: '#3b82f6' },
-    { name: 'Phú Quốc', value: '64k', pct: 64, color: '#8b5cf6' },
-    { name: 'TP. Hồ Chí Minh', value: '58k', pct: 58, color: '#f97316' },
-    { name: 'Nha Trang', value: '42k', pct: 42, color: '#10b981' },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-  } as const;
-  const rowVariants = {
-    hidden: { opacity: 0, y: 16 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-  } as const;
+  const anyError = statsError || actError || locError;
+  const anyRefetch = () => { refetchStats(); refetchAct(); refetchLoc(); };
 
   return (
     <motion.div className={styles.contentArea} initial="hidden" animate="visible" variants={containerVariants}>
@@ -49,17 +43,31 @@ const DashboardView: React.FC = () => {
         </div>
       </motion.div>
 
+      {/* ─── Error Banner ────────────────── */}
+      {anyError && <ErrorBanner message={anyError} onRetry={anyRefetch} />}
+
       {/* ─── Stats Grid ─────────────────── */}
       <motion.div variants={rowVariants} className={styles.statsGrid}>
-        <StatCard label="TỔNG LƯỢT TRUY CẬP" value="1.28M" trend="+12% so với T9" trendUp={true} icon="Eye" colorClass="bgBlue" />
-        <StatCard label="NGƯỜI DÙNG HOẠT ĐỘNG" value="85,200" trend="+8.4% so với T9" trendUp={true} icon="Users" colorClass="bgEmerald" />
-        <StatCard label="CHUYẾN ĐI ĐÃ TẠO" value="456k" trend="+21% so với T9" trendUp={true} icon="AirplaneTilt" colorClass="bgOrange" />
-        <StatCard label="ĐÁNH GIÁ MỚI" value="12,480" trend="+5% so với T9" trendUp={true} icon="Star" colorClass="bgPurple" />
+        {statsLoading
+          ? <SkeletonCards count={4} />
+          : stats.map(stat => (
+            <StatCard
+              key={stat.id}
+              label={stat.label}
+              value={stat.value}
+              trend={stat.trend}
+              trendUp={stat.trendUp}
+              icon={stat.icon as any}
+              colorClass={stat.colorClass}
+              footerText={stat.footerText}
+            />
+          ))
+        }
       </motion.div>
 
       {/* ─── Charts Row ─────────────────── */}
       <motion.div variants={rowVariants} style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px' }}>
-        {/* Line Chart */}
+        {/* Line Chart — static SVG (chart data kept static as is visual only) */}
         <div style={{ background: 'white', borderRadius: '2rem', border: '1px solid #f1f5f9', padding: '40px', boxShadow: '0 1px 2px rgba(0,0,0,0.02), 0 4px 8px rgba(0,0,0,0.02)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '36px' }}>
             <div>
@@ -83,21 +91,16 @@ const DashboardView: React.FC = () => {
                   <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              {/* Grid lines */}
-              {[0,50,100,150,200].map(y => (
+              {[0, 50, 100, 150, 200].map(y => (
                 <line key={y} x1="0" y1={y} x2="700" y2={y} stroke="#f8fafc" strokeWidth="1" />
               ))}
-              {/* Previous week */}
               <path d="M0,170 C100,175 200,130 300,145 C400,160 500,110 600,120 C650,125 700,140 700,140" fill="none" stroke="#e2e8f0" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="6,6" />
-              {/* This week */}
               <path d="M0,150 C100,140 200,80 300,90 C400,100 500,40 600,25 C650,18 700,35 700,35 L700,200 L0,200 Z" fill="url(#blueGrad)" />
               <path d="M0,150 C100,140 200,80 300,90 C400,100 500,40 600,25 C650,18 700,35 700,35" fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
-              {/* Data points */}
-              {[[0,150],[100,140],[200,80],[300,90],[400,100],[500,40],[600,25],[700,35]].map(([x, y], i) => (
+              {[[0, 150], [100, 140], [200, 80], [300, 90], [400, 100], [500, 40], [600, 25], [700, 35]].map(([x, y], i) => (
                 <circle key={i} cx={x} cy={y} r="5" fill="white" stroke="#2563eb" strokeWidth="2.5" />
               ))}
             </svg>
-            {/* X-axis labels */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', padding: '0 4px' }}>
               {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(d => (
                 <span key={d} style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>{d}</span>
@@ -106,31 +109,39 @@ const DashboardView: React.FC = () => {
           </div>
         </div>
 
-        {/* Bar/Progress Chart */}
+        {/* Popular Locations — fetched from DB */}
         <div style={{ background: 'white', borderRadius: '2rem', border: '1px solid #f1f5f9', padding: '40px', boxShadow: '0 1px 2px rgba(0,0,0,0.02), 0 4px 8px rgba(0,0,0,0.02)' }}>
           <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: '1.125rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.025em', margin: '0 0 6px 0' }}>Địa điểm phổ biến</h3>
           <p style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 500, margin: '0 0 32px 0' }}>Lượt tìm kiếm tháng này</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {locations.map((loc, i) => (
-              <motion.div key={loc.name} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 * i }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: loc.color, display: 'block' }}></span>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#334155' }}>{loc.name}</span>
+          {locLoading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} style={{ height: '32px', borderRadius: '8px', background: 'linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)', backgroundSize: '200% 100%', animation: `shimmer 1.4s ease-in-out ${i * 0.1}s infinite` }} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {locations.map((loc, i) => (
+                <motion.div key={loc.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 * i }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: loc.color, display: 'block' }}></span>
+                      <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#334155' }}>{loc.name}</span>
+                    </div>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 800, color: loc.color }}>{loc.value}</span>
                   </div>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 800, color: loc.color }}>{loc.value}</span>
-                </div>
-                <div style={{ height: '8px', backgroundColor: '#f8fafc', borderRadius: '999px', overflow: 'hidden' }}>
-                  <motion.div
-                    style={{ height: '100%', backgroundColor: loc.color, borderRadius: '999px' }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${loc.pct}%` }}
-                    transition={{ duration: 0.8, delay: 0.1 * i, ease: 'easeOut' }}
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                  <div style={{ height: '8px', backgroundColor: '#f8fafc', borderRadius: '999px', overflow: 'hidden' }}>
+                    <motion.div
+                      style={{ height: '100%', backgroundColor: loc.color, borderRadius: '999px' }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${loc.pct}%` }}
+                      transition={{ duration: 0.8, delay: 0.1 * i, ease: 'easeOut' }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </motion.div>
 
@@ -149,31 +160,35 @@ const DashboardView: React.FC = () => {
               <th>TRẠNG THÁI</th>
             </tr>
           </thead>
-          <tbody>
-            {recentActivity.map((act, idx) => (
-              <motion.tr key={idx} variants={rowVariants}>
-                <td>
-                  <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0' }}>{act.time}</p>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', margin: 0 }}>{act.date}</p>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <img src={`https://i.pravatar.cc/100?u=${act.avatarId}`} alt="" style={{ width: '40px', height: '40px', borderRadius: '14px', border: '2px solid #f1f5f9', objectFit: 'cover' }} />
-                    <div>
-                      <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0', fontFamily: "'Manrope', sans-serif" }}>{act.user}</p>
-                      <p style={{ fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8', margin: 0 }}>{act.email}</p>
+          {actLoading ? (
+            <LoadingRows count={5} />
+          ) : (
+            <tbody>
+              {activities.map((act, idx) => (
+                <motion.tr key={act.id} variants={rowVariants}>
+                  <td>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0' }}>{act.time}</p>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', margin: 0 }}>{act.date}</p>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <img src={`https://i.pravatar.cc/100?u=${act.avatarId}`} alt="" style={{ width: '40px', height: '40px', borderRadius: '14px', border: '2px solid #f1f5f9', objectFit: 'cover' }} />
+                      <div>
+                        <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0', fontFamily: "'Manrope', sans-serif" }}>{act.user}</p>
+                        <p style={{ fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8', margin: 0 }}>{act.email}</p>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: '#475569', margin: 0 }}>{act.action}</p>
-                </td>
-                <td>
-                  <span className={`${styles.badge} ${styles[act.color as keyof typeof styles]}`}>{act.status}</span>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
+                  </td>
+                  <td>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: '#475569', margin: 0 }}>{act.action}</p>
+                  </td>
+                  <td>
+                    <span className={`${styles.badge} ${styles[act.color as keyof typeof styles]}`}>{act.status}</span>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          )}
         </table>
       </motion.div>
     </motion.div>
