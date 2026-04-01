@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from '../_shared.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { Envelope, Pencil, Trash, MagnifyingGlass, DotsThreeVertical, CheckCircle, XCircle, Clock, UserPlus } from "@phosphor-icons/react";
+import { Envelope, Pencil, Trash, MagnifyingGlass, DotsThreeVertical, CheckCircle, XCircle, Clock, UserPlus, CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { motion } from 'framer-motion';
+import { useDbUsers, deleteRecord } from '../../hooks/useAdminData';
+import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
+
+const PAGE_SIZE = 6;
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+} as const;
+const rowVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+} as const;
 
 const UsersView: React.FC = () => {
-  const users = [
-    { id: 'USR-7721', name: 'Nguyễn Văn An', email: 'an.nguyen@email.com', role: 'ADMIN', status: 'ACTIVE', joined: '12 Th10, 2023', avatar: 'https://i.pravatar.cc/100?u=1' },
-    { id: 'USR-8812', name: 'Trần Thị Mai', email: 'mai.tran@email.com', role: 'EDITOR', status: 'ACTIVE', joined: '15 Th10, 2023', avatar: 'https://i.pravatar.cc/100?u=2' },
-    { id: 'USR-3345', name: 'Lê Minh Quân', email: 'quan.lm@email.com', role: 'USER', status: 'BANNED', joined: '20 Th10, 2023', avatar: 'https://i.pravatar.cc/100?u=3' },
-    { id: 'USR-9021', name: 'Phạm Hoàng Nam', email: 'nam.ph@email.com', role: 'USER', status: 'INACTIVE', joined: '22 Th10, 2023', avatar: 'https://i.pravatar.cc/100?u=4' },
-    { id: 'USR-1120', name: 'Hoàng Thu Thủy', email: 'thuy.ht@email.com', role: 'USER', status: 'ACTIVE', joined: '24 Th10, 2023', avatar: 'https://i.pravatar.cc/100?u=5' },
-  ];
+  const { data: users, loading, error, refetch } = useDbUsers();
+  
+  const [activeRoleFilter, setActiveRoleFilter] = useState<'All' | 'ADMIN' | 'USER'>('All');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   const getRoleStyle = (role: string) => {
     switch (role) {
@@ -37,14 +48,29 @@ const UsersView: React.FC = () => {
 
   const statusLabel: Record<string, string> = { ACTIVE: 'Hoạt động', BANNED: 'Bị chặn', INACTIVE: 'Không hoạt động' };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
-  } as const;
-  const rowVariants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
-  } as const;
+  // ─── Filtered & Paginated ────────────────────────────────────────────────────
+  const filtered = useMemo(() => {
+    let list = [...users];
+    if (activeRoleFilter !== 'All') list = list.filter(u => u.role === activeRoleFilter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+    }
+    return list;
+  }, [users, activeRoleFilter, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Bạn có chắc muốn xóa người dùng này?')) return;
+    try {
+      await deleteRecord('users', id);
+      refetch();
+    } catch {
+      alert('Xóa thất bại!');
+    }
+  };
 
   return (
     <motion.div className={styles.contentArea} initial="hidden" animate="visible" variants={containerVariants}>
@@ -61,38 +87,48 @@ const UsersView: React.FC = () => {
         </div>
       </motion.div>
 
+      {error && <ErrorBanner message={error} onRetry={refetch} />}
+
       <motion.div variants={rowVariants} className={styles.statsGrid}>
-        <StatCard label="TỔNG NGƯỜI DÙNG" value="12,840" trend="+156 tuần này" trendUp={true} icon="Users" colorClass="bgBlue" />
-        <StatCard label="ĐANG HOẠT ĐỘNG" value="8,520" footerText="Trong 30 ngày qua" icon="UserCheck" colorClass="bgEmerald" />
+        <StatCard label="TỔNG NGƯỜI DÙNG" value={loading ? '...' : String(users.length)} trend="+156 tuần này" trendUp={true} icon="Users" colorClass="bgBlue" />
+        <StatCard label="ĐANG HOẠT ĐỘNG" value={loading ? '...' : String(users.filter(u => u.status === 'ACTIVE').length)} footerText="Trong 30 ngày qua" icon="UserCheck" colorClass="bgEmerald" />
         <StatCard label="YÊU CẦU DUYỆT" value="12" trend="Chờ xử lý" trendUp={true} icon="ClockCounterClockwise" colorClass="bgAmber" />
-        <StatCard label="TÀI KHOẢN BỊ CHẶN" value="42" trend="-4% tháng trước" trendUp={false} icon="ShieldWarning" colorClass="bgPurple" />
+        <StatCard label="BỊ CHẶN" value={loading ? '...' : String(users.filter(u => u.status === 'BANNED').length)} trend="-4% tháng trước" trendUp={false} icon="ShieldWarning" colorClass="bgPurple" />
       </motion.div>
 
       <motion.div variants={rowVariants} className={styles.filterSection}>
         <div className={styles.filterHeader}>
           <div className={styles.tabGroup}>
-            <button className={`${styles.tab} ${styles.tabActive}`}>Tất cả (12,840)</button>
-            <button className={styles.tab}>Quyền Admin</button>
-            <button className={styles.tab}>Bị chặn (42)</button>
+            <button 
+              className={`${styles.tab} ${activeRoleFilter === 'All' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveRoleFilter('All'); setPage(1); }}
+            >Tất cả ({users.length})</button>
+            <button 
+              className={`${styles.tab} ${activeRoleFilter === 'ADMIN' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveRoleFilter('ADMIN'); setPage(1); }}
+            >Quyền Admin</button>
+            <button className={styles.tab}>Bị chặn ({users.filter(u => u.status === 'BANNED').length})</button>
           </div>
         </div>
         <div className={styles.filterRow}>
           <span className={styles.filterLabel}>Tìm:</span>
           <div className={styles.searchGroup}>
             <MagnifyingGlass size={18} className={styles.searchIcon} />
-            <input type="text" placeholder="Tìm theo tên hoặc địa chỉ email..." />
+            <input 
+              type="text" 
+              placeholder="Tìm theo tên hoặc địa chỉ email..." 
+              value={search}
+              onChange={e => { setSearch(e.target.value); setPage(1); }}
+            />
           </div>
-          <select className={styles.selectPill}>
-            <option>Vai trò: Tất cả</option>
-            <option>Admin</option>
-            <option>Editor</option>
-            <option>User</option>
-          </select>
-          <select className={styles.selectPill}>
-            <option>Trạng thái: Tất cả</option>
-            <option>Hoạt động</option>
-            <option>Không hoạt động</option>
-            <option>Bị chặn</option>
+          <select 
+            className={styles.selectPill}
+            value={activeRoleFilter}
+            onChange={(e) => { setActiveRoleFilter(e.target.value as any); setPage(1); }}
+          >
+            <option value="All">Vai trò: Tất cả</option>
+            <option value="ADMIN">Admin</option>
+            <option value="USER">User</option>
           </select>
         </div>
       </motion.div>
@@ -112,54 +148,80 @@ const UsersView: React.FC = () => {
               <th style={{ textAlign: 'right' }}>THAO TÁC</th>
             </tr>
           </thead>
-          <tbody>
-            {users.map((user, idx) => (
-              <motion.tr key={user.id} variants={rowVariants} custom={idx}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <img src={user.avatar} alt="" style={{ width: '44px', height: '44px', borderRadius: '14px', objectFit: 'cover', border: '2px solid #f1f5f9' }} />
-                    <div>
-                      <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 3px 0', fontFamily: "'Manrope', sans-serif" }}>{user.name}</p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <Envelope size={12} style={{ color: '#cbd5e1' }} />
-                        <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#94a3b8' }}>{user.email}</span>
+          {loading ? (
+            <LoadingRows count={5} />
+          ) : (
+            <tbody>
+              {paged.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
+                    Không tìm thấy người dùng phù hợp
+                  </td>
+                </tr>
+              ) : paged.map((user, idx) => (
+                <motion.tr key={user.id} variants={rowVariants} custom={idx}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <img src={`https://i.pravatar.cc/100?u=${user.id}`} alt="" style={{ width: '44px', height: '44px', borderRadius: '14px', objectFit: 'cover', border: '2px solid #f1f5f9' }} />
+                      <div>
+                        <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 3px 0', fontFamily: "'Manrope', sans-serif" }}>{user.username}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <Envelope size={12} style={{ color: '#cbd5e1' }} />
+                          <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#94a3b8' }}>{user.email}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <span className={`${styles.badge} ${getRoleStyle(user.role)}`}>{user.role}</span>
-                </td>
-                <td>
-                  <span className={`${styles.badge} ${getStatusStyle(user.status)}`}>
-                    <StatusIcon status={user.status} />
-                    {statusLabel[user.status]}
-                  </span>
-                </td>
-                <td>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#475569', margin: 0 }}>{user.joined}</p>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', margin: '2px 0 0 0' }}>#{user.id}</p>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                    <button className={styles.actionBtn}><Pencil size={17} /></button>
-                    <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`}><Trash size={17} /></button>
-                    <button className={styles.actionBtn}><DotsThreeVertical size={17} weight="bold" /></button>
-                  </div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
+                  </td>
+                  <td>
+                    <span className={`${styles.badge} ${getRoleStyle(user.role)}`}>{user.role}</span>
+                  </td>
+                  <td>
+                    <span className={`${styles.badge} ${getStatusStyle(user.status)}`}>
+                      <StatusIcon status={user.status} />
+                      {statusLabel[user.status]}
+                    </span>
+                  </td>
+                  <td>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#475569', margin: 0 }}>
+                      {new Date(user.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </p>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', margin: '2px 0 0 0' }}>#{user.id}</p>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                      <button className={styles.actionBtn}><Pencil size={17} /></button>
+                      <button 
+                        className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                        onClick={() => handleDelete(user.id)}
+                      ><Trash size={17} /></button>
+                      <button className={styles.actionBtn}><DotsThreeVertical size={17} weight="bold" /></button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          )}
         </table>
+        
+        {/* Pagination */}
         <div className={styles.pagination}>
-          <p className={styles.paginationInfo}>Hiển thị <span>1–5</span> của <span>12,840</span> người dùng</p>
+          <p className={styles.paginationInfo}>
+            Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)}</span> của <span>{filtered.length}</span> người dùng
+          </p>
           <div className={styles.paginationBtns}>
-            <button className={styles.pageBtn} disabled>‹</button>
-            <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
-            <button className={styles.pageBtn}>2</button>
-            <button className={styles.pageBtn}>3</button>
-            <span style={{ color: '#cbd5e1', fontWeight: 700, padding: '0 4px' }}>…</span>
-            <button className={styles.pageBtn}>›</button>
+            <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+              <CaretLeft size={16} />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <button 
+                key={p} 
+                className={`${styles.pageBtn} ${p === page ? styles.pageBtnActive : ''}`}
+                onClick={() => setPage(p)}
+              >{p}</button>
+            ))}
+            <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+              <CaretRight size={16} />
+            </button>
           </div>
         </div>
       </motion.div>
