@@ -33,7 +33,17 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         setIsLoading(true);
         const response = await postLoginGoogle(tokenResponse.access_token);
         if (response.data && response.data.EC === 0) {
-          localStorage.setItem("token", `google_token_${response.data.DT.id}`);
+          const data = response.data.DT;
+          const user = data.user;
+
+          // Lưu thông tin đầy đủ vào LocalStorage
+          if (data.accessToken) localStorage.setItem("token", data.accessToken);
+          localStorage.setItem("user", JSON.stringify(user)); 
+          
+          if (user.fullName) localStorage.setItem("username", user.fullName);
+          if (user.email) localStorage.setItem("email", user.email);
+          if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
+
           toast.success("Đăng nhập Google thành công! 🚀");
           navigate("/");
         }
@@ -63,28 +73,31 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
 
     setIsLoading(true);
     try {
-      // Gọi hàm postLogin (JSON Server trả về mảng DT: UserData[])
+      // Gọi API đăng nhập thật
       const response = await postLogin(cleanEmail, password);
-      const userList = response.data.DT as UserData[];
 
-      if (userList && userList.length > 0) {
-        const user = userList[0];
+      if (response.data && response.data.EC === 0) {
+        const data = response.data.DT;
+        const user = data.user;
 
         // Lưu thông tin vào LocalStorage
-        localStorage.setItem("token", `mock_token_${user.id}`);
-        localStorage.setItem("username", user.username);
-        // Lưu thêm thông tin để hiển thị ở trang Profile
+        if (data.accessToken) localStorage.setItem("token", data.accessToken);
+        localStorage.setItem("user", JSON.stringify(user)); // Lưu ĐẦY ĐỦ JSON user Object
+        
+        if (user.fullName) localStorage.setItem("username", user.fullName);
         if (user.email) localStorage.setItem("email", user.email);
         if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
 
-        toast.success(`Chào mừng ${user.username} trở lại! 👋`);
+        toast.success(`Chào mừng ${user.fullName || user.email} trở lại! 👋`);
         navigate("/");
       } else {
-        toast.error("Email hoặc mật khẩu không chính xác!");
+        toast.error(response.data?.EM || "Email hoặc mật khẩu không chính xác!");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        toast.error("Lỗi kết nối Server Local (8081)!");
+        // Backend có thể trả lỗi cấu trúc { EM, ... } hoặc { message, ... }
+        const serverError = error.response?.data as { EM?: string; message?: string };
+        toast.error(serverError?.EM || serverError?.message || "Tài khoản hoặc mật khẩu không đúng!");
       } else {
         toast.error("Đã xảy ra lỗi không xác định!");
       }

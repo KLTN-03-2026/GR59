@@ -14,7 +14,11 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify"; // Đảm bảo bạn đã cài react-toastify
 import styles from "./ForgotPassword.module.scss";
-import { updatePasswordByEmail } from "../../../services/userService";
+import {
+  updatePasswordByEmail,
+  postSendOTP,
+  postVerifyOTP,
+} from "../../../services/userService";
 
 type Step = "email" | "otp" | "reset" | "success";
 
@@ -44,12 +48,25 @@ const ForgotPassword: React.FC = () => {
   };
 
   // 1. Xử lý gửi Email (Bước 1)
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return toast.error("Vui lòng nhập email!");
+    const cleanEmail = email.trim();
+    if (!cleanEmail) return toast.error("Vui lòng nhập email!");
 
-    setStep("otp");
-    toast.info("Mã OTP đã được gửi! (Sử dụng mã: 123456 để test)");
+    try {
+      setIsLoading(true);
+      const res = await postSendOTP(cleanEmail);
+      if (res.data && res.data.EC === 0) {
+        setStep("otp");
+        toast.success("Mã OTP đã được gửi về Email của bạn! 📧");
+      } else {
+        toast.error(res.data?.EM || "Gửi mã OTP thất bại!");
+      }
+    } catch (error) {
+      toast.error("Lỗi kết nối Server khi gửi OTP!");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -70,15 +87,29 @@ const ForgotPassword: React.FC = () => {
   };
 
   // 2. Xử lý xác nhận mã OTP (Bước 2)
-  const handleOtpSubmit = (e: React.FormEvent) => {
+  const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fullOtp = otp.join("");
 
-    if (fullOtp === "123456") {
-      setStep("reset");
-      toast.success("Xác minh danh tính thành công!");
-    } else {
-      toast.error("Mã OTP không đúng! (Gợi ý: 123456)");
+    if (fullOtp.length < 6) {
+      return toast.error("Vui lòng nhập đủ 6 số OTP!");
+    }
+
+    try {
+      setIsLoading(true);
+      // Gọi API xác minh OTP
+      const res = await postVerifyOTP(email, fullOtp);
+      
+      if (res.data && res.data.EC === 0) {
+        setStep("reset");
+        toast.success("Xác minh danh tính thành công!");
+      } else {
+        toast.error(res.data?.EM || "Mã OTP không đúng hoặc đã hết hạn!");
+      }
+    } catch (error) {
+      toast.error("Lỗi kết nối Server khi xác minh OTP!");
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -66,6 +66,7 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     try {
       // Gọi service (File axios-customize đã bọc sẵn EC, EM, DT)
       const res = await postSignUp(cleanName, cleanEmail, formData.pass);
+      console.log(res);
 
       if (res.data && res.data.EC === 0) {
         toast.success(res.data.EM);

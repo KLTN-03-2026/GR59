@@ -35,28 +35,29 @@ export const postSignUp = (
   email: string,
   pass: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
-  return instance.post<BackendResponse<AuthResponseData>>("/auth/register", {
+  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/register", {
     full_name: username, // Sửa lại thành full_name như Postman yêu cầu
     email: email,
     password: pass,
   });
 };
 
-// 2. Đăng nhập
+// 2. Đăng nhập (Thay API thật)
 export const postLogin = (
   email: string,
   pass: string,
-): Promise<AxiosResponse<BackendResponse<UserData[]>>> => {
-  return instance.get<BackendResponse<UserData[]>>(
-    `/users?email=${email}&password=${pass}`,
-  );
+): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
+  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/login", {
+    email: email,
+    password: pass,
+  });
 };
 
-// 3. Đăng nhập Google
+// 3. Đăng nhập Google (Thay API thật)
 export const postLoginGoogle = (
   token: string,
-): Promise<AxiosResponse<BackendResponse<UserData>>> => {
-  return instance.post<BackendResponse<UserData>>("/google-login", {
+): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
+  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/google", {
     token,
   });
 };
@@ -89,3 +90,40 @@ export const updatePasswordByEmail = async (
     } as AxiosResponse<BackendResponse<null>>;
   }
 };
+
+// 5. Đăng xuất
+export const postLogout = (): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  return instance.post<BackendResponse<unknown>>("/api/v1/auth/logout");
+};
+
+// 6. Refresh Token
+export const postRefreshToken = (
+  refreshToken: string,
+): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
+  return instance.post<BackendResponse<AuthResponseData>>(
+    "/api/v1/auth/refresh-token",
+    {
+      token: refreshToken,
+    },
+  );
+};
+// 7. Gửi mã OTP
+export const postSendOTP = (
+  email: string,
+): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  return instance.post<BackendResponse<unknown>>("/api/v1/auth/send-otp", {
+    email,
+  });
+};
+
+// 8. Xác minh OTP
+export const postVerifyOTP = (
+  email: string,
+  otp: string,
+): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  return instance.post<BackendResponse<unknown>>("/api/v1/auth/verify-email", {
+    email,
+    otp, // Gửi otp lên BE xác minh
+  });
+};
+

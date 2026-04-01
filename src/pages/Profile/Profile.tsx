@@ -6,7 +6,7 @@ import ProfileHeader from "./components/ProfileHeader/ProfileHeader";
 import ProfileTabs from "./components/ProfileTabs/ProfileTabs";
 import ProfileForm from "./components/ProfileForm/ProfileForm";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
-import { getProfile, getSavedTrips } from "../../services/profileService";
+import { getSavedTrips } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
 
 const Profile: React.FC = () => {
@@ -18,36 +18,52 @@ const Profile: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const [profileRes, savedTripsRes] = await Promise.all([
-          getProfile(),
-          getSavedTrips(),
-        ]);
+        // 1. Lấy thông tin User từ LocalStorage (Được lưu từ bước Đăng nhập phía trước!)
+        const userStr = localStorage.getItem("user");
 
-        if (profileRes && profileRes.data && profileRes.data.DT) {
-          const profileData = profileRes.data.DT;
-          // Ghi đè thông tin hiển thị giao diện theo user thực thế đã login
-          const username = localStorage.getItem("username");
-          const email = localStorage.getItem("email");
-          const createdAt = localStorage.getItem("createdAt");
-
-          if (username) profileData.name = username;
-          if (email) profileData.email = email;
-
-          if (createdAt) {
-            const date = new Date(createdAt);
+        if (userStr) {
+          const userData = JSON.parse(userStr);
+          
+          let formattedJoinDate = "Mới tham gia";
+          if (userData.createdAt) {
+            const date = new Date(userData.createdAt);
             const month = (date.getMonth() + 1).toString().padStart(2, "0");
             const year = date.getFullYear();
-            profileData.joinDate = `${month}/${year}`;
+            formattedJoinDate = `${month}/${year}`;
           }
 
+          const profileData = {
+            name: userData.fullName || userData.email || "Thành viên",
+            email: userData.email || "Không rõ email",
+            phone: userData.phone || "Chưa cập nhật",
+            address: userData.address || "Chưa cập nhật",
+            bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
+            avatar: userData.avatarUrl || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png", 
+            cover: "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg", // Tạm mặc định
+            badge: userData.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
+            joinDate: formattedJoinDate,
+            location: userData.address || "Việt Nam",
+          };
+
           setProfile(profileData);
+        } else {
+          // Xử lý báo lỗi nếu vào profile mà LocalStorage chưa có gì (chưa đăng nhập)
+          console.warn("Không tìm thấy dữ liệu user trong local storage");
         }
 
-        if (savedTripsRes && savedTripsRes.data && savedTripsRes.data.DT) {
-          setSavedTrips(savedTripsRes.data.DT);
+        // 2. Tạm thời vẫn lấy các danh sách chuyến đi từ API cũ. 
+        // (Sau này BE mà có API chuyến đi riêng thì sẽ tính sau) 
+        try {
+          const savedTripsRes = await getSavedTrips();
+          if (savedTripsRes && savedTripsRes.data && savedTripsRes.data.DT) {
+             setSavedTrips(savedTripsRes.data.DT);
+          }
+        } catch (tripErr) { 
+           console.warn("Chưa tải được mock saved_trips", tripErr); 
         }
+
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Lỗi khi tải thông tin profile:", error);
       }
     };
 

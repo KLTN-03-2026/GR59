@@ -10,6 +10,7 @@ import {
 import { toast } from "react-toastify"; // Đảm bảo đã import toast
 import styles from "./Navbar.module.scss";
 import { logo } from "../../../assets/images/img";
+import { postLogout } from "../../../services/userService";
 
 const Navbar: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -44,19 +45,26 @@ const Navbar: React.FC = () => {
   }, [location]);
   const isActive = (path: string) => location.pathname === path;
 
-  const handleLogOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleLogOut = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
-    // 1. Xóa sạch dữ liệu trong LocalStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
+    try {
+      // 1. Gọi API đăng xuất để BE xóa Session/Cookie/RefreshToken
+      await postLogout();
+    } catch (error) {
+      console.error("Lỗi khi gọi API đăng xuất:", error);
+      // Vẫn tiếp tục xóa LocalStorage ở dưới để đảm bảo người dùng thoát được giao diện
+    } finally {
+      // 2. Xóa sạch dữ liệu trong LocalStorage
+      localStorage.clear();
 
-    // 2. Cập nhật state
-    setIsLoggedIn(false);
+      // 3. Cập nhật state
+      setIsLoggedIn(false);
 
-    // 3. Thông báo và điều hướng
-    toast.info("Đã đăng xuất thành công!");
-    navigate("/auth");
+      // 4. Thông báo và điều hướng
+      toast.info("Đã đăng xuất thành công!");
+      navigate("/auth");
+    }
   };
 
   return (
