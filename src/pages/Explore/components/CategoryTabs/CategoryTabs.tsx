@@ -2,9 +2,9 @@ import styles from './CategoryTabs.module.scss';
 
 const categories = [
   { id: 'all', label: 'TẤT CẢ', icon: '🔍' },
-  { id: 'restaurant', label: 'NHÀ HÀNG', icon: '🍴' },
-  { id: 'hotel', label: 'KHÁCH SẠN', icon: '🏨' },
-  { id: 'sightseeing', label: 'THAM QUAN', icon: '🏛️' },
+  { id: 'food', label: 'NHÀ HÀNG', icon: '🍴' },
+  { id: 'bed', label: 'KHÁCH SẠN', icon: '🏨' },
+  { id: 'pin', label: 'THAM QUAN', icon: '🏛️' },
   { id: 'cafe', label: 'CÀ PHÊ', icon: '☕' },
 ];
 

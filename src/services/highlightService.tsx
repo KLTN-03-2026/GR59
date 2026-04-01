@@ -22,6 +22,7 @@ export interface BackendResponse<T = unknown> {
   DT: T;
 }
 
+
 // Lấy tất cả địa điểm (cho trang Explore)
 export const getPlaces = (): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
   return instance.get<BackendResponse<HighlightItem[]>>("/places");
@@ -41,3 +42,4 @@ export const getHighlightHotels = (): Promise<AxiosResponse<BackendResponse<High
 export const getHighlightRestaurants = (): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
   return instance.get<BackendResponse<HighlightItem[]>>("/places?type=food");
 };
+

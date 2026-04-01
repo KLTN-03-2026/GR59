@@ -5,14 +5,18 @@ interface Props {
   name: string;
   email: string;
   badge: string;
+  avatar: string;
+  cover: string;
+  joinDate: string;
+  location: string;
 }
 
-const ProfileHeader: React.FC<Props> = ({ name, email, badge }) => {
+const ProfileHeader: React.FC<Props> = ({ name, email, badge, avatar, cover, joinDate, location }) => {
   return (
     <div className={styles.profileHeaderWrapper}>
       <div className={styles.coverPhoto}>
         <img 
-          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop" 
+          src={cover} 
           alt="Cover" 
         />
         <button className={styles.editCoverBtn}>
@@ -23,7 +27,7 @@ const ProfileHeader: React.FC<Props> = ({ name, email, badge }) => {
       <div className={styles.headerContent}>
         <div className={styles.avatarContainer}>
           <div className={styles.avatarWrapper}>
-            <img src="https://i.pravatar.cc/150?u=qlong" alt="Avatar" className={styles.avatar} />
+            <img src={avatar} alt="Avatar" className={styles.avatar} />
             <button className={styles.changeAvatarBtn}>
               <i className="ph-bold ph-camera"></i>
             </button>
@@ -54,11 +58,11 @@ const ProfileHeader: React.FC<Props> = ({ name, email, badge }) => {
             </div>
             <div className={styles.statItem}>
               <i className="ph-bold ph-calendar-blank"></i>
-              Tham gia từ 01/2023
+              Tham gia từ {joinDate}
             </div>
             <div className={styles.statItem}>
               <i className="ph-bold ph-map-pin"></i>
-              TP. Hồ Chí Minh, VN
+              {location}
             </div>
           </div>
         </div>

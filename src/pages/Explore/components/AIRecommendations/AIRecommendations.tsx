@@ -1,7 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./AIRecommendations.module.scss";
+import { getAIRecommendations, type AIRecommendation } from "../../../../services/aiRecommendationService";
 
 const AIRecommendations: React.FC = () => {
+  const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const response = await getAIRecommendations();
+        if (response.data && response.data.DT) {
+          setRecommendations(response.data.DT);
+        }
+      } catch (error) {
+        console.error("Failed to fetch AI recommendations", error);
+      }
+    };
+    fetchRecommendations();
+  }, []);
+
   return (
     <div className={styles.aiSection} data-aos="fade-right">
       <div className={styles.header}>
@@ -14,12 +31,11 @@ const AIRecommendations: React.FC = () => {
         </button>
       </div>
       <div className={styles.scrollWrapper}>
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div key={i} className={styles.miniCard}>
-            <img src={`https://picsum.photos/200/120?sig=${i}`} alt="Suggest" />
+        {recommendations.map((item) => (
+          <div key={item.id} className={styles.miniCard}>
+            <img src={item.image} alt="Suggest" />
             <div className={styles.miniInfo}>
-              <h4>Địa điểm HOT #{i}</h4>
-              <span>98% phù hợp</span>
+              <h4>{item.title}</h4>
             </div>
           </div>
         ))}

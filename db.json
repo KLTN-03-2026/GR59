@@ -1,4 +1,30 @@
 {
+  "profile": {
+    "name": "Hồ Thế Anh",
+    "email": "anh.ho@example.com",
+    "phone": "+84 901 234 567",
+    "address": "Quận 1, TP. Hồ Chí Minh, Việt Nam",
+    "bio": "Đam mê du lịch bụi và khám phá những vùng đất mới lạ. Luôn tìm kiếm những trải nghiệm địa phương chân thực.",
+    "avatar": "https://i.pravatar.cc/150?u=qlong",
+    "cover": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop",
+    "badge": "Thành viên Vàng",
+    "joinDate": "01/2023",
+    "location": "TP. Hồ Chí Minh, VN",
+    "savedTrips": [
+      {
+        "id": 1,
+        "title": "Hạ Long - 3 ngày 2 đêm",
+        "image": "https://images.unsplash.com/photo-1598018554441-b4d717311ce7?auto=format&fit=crop&q=80&w=400",
+        "timeAgo": "2 giờ trước"
+      },
+      {
+        "id": 2,
+        "title": "Đà Lạt - Phố Sương Mù",
+        "image": "https://images.unsplash.com/photo-1589136142558-9469d4434661?auto=format&fit=crop&q=80&w=400",
+        "timeAgo": "3 ngày trước"
+      }
+    ]
+  },
   "users": [
     {
       "id": "06ba",
@@ -709,6 +735,16 @@
         { "time": "19:30", "activity": "Tiệc tối 5 sao private", "dist": "2km từ TT" }
       ]
     }
+  ],
+  "aiRecommendations": [
+    { "id": 1, "title": "Địa điểm HOT #1", "image": "https://picsum.photos/200/120?sig=1" },
+    { "id": 2, "title": "Địa điểm HOT #2", "image": "https://picsum.photos/200/120?sig=2" },
+    { "id": 3, "title": "Địa điểm HOT #3", "image": "https://picsum.photos/200/120?sig=3" },
+    { "id": 4, "title": "Địa điểm HOT #4", "image": "https://picsum.photos/200/120?sig=4" },
+    { "id": 5, "title": "Địa điểm HOT #5", "image": "https://picsum.photos/200/120?sig=5" },
+    { "id": 6, "title": "Địa điểm HOT #6", "image": "https://picsum.photos/200/120?sig=6" },
+    { "id": 7, "title": "Địa điểm HOT #7", "image": "https://picsum.photos/200/120?sig=7" },
+    { "id": 8, "title": "Địa điểm HOT #8", "image": "https://picsum.photos/200/120?sig=8" }
   ],
   "$schema": "./node_modules/json-server/schema.json"
 }

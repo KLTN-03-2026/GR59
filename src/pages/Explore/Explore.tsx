@@ -57,7 +57,7 @@ const Explore: React.FC = () => {
 
   const filteredData = places.filter((item) => {
     const matchesCategory =
-      activeCategory === "all" || item.category === activeCategory;
+      activeCategory === "all" ? item.type !== "itinerary" : item.type === activeCategory;
     const matchesSearch = item.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());

@@ -1,29 +1,13 @@
 import React from "react";
 import styles from "./ProfileSidebar.module.scss";
 
-interface Trip {
-  id: number;
-  title: string;
-  image: string;
-  timeAgo: string;
+import type { SavedTrip } from "../../../../services/profileService";
+
+interface Props {
+  savedTrips?: SavedTrip[];
 }
 
-const ProfileSidebar: React.FC = () => {
-  const savedTrips: Trip[] = [
-    {
-      id: 1,
-      title: "Hạ Long - 3 ngày 2 đêm",
-      image: "https://images.unsplash.com/photo-1598018554441-b4d717311ce7?auto=format&fit=crop&q=80&w=400",
-      timeAgo: "2 giờ trước",
-    },
-    {
-      id: 2,
-      title: "Đà Lạt - Phố Sương Mù",
-      image: "https://images.unsplash.com/photo-1589136142558-9469d4434661?auto=format&fit=crop&q=80&w=400",
-      timeAgo: "3 ngày trước",
-    },
-  ];
-
+const ProfileSidebar: React.FC<Props> = ({ savedTrips = [] }) => {
   return (
     <div className={styles.sidebar}>
       <div className={styles.card}>

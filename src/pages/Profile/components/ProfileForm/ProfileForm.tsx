@@ -4,9 +4,12 @@ import styles from './ProfileForm.module.scss';
 interface ProfileFormProps {
   title: string;
   mode: 'info' | 'password';
+  profile?: ProfileData;
 }
 
-const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode }) => {
+import type { ProfileData } from "../../../../services/profileService";
+
+const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
   const [showCurrent, setShowCurrent] = React.useState(false);
   const [showNew, setShowNew] = React.useState(false);
   const [showConfirm, setShowConfirm] = React.useState(false);
@@ -35,7 +38,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode }) => {
               <label>Họ và tên</label>
               <div className={styles.inputWrapper}>
                 <i className="ph-bold ph-user"></i>
-                <input type="text" defaultValue="Hồ Thế Anh" placeholder="Nhập họ tên" />
+                <input type="text" defaultValue={profile?.name || ""} placeholder="Nhập họ tên" />
               </div>
             </div>
             
@@ -43,7 +46,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode }) => {
               <label>Số điện thoại</label>
               <div className={styles.inputWrapper}>
                 <i className="ph-bold ph-phone"></i>
-                <input type="text" defaultValue="+84 901 234 567" placeholder="Nhập số điện thoại" />
+                <input type="text" defaultValue={profile?.phone || ""} placeholder="Nhập số điện thoại" />
               </div>
             </div>
 
@@ -51,7 +54,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode }) => {
               <label>Địa chỉ</label>
               <div className={styles.inputWrapper}>
                 <i className="ph-bold ph-map-pin"></i>
-                <input type="text" defaultValue="Quận 1, TP. Hồ Chí Minh, Việt Nam" placeholder="Nhập địa chỉ" />
+                <input type="text" defaultValue={profile?.address || ""} placeholder="Nhập địa chỉ" />
               </div>
             </div>
 
@@ -59,7 +62,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode }) => {
               <label>Giới thiệu bản thân</label>
               <textarea 
                 rows={4} 
-                defaultValue="Đam mê du lịch bụi và khám phá những vùng đất mới lạ. Luôn tìm kiếm những trải nghiệm địa phương chân thực."
+                defaultValue={profile?.bio || ""}
                 placeholder="Viết vài dòng giới thiệu về bạn..."
               />
             </div>
