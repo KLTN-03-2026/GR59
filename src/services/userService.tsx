@@ -58,7 +58,16 @@ export const postLoginGoogle = (
   token: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/google", {
-    token,
+    token, // Send token in the body (the backend accepts access_token payload now)
+  });
+};
+
+// 3.1. Đăng nhập Facebook
+export const postLoginFacebook = (
+  accessToken: string,
+): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
+  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/facebook", {
+    accessToken,
   });
 };
 
@@ -103,7 +112,7 @@ export const postRefreshToken = (
   return instance.post<BackendResponse<AuthResponseData>>(
     "/api/v1/auth/refresh-token",
     {
-      token: refreshToken,
+      refreshToken: refreshToken,
     },
   );
 };

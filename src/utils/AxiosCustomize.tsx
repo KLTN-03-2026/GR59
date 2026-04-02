@@ -1,5 +1,3 @@
-
-
 import axios from "axios";
 import type {
   AxiosError,
@@ -8,8 +6,6 @@ import type {
 } from "axios";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-
-
 
 NProgress.configure({ showSpinner: false, trickleSpeed: 100 });
 
@@ -40,8 +36,53 @@ instance.interceptors.response.use(
     // Dữ liệu { EC, EM, DT } sẽ nằm trong res.data
     return response;
   },
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     NProgress.done();
+
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    // Nếu lỗi 401 (Unauthorized) và chưa thử retry lần nào
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (refreshToken) {
+        try {
+          // Gọi API refresh token trực tiếp (không dùng instance để tránh loop)
+          const res = await axios.post("http://localhost:8888/api/v1/auth/refresh-token", {
+            refreshToken: refreshToken,
+          });
+
+          if (res.data && res.data.EC === 0) {
+            const data = res.data.DT;
+
+            // Cập nhật token mới vào storage
+            if (data.accessToken) localStorage.setItem("token", data.accessToken);
+            if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
+
+            // Gắn token mới vào header của request cũ và chạy lại
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+            }
+            return instance(originalRequest);
+          }
+        } catch (refreshError) {
+          // Nếu Refresh Token cũng hết hạn -> Logout sạch sẽ
+          console.error("Refresh token failed:", refreshError);
+          localStorage.clear();
+          window.location.href = "/auth?mode=login";
+          return Promise.reject(refreshError);
+        }
+      } else {
+        // Không có refresh token -> Redirect về đăng nhập
+        localStorage.clear();
+        window.location.href = "/auth?mode=login";
+      }
+    }
+
     return Promise.reject(error);
   },
 );
