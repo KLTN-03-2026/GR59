@@ -35,11 +35,14 @@ export const postSignUp = (
   email: string,
   pass: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
-  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/register", {
-    full_name: username, // Sửa lại thành full_name như Postman yêu cầu
-    email: email,
-    password: pass,
-  });
+  return instance.post<BackendResponse<AuthResponseData>>(
+    "/api/v1/auth/register",
+    {
+      full_name: username, // Sửa lại thành full_name như Postman yêu cầu
+      email: email,
+      password: pass,
+    },
+  );
 };
 
 // 2. Đăng nhập (Thay API thật)
@@ -47,19 +50,37 @@ export const postLogin = (
   email: string,
   pass: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
-  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/login", {
-    email: email,
-    password: pass,
-  });
+  return instance.post<BackendResponse<AuthResponseData>>(
+    "/api/v1/auth/login",
+    {
+      email: email,
+      password: pass,
+    },
+  );
 };
 
 // 3. Đăng nhập Google (Thay API thật)
 export const postLoginGoogle = (
   token: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
-  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/google", {
-    token,
-  });
+  return instance.post<BackendResponse<AuthResponseData>>(
+    "/api/v1/auth/google",
+    {
+      token,
+    },
+  );
+};
+
+// 3b. Đăng nhập Facebook (Thay API thật)
+export const postLoginFacebook = (
+  token: string,
+): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
+  return instance.post<BackendResponse<AuthResponseData>>(
+    "/api/v1/auth/facebook",
+    {
+      token,
+    },
+  );
 };
 
 // 4. Quên mật khẩu & Cập nhật mật khẩu mới (Đã chuẩn hóa Type)
@@ -92,7 +113,9 @@ export const updatePasswordByEmail = async (
 };
 
 // 5. Đăng xuất
-export const postLogout = (): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+export const postLogout = (): Promise<
+  AxiosResponse<BackendResponse<unknown>>
+> => {
   return instance.post<BackendResponse<unknown>>("/api/v1/auth/logout");
 };
 
@@ -126,4 +149,3 @@ export const postVerifyOTP = (
     otp, // Gửi otp lên BE xác minh
   });
 };
-

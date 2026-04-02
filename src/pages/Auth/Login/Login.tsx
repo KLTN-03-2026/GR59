@@ -1,19 +1,27 @@
-import React, { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 import {
   EnvelopeSimple,
-  LockKey,
   Eye,
   EyeSlash,
   FacebookLogo,
   GoogleLogo,
+  LockKey,
 } from "phosphor-react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  facebookLogin,
+  initializeFacebookSDK,
+} from "../../../services/facebookService";
+import {
+  postLogin,
+  postLoginFacebook,
+  postLoginGoogle,
+  type AuthResponseData,
+} from "../../../services/userService";
 import styles from "./Login.module.scss";
-import { useGoogleLogin } from "@react-oauth/google";
-import type { UserData } from "../../../services/userService";
-import { postLogin, postLoginGoogle } from "../../../services/userService";
-import axios from "axios";
 
 interface Props {
   onToggle: () => void;
@@ -26,6 +34,21 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Initialize Facebook SDK on component mount
+  useEffect(() => {
+    initializeFacebookSDK(import.meta.env.VITE_FACEBOOK_APP_ID || "");
+  }, []);
+
+  // Helper function to save user to localStorage
+  const saveUserToLocalStorage = (data: AuthResponseData) => {
+    if (data.accessToken) localStorage.setItem("token", data.accessToken);
+    const user = data.user;
+    localStorage.setItem("user", JSON.stringify(user));
+    if (user.fullName) localStorage.setItem("username", user.fullName);
+    if (user.email) localStorage.setItem("email", user.email);
+    if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
+  };
+
   // 1. Xử lý đăng nhập Google
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -33,17 +56,7 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         setIsLoading(true);
         const response = await postLoginGoogle(tokenResponse.access_token);
         if (response.data && response.data.EC === 0) {
-          const data = response.data.DT;
-          const user = data.user;
-
-          // Lưu thông tin đầy đủ vào LocalStorage
-          if (data.accessToken) localStorage.setItem("token", data.accessToken);
-          localStorage.setItem("user", JSON.stringify(user)); 
-          
-          if (user.fullName) localStorage.setItem("username", user.fullName);
-          if (user.email) localStorage.setItem("email", user.email);
-          if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
-
+          saveUserToLocalStorage(response.data.DT);
           toast.success("Đăng nhập Google thành công! 🚀");
           navigate("/");
         }
@@ -56,7 +69,44 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
     },
   });
 
-  // 2. Xử lý đăng nhập Email/Password
+  // 2. Xử lý đăng nhập Facebook
+  const loginWithFacebook = async () => {
+    try {
+      setIsLoading(true);
+      const fbResponse = await facebookLogin({
+        scope: "public_profile,email",
+      });
+
+      // Gửi Facebook token lên backend
+      const response = await postLoginFacebook(fbResponse.accessToken);
+      if (response.data && response.data.EC === 0) {
+        saveUserToLocalStorage(response.data.DT);
+        toast.success("Đăng nhập Facebook thành công! 🚀");
+        navigate("/");
+      } else {
+        toast.error(response.data?.EM || "Đăng nhập Facebook thất bại!");
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const serverError = error.response?.data as {
+          EM?: string;
+          message?: string;
+        };
+        toast.error(
+          serverError?.EM || serverError?.message || "Lỗi đăng nhập Facebook!",
+        );
+      } else {
+        const errorMsg =
+          error instanceof Error ? error.message : "Lỗi đăng nhập Facebook!";
+        toast.error(errorMsg);
+      }
+      console.error("Error logging in with Facebook:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. Xử lý đăng nhập Email/Password
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -83,7 +133,7 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         // Lưu thông tin vào LocalStorage
         if (data.accessToken) localStorage.setItem("token", data.accessToken);
         localStorage.setItem("user", JSON.stringify(user)); // Lưu ĐẦY ĐỦ JSON user Object
-        
+
         if (user.fullName) localStorage.setItem("username", user.fullName);
         if (user.email) localStorage.setItem("email", user.email);
         if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
@@ -91,13 +141,22 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         toast.success(`Chào mừng ${user.fullName || user.email} trở lại! 👋`);
         navigate("/");
       } else {
-        toast.error(response.data?.EM || "Email hoặc mật khẩu không chính xác!");
+        toast.error(
+          response.data?.EM || "Email hoặc mật khẩu không chính xác!",
+        );
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         // Backend có thể trả lỗi cấu trúc { EM, ... } hoặc { message, ... }
-        const serverError = error.response?.data as { EM?: string; message?: string };
-        toast.error(serverError?.EM || serverError?.message || "Tài khoản hoặc mật khẩu không đúng!");
+        const serverError = error.response?.data as {
+          EM?: string;
+          message?: string;
+        };
+        toast.error(
+          serverError?.EM ||
+            serverError?.message ||
+            "Tài khoản hoặc mật khẩu không đúng!",
+        );
       } else {
         toast.error("Đã xảy ra lỗi không xác định!");
       }
@@ -125,6 +184,8 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         <button
           type="button"
           className={`${styles.socialBtn} ${styles.facebook}`}
+          onClick={loginWithFacebook}
+          disabled={isLoading}
         >
           <FacebookLogo weight="fill" size={20} /> Facebook
         </button>
