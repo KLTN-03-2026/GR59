@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 import {
   EnvelopeSimple,
-  LockKey,
   Eye,
   EyeSlash,
   FacebookLogo,
 } from "phosphor-react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  facebookLogin,
+  initializeFacebookSDK,
+} from "../../../services/facebookService";
+import {
+  postLogin,
+  postLoginFacebook,
+  postLoginGoogle,
+  type AuthResponseData,
+} from "../../../services/userService";
 import styles from "./Login.module.scss";
 import { GoogleLogin } from "@react-oauth/google";
 import FacebookLoginExport from '@greatsumini/react-facebook-login';
@@ -54,7 +65,7 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         if (data.accessToken) localStorage.setItem("token", data.accessToken);
         if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
         localStorage.setItem("user", JSON.stringify(user)); // Lưu ĐẦY ĐỦ JSON user Object
-        
+
         if (user.fullName) localStorage.setItem("username", user.fullName);
         if (user.email) localStorage.setItem("email", user.email);
         if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
@@ -62,13 +73,22 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         toast.success(`Chào mừng ${user.fullName || user.email} trở lại! 👋`);
         navigate("/");
       } else {
-        toast.error(response.data?.EM || "Email hoặc mật khẩu không chính xác!");
+        toast.error(
+          response.data?.EM || "Email hoặc mật khẩu không chính xác!",
+        );
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         // Backend có thể trả lỗi cấu trúc { EM, ... } hoặc { message, ... }
-        const serverError = error.response?.data as { EM?: string; message?: string };
-        toast.error(serverError?.EM || serverError?.message || "Tài khoản hoặc mật khẩu không đúng!");
+        const serverError = error.response?.data as {
+          EM?: string;
+          message?: string;
+        };
+        toast.error(
+          serverError?.EM ||
+            serverError?.message ||
+            "Tài khoản hoặc mật khẩu không đúng!",
+        );
       } else {
         toast.error("Đã xảy ra lỗi không xác định!");
       }

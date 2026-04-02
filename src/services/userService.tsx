@@ -105,7 +105,9 @@ export const updatePasswordByEmail = async (
 };
 
 // 5. Đăng xuất
-export const postLogout = (): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+export const postLogout = (): Promise<
+  AxiosResponse<BackendResponse<unknown>>
+> => {
   return instance.post<BackendResponse<unknown>>("/api/v1/auth/logout");
 };
 
