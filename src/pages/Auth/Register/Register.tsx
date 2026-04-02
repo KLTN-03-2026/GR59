@@ -1,28 +1,25 @@
-import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import React, { useState } from "react";
 import {
   EnvelopeSimple,
   Eye,
   EyeSlash,
   FacebookLogo,
-  GoogleLogo,
   LockKey,
   User,
 } from "phosphor-react";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Sửa lại từ "react-router" thành "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  facebookLogin,
-  initializeFacebookSDK,
-} from "../../../services/facebookService";
 import {
   postLoginFacebook,
   postLoginGoogle,
   postSignUp,
   type AuthResponseData,
-} from "../../../services/userService"; // Đường dẫn file service của bạn
+} from "../../../services/userService";
 import styles from "./Register.module.scss";
+import { GoogleLogin } from "@react-oauth/google";
+import FacebookLoginExport from '@greatsumini/react-facebook-login';
+const FacebookLogin = (FacebookLoginExport as any).default || FacebookLoginExport;
+import axios from "axios";
 
 interface Props {
   onToggle: () => void;
@@ -42,82 +39,16 @@ const Register: React.FC<Props> = ({ onToggle }) => {
 
   const navigate = useNavigate();
 
-  // Initialize Facebook SDK on component mount
-  useEffect(() => {
-    initializeFacebookSDK(import.meta.env.VITE_FACEBOOK_APP_ID || "");
-  }, []);
-
-  // Helper function to save user to localStorage
-  const saveUserToLocalStorage = (data: AuthResponseData) => {
+  // Helper function to save tokens and user data
+  const saveAuthData = (data: AuthResponseData) => {
     if (data.accessToken) localStorage.setItem("token", data.accessToken);
+    if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
+    
     const user = data.user;
     localStorage.setItem("user", JSON.stringify(user));
     if (user.fullName) localStorage.setItem("username", user.fullName);
     if (user.email) localStorage.setItem("email", user.email);
     if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
-  };
-
-  // Xử lý đăng ký/đăng nhập Google
-  const signupWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setIsLoading(true);
-        const response = await postLoginGoogle(tokenResponse.access_token);
-        if (response.data && response.data.EC === 0) {
-          saveUserToLocalStorage(response.data.DT);
-          toast.success("Đăng ký/Đăng nhập Google thành công! 🚀");
-          setTimeout(() => {
-            navigate("/");
-          }, 1500);
-        } else {
-          toast.error(response.data?.EM || "Thất bại!");
-        }
-      } catch (error) {
-        toast.error("Lỗi đăng ký Google!");
-        console.error("Error signing up with Google:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-  });
-
-  // Xử lý đăng ký/đăng nhập Facebook
-  const signupWithFacebook = async () => {
-    try {
-      setIsLoading(true);
-      const fbResponse = await facebookLogin({
-        scope: "public_profile,email",
-      });
-
-      // Gửi Facebook token lên backend
-      const response = await postLoginFacebook(fbResponse.accessToken);
-      if (response.data && response.data.EC === 0) {
-        saveUserToLocalStorage(response.data.DT);
-        toast.success("Đăng ký/Đăng nhập Facebook thành công! 🚀");
-        setTimeout(() => {
-          navigate("/");
-        }, 1500);
-      } else {
-        toast.error(response.data?.EM || "Đăng ký Facebook thất bại!");
-      }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as {
-          EM?: string;
-          message?: string;
-        };
-        toast.error(
-          serverError?.EM || serverError?.message || "Lỗi đăng ký Facebook!",
-        );
-      } else {
-        const errorMsg =
-          error instanceof Error ? error.message : "Lỗi đăng ký Facebook!";
-        toast.error(errorMsg);
-      }
-      console.error("Error signing up with Facebook:", error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,49 +62,43 @@ const Register: React.FC<Props> = ({ onToggle }) => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // --- 1. Validation Logic ---
     const cleanName = formData.name.trim();
     const cleanEmail = formData.email.trim();
     const isValidEmail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    
+    // Password validation: 8-32 chars, at least one digit, one lowercase, one uppercase
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}$/;
 
     if (cleanName.length < 4) return toast.error("Tên quá ngắn, không hợp lệ");
-    if (!isValidEmail.test(cleanEmail))
-      return toast.error("Email không đúng định dạng");
+    if (!isValidEmail.test(cleanEmail)) return toast.error("Email không đúng định dạng");
     if (!passwordRegex.test(formData.pass)) {
-      return toast.error(
-        "Mật khẩu phải từ 8-32 ký tự, bao gồm chữ hoa, chữ thường và số",
-      );
+      return toast.error("Mật khẩu phải từ 8-32 ký tự, bao gồm chữ hoa, chữ thường và số");
     }
-    if (formData.pass !== formData.confirm)
-      return toast.error("Mật khẩu xác nhận không khớp!");
+    if (formData.pass !== formData.confirm) return toast.error("Mật khẩu xác nhận không khớp!");
     if (!terms) return toast.warn("Bạn cần đồng ý với điều khoản!");
 
-    // --- 2. Gọi API Thật (Backend) ---
     setIsLoading(true);
     try {
-      // Gọi service (File axios-customize đã bọc sẵn EC, EM, DT)
       const res = await postSignUp(cleanName, cleanEmail, formData.pass);
-      console.log(res);
 
       if (res.data && res.data.EC === 0) {
-        toast.success(res.data.EM);
-        setTimeout(() => {
-          navigate("/auth?mode=login");
-        }, 1500);
+        toast.success(res.data.EM || "Đăng ký thành công!");
+        // Nếu Backend trả về luôn token sau khi đăng ký thì lưu luôn
+        if (res.data.DT && res.data.DT.accessToken) {
+            saveAuthData(res.data.DT);
+            navigate("/");
+        } else {
+            setTimeout(() => {
+                onToggle(); // Chuyển sang tab Login
+            }, 1500);
+        }
       } else {
         toast.error(res.data.EM || "Đăng ký thất bại!");
       }
     } catch (error: unknown) {
-      // Xử lý lỗi mà không dùng 'any'
       if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as {
-          EM?: string;
-          message?: string;
-        };
-        toast.error(
-          serverError?.EM || serverError?.message || "Lỗi xử lý từ server",
-        );
+        const serverError = error.response?.data as { EM?: string; message?: string };
+        toast.error(serverError?.EM || serverError?.message || "Lỗi xử lý từ server");
       } else {
         toast.error("Đã xảy ra lỗi không xác định");
       }
@@ -189,23 +114,69 @@ const Register: React.FC<Props> = ({ onToggle }) => {
         <p>Gia nhập cộng đồng du lịch thông minh</p>
       </div>
 
-      <div className={styles.socialButtons}>
-        <button
-          type="button"
-          className={`${styles.socialBtn} ${styles.google}`}
-          onClick={() => signupWithGoogle()}
-          disabled={isLoading}
-        >
-          <GoogleLogo size={20} /> Google
-        </button>
-        <button
-          type="button"
-          className={`${styles.socialBtn} ${styles.facebook}`}
-          onClick={signupWithFacebook}
-          disabled={isLoading}
-        >
-          <FacebookLogo weight="fill" size={20} /> Facebook
-        </button>
+      <div className={styles.socialButtons} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ flex: 1, padding: "0 24px", height: "44px", overflow: "hidden", borderRadius: "30px", display: "flex", justifyContent: "center" }}>
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              try {
+                setIsLoading(true);
+                if (!credentialResponse.credential) throw new Error("No credential");
+                const response = await postLoginGoogle(credentialResponse.credential);
+                
+                if (response.data && response.data.EC === 0) {
+                  saveAuthData(response.data.DT);
+                  toast.success("Đăng ký Google thành công! 🚀");
+                  navigate("/");
+                } else {
+                  toast.error(response.data?.EM || "Đăng ký Google thất bại!");
+                }
+              } catch (error) {
+                toast.error("Lỗi đăng ký Google!");
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            onError={() => {
+              toast.error("Đăng ký Google thất bại!");
+            }}
+            theme="outline"
+            size="large"
+            shape="pill"
+          />
+        </div>
+        <div style={{ flex: 1, height: "44px" }}>
+          <FacebookLogin
+            appId={import.meta.env.VITE_FACEBOOK_APP_ID || "3832704913701035"}
+            onSuccess={async (response: any) => {
+              try {
+                setIsLoading(true);
+                const res = await postLoginFacebook(response.accessToken);
+                if (res.data && res.data.EC === 0) {
+                  saveAuthData(res.data.DT);
+                  toast.success("Đăng ký Facebook thành công! 🚀");
+                  navigate("/");
+                } else {
+                  toast.error(res.data?.EM || "Đăng ký Facebook thất bại!");
+                }
+              } catch (error: any) {
+                toast.error("Lỗi đăng ký Facebook!");
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            render={({ onClick }: any) => (
+              <button
+                type="button"
+                className={`${styles.socialBtn} ${styles.facebook}`}
+                onClick={onClick}
+                disabled={isLoading}
+                style={{ width: "100%", height: "100%", margin: 0 }}
+              >
+                <FacebookLogo weight="fill" size={20} /> Facebook
+              </button>
+            )}
+          />
+        </div>
       </div>
 
       <div className={styles.divider}>
