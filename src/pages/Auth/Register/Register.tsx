@@ -1,18 +1,28 @@
-import React, { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 import {
-  User,
   EnvelopeSimple,
-  LockKey,
   Eye,
   EyeSlash,
   FacebookLogo,
   GoogleLogo,
+  LockKey,
+  User,
 } from "phosphor-react";
-import { toast } from "react-toastify";
-import styles from "./Register.module.scss";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sửa lại từ "react-router" thành "react-router-dom"
-import { postSignUp } from "../../../services/userService"; // Đường dẫn file service của bạn
-import axios from "axios";
+import { toast } from "react-toastify";
+import {
+  facebookLogin,
+  initializeFacebookSDK,
+} from "../../../services/facebookService";
+import {
+  postLoginFacebook,
+  postLoginGoogle,
+  postSignUp,
+  type AuthResponseData,
+} from "../../../services/userService"; // Đường dẫn file service của bạn
+import styles from "./Register.module.scss";
 
 interface Props {
   onToggle: () => void;
@@ -31,6 +41,84 @@ const Register: React.FC<Props> = ({ onToggle }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // Initialize Facebook SDK on component mount
+  useEffect(() => {
+    initializeFacebookSDK(import.meta.env.VITE_FACEBOOK_APP_ID || "");
+  }, []);
+
+  // Helper function to save user to localStorage
+  const saveUserToLocalStorage = (data: AuthResponseData) => {
+    if (data.accessToken) localStorage.setItem("token", data.accessToken);
+    const user = data.user;
+    localStorage.setItem("user", JSON.stringify(user));
+    if (user.fullName) localStorage.setItem("username", user.fullName);
+    if (user.email) localStorage.setItem("email", user.email);
+    if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
+  };
+
+  // Xử lý đăng ký/đăng nhập Google
+  const signupWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        const response = await postLoginGoogle(tokenResponse.access_token);
+        if (response.data && response.data.EC === 0) {
+          saveUserToLocalStorage(response.data.DT);
+          toast.success("Đăng ký/Đăng nhập Google thành công! 🚀");
+          setTimeout(() => {
+            navigate("/");
+          }, 1500);
+        } else {
+          toast.error(response.data?.EM || "Thất bại!");
+        }
+      } catch (error) {
+        toast.error("Lỗi đăng ký Google!");
+        console.error("Error signing up with Google:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+  });
+
+  // Xử lý đăng ký/đăng nhập Facebook
+  const signupWithFacebook = async () => {
+    try {
+      setIsLoading(true);
+      const fbResponse = await facebookLogin({
+        scope: "public_profile,email",
+      });
+
+      // Gửi Facebook token lên backend
+      const response = await postLoginFacebook(fbResponse.accessToken);
+      if (response.data && response.data.EC === 0) {
+        saveUserToLocalStorage(response.data.DT);
+        toast.success("Đăng ký/Đăng nhập Facebook thành công! 🚀");
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      } else {
+        toast.error(response.data?.EM || "Đăng ký Facebook thất bại!");
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const serverError = error.response?.data as {
+          EM?: string;
+          message?: string;
+        };
+        toast.error(
+          serverError?.EM || serverError?.message || "Lỗi đăng ký Facebook!",
+        );
+      } else {
+        const errorMsg =
+          error instanceof Error ? error.message : "Lỗi đăng ký Facebook!";
+        toast.error(errorMsg);
+      }
+      console.error("Error signing up with Facebook:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -79,8 +167,13 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     } catch (error: unknown) {
       // Xử lý lỗi mà không dùng 'any'
       if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as { EM?: string; message?: string };
-        toast.error(serverError?.EM || serverError?.message || "Lỗi xử lý từ server");
+        const serverError = error.response?.data as {
+          EM?: string;
+          message?: string;
+        };
+        toast.error(
+          serverError?.EM || serverError?.message || "Lỗi xử lý từ server",
+        );
       } else {
         toast.error("Đã xảy ra lỗi không xác định");
       }
@@ -100,12 +193,16 @@ const Register: React.FC<Props> = ({ onToggle }) => {
         <button
           type="button"
           className={`${styles.socialBtn} ${styles.google}`}
+          onClick={() => signupWithGoogle()}
+          disabled={isLoading}
         >
           <GoogleLogo size={20} /> Google
         </button>
         <button
           type="button"
           className={`${styles.socialBtn} ${styles.facebook}`}
+          onClick={signupWithFacebook}
+          disabled={isLoading}
         >
           <FacebookLogo weight="fill" size={20} /> Facebook
         </button>
