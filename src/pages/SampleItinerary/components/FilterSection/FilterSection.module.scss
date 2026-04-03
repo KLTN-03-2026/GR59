@@ -20,21 +20,23 @@
     flex-direction: column;
     gap: 12px;
 
-    label { 
-      font-weight: 800; 
-      color: #1a365d; 
-      font-size: 13px; 
+    label {
+      font-weight: 800;
+      color: #1a365d;
+      font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    
-    .selectWrapper, .inputWrapper {
+
+    .selectWrapper,
+    .inputWrapper {
       position: relative;
 
-      select, input {
+      select,
+      input {
         width: 100%;
         padding: 14px 18px;
         border: 2px solid #edf2f7;
@@ -48,14 +50,14 @@
         cursor: pointer;
         appearance: none;
 
-        &:focus { 
-          border-color: #ff7a00; 
-          box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.1);
+        &:focus {
+          border-color: #00a8a2;
+          box-shadow: 0 0 0 4px rgba(0, 168, 162, 0.1);
           transform: translateY(-2px);
         }
 
         &:hover {
-          border-color: #ff7a00;
+          border-color: #00a8a2;
         }
       }
 
@@ -66,7 +68,7 @@
 
     // Custom arrow for select
     .selectWrapper::after {
-      content: '▼';
+      content: "▼";
       font-size: 10px;
       color: #718096;
       position: absolute;

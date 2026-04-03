@@ -25,7 +25,10 @@
       line-height: 1.1;
 
       span {
-        color: #ff7a00;
+        background: linear-gradient(to right, #33d7d1, #00a8a2);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
         display: block;
       }
 
@@ -46,7 +49,7 @@
     .accentBar {
       width: 120px;
       height: 6px;
-      background: #ff7a00;
+      background: linear-gradient(to right, #33d7d1, #00a8a2);
       margin: 0 auto;
       border-radius: 10px;
     }
@@ -83,7 +86,7 @@
     &:hover {
       opacity: 1;
       transform: translateX(-50%) translateY(-5px);
-      color: #ff7a00;
+      color: #33d7d1;
     }
   }
 }

@@ -23,7 +23,7 @@ const FilterSection: React.FC<Props> = ({ onFilterChange, filters }) => {
     <section className={styles.wrapper} data-aos="fade-up" data-aos-delay="600">
       <div className={styles.filterGroup}>
         <label>
-          <MapPin size={20} weight="fill" color="#ff7a00" /> Địa điểm
+          <MapPin size={20} weight="fill" color="#00a8a2" /> Địa điểm
         </label>
         <div className={styles.selectWrapper}>
           <select
@@ -40,7 +40,8 @@ const FilterSection: React.FC<Props> = ({ onFilterChange, filters }) => {
 
       <div className={styles.filterGroup}>
         <label>
-          <CurrencyCircleDollar size={20} weight="fill" color="#ff7a00" /> Ngân sách
+          <CurrencyCircleDollar size={20} weight="fill" color="#00a8a2" /> Ngân
+          sách
         </label>
         <div className={styles.selectWrapper}>
           <select
@@ -58,7 +59,7 @@ const FilterSection: React.FC<Props> = ({ onFilterChange, filters }) => {
 
       <div className={styles.filterGroup}>
         <label>
-          <Users size={20} weight="fill" color="#ff7a00" /> Số người
+          <Users size={20} weight="fill" color="#00a8a2" /> Số người
         </label>
         <div className={styles.inputWrapper}>
           <input

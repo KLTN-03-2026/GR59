@@ -1,9 +1,9 @@
 // ===== Biến thiết kế =====
-$hero-gradient-start: #ff7a00; // Cam rực
-$hero-gradient-mid: #ff9533; // Cam nhạt hơn
-$hero-gradient-end: #ffb347; // Cam vàng
-$accent-orange: #ffffff; // Chuyển sang trắng để nổi bật trên nền cam
-$accent-orange-light: rgba(255, 255, 255, 0.8);
+$hero-gradient-start: #00a8a2; // Xanh ngọc
+$hero-gradient-mid: #00ced1;
+$hero-gradient-end: #33d7d1;
+$accent-light: #ffffff; // Chuyển sang trắng
+$accent-light-alpha: rgba(255, 255, 255, 0.8);
 
 .hero {
   position: relative;
@@ -31,7 +31,7 @@ $accent-orange-light: rgba(255, 255, 255, 0.8);
     background:
       radial-gradient(
         circle at 30% 20%,
-        rgba(255, 122, 0, 0.08) 0%,
+        rgba(0, 168, 162, 0.08) 0%,
         transparent 50%
       ),
       radial-gradient(
@@ -58,7 +58,7 @@ $accent-orange-light: rgba(255, 255, 255, 0.8);
   width: 250px;
   height: 250px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 122, 0, 0.12), transparent 70%);
+  background: radial-gradient(circle, rgba(0, 168, 162, 0.12), transparent 70%);
   animation: float 8s ease-in-out infinite;
 }
 
@@ -69,7 +69,7 @@ $accent-orange-light: rgba(255, 255, 255, 0.8);
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 179, 71, 0.1), transparent 70%);
+  background: radial-gradient(circle, rgba(51, 215, 209, 0.1), transparent 70%);
   animation: float 10s ease-in-out infinite reverse;
 }
 
@@ -126,7 +126,7 @@ $accent-orange-light: rgba(255, 255, 255, 0.8);
   gap: 8px;
   background-color: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: $accent-orange-light;
+  color: $accent-light-alpha;
   padding: 8px 20px;
   border-radius: 50px;
   font-size: 15px;
@@ -141,8 +141,13 @@ $accent-orange-light: rgba(255, 255, 255, 0.8);
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #070707;
+  background: #33d7d1;
   animation: blink 1.6s ease-in-out infinite;
+}
+
+.badgeText {
+  color: #ffffff;
+  font-weight: 700;
 }
 
 @keyframes blink {
@@ -166,10 +171,11 @@ $accent-orange-light: rgba(255, 255, 255, 0.8);
 }
 
 .highlight {
-  background: linear-gradient(135deg, $accent-orange, $accent-orange-light);
+  background: linear-gradient(135deg, $accent-light, $accent-light-alpha);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: turquoise;
 }
 
 .subtitle {

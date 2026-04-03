@@ -1,5 +1,5 @@
-$primary: #ff7a00;
-$navy: #ff7a00;
+$primary: #00a8a2;
+$navy: #1a365d; // Sửa lại màu chuẩn Navy cho tiêu đề
 $dark: #1a1a1a;
 $lightText: #718096;
 
@@ -96,7 +96,7 @@ $lightText: #718096;
   }
 
   .title {
-    font-size:2.2rem;
+    font-size: 2.2rem;
     color: $navy;
     margin-bottom: 24px;
     line-height: 1.1;
@@ -121,7 +121,7 @@ $lightText: #718096;
 
   .btnAction {
     width: fit-content;
-    background: $navy;
+    background: linear-gradient(135deg, #33d7d1 0%, #00a8a2 100%);
     color: #fff;
     font-weight: 800;
     border: none;
@@ -135,7 +135,7 @@ $lightText: #718096;
     transition: all 0.3s;
 
     &:hover {
-      background: $primary;
+      background: #00a8a2;
       transform: translateX(5px);
       box-shadow: 0 10px 20px rgba($primary, 0.2);
     }

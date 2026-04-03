@@ -14,15 +14,13 @@ const ExploreHero: React.FC = () => {
       <div className={styles.content}>
         <span className={styles.badge}>
           <span className={styles.badgeDot} />
-          <span style={{ color: "#010304", fontWeight:"700" }}>
-            Khám phá ngay
-          </span>
+          <span className={styles.badgeText}>Khám phá ngay</span>
         </span>
 
         <h1 className={styles.title}>
           Tìm kiếm <span className={styles.highlight}>địa điểm</span>
           <br />
-          du lịch tuyệt vời
+          <p className={styles.highlightText}>du lịch tuyệt vời</p>
         </h1>
 
         <p className={styles.subtitle}>

@@ -1,4 +1,4 @@
-$primary: #ff7a00;
+$primary: #00a8a2;
 
 .tabsContainer {
   display: flex;
@@ -26,10 +26,10 @@ $primary: #ff7a00;
     }
 
     &.active {
-      background: $primary;
+      background: linear-gradient(135deg, #00ced1 0%, #008b8b 100%);
       color: #fff;
-      border-color: $primary;
-      box-shadow: 0 8px 20px rgba($primary, 0.3);
+      border-color: transparent;
+      box-shadow: 0 8px 20px rgba(0, 168, 162, 0.3);
     }
 
     @media (max-width: 576px) {

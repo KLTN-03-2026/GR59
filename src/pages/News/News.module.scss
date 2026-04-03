@@ -1,8 +1,8 @@
-$primary: #ff7a00;
+$primary: #00a8a2;
 $navy: #1a365d;
 $dark: #1a1a1a;
 $lightText: #718096;
-$bg: #fdfaf5;
+$bg: #f0f7f9;
 
 .newsPage {
   background: $bg;
@@ -17,8 +17,10 @@ $bg: #fdfaf5;
 }
 
 .pageHeader {
-  background: linear-gradient(rgba($navy, 0.4), rgba($navy, 0.4)),
-              url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1920') center/cover;
+  background:
+    linear-gradient(rgba($navy, 0.4), rgba($navy, 0.4)),
+    url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1920")
+      center/cover;
   padding: 260px 0;
   text-align: center;
   color: #fff;
@@ -167,6 +169,8 @@ $bg: #fdfaf5;
 @media (max-width: 768px) {
   .pageHeader {
     padding: 60px 0;
-    h1 { font-size: 40px; }
+    h1 {
+      font-size: 40px;
+    }
   }
 }

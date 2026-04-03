@@ -9,13 +9,13 @@
   box-shadow: 0 20px 50px rgba(26, 54, 93, 0.2);
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -50px;
     right: -50px;
     width: 200px;
     height: 200px;
-    background: rgba(255, 122, 0, 0.1);
+    background: rgba(0, 168, 162, 0.1);
     border-radius: 50%;
   }
 
@@ -34,14 +34,14 @@
   }
 
   .iconBox {
-    background: #ff7a00;
+    background: linear-gradient(135deg, #33d7d1 0%, #00a8a2 100%);
     width: 70px;
     height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(255, 122, 0, 0.3);
+    box-shadow: 0 10px 20px rgba(0, 168, 162, 0.3);
     flex-shrink: 0;
   }
 
@@ -55,7 +55,7 @@
       line-height: 1.2;
 
       span {
-        color: #ff7a00;
+        color: #33d7d1;
       }
     }
 
@@ -87,10 +87,10 @@
     flex-shrink: 0;
 
     &:hover {
-      background: #ff7a00;
+      background: #00a8a2;
       color: #fff;
       transform: translateX(5px);
-      box-shadow: 0 10px 20px rgba(255, 122, 0, 0.2);
+      box-shadow: 0 10px 20px rgba(0, 168, 162, 0.2);
     }
   }
 }
@@ -98,7 +98,7 @@
 @media (max-width: 600px) {
   .ctaWrapper {
     padding: 30px 20px;
-    
+
     .textSide h2 {
       font-size: 24px;
     }

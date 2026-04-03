@@ -23,10 +23,17 @@
     }
 
     &.active {
-      background: #ff7a00; // Màu cam nổi bật
+      background: linear-gradient(
+        135deg,
+        #00ced1 0%,
+        #008b8b 100%
+      ); // Gradient xanh ngọc
       color: white;
+      box-shadow: 0 4px 12px rgba(0, 206, 209, 0.25);
     }
 
-    .icon { font-size: 18px; }
+    .icon {
+      font-size: 18px;
+    }
   }
 }
