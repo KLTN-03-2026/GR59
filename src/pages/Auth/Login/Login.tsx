@@ -10,9 +10,15 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./Login.module.scss";
 import { GoogleLogin } from "@react-oauth/google";
-import FacebookLoginExport from '@greatsumini/react-facebook-login';
-const FacebookLogin = (FacebookLoginExport as any).default || FacebookLoginExport;
-import { postLogin, postLoginGoogle, postLoginFacebook } from "../../../services/userService";
+import FacebookLoginExport from "@greatsumini/react-facebook-login";
+const FacebookLogin =
+  (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
+  FacebookLoginExport;
+import {
+  postLogin,
+  postLoginGoogle,
+  postLoginFacebook,
+} from "../../../services/userService";
 import axios from "axios";
 
 interface Props {
@@ -46,15 +52,16 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
       // Gọi API đăng nhập thật
       const response = await postLogin(cleanEmail, password);
 
-      if (response.data && response.data.EC === 0) {
-        const data = response.data.DT;
+      if (response.data && response.data.status === 200) {
+        const data = response.data.data;
         const user = data.user;
 
         // Lưu thông tin vào LocalStorage
         if (data.accessToken) localStorage.setItem("token", data.accessToken);
-        if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(user)); 
-        
+        if (data.refreshToken)
+          localStorage.setItem("refreshToken", data.refreshToken);
+        localStorage.setItem("user", JSON.stringify(user));
+
         if (user.fullName) localStorage.setItem("username", user.fullName);
         if (user.email) localStorage.setItem("email", user.email);
         if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
@@ -62,12 +69,23 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         toast.success(`Chào mừng ${user.fullName || user.email} trở lại! 👋`);
         navigate("/");
       } else {
-        toast.error(response.data?.EM || "Email hoặc mật khẩu không chính xác!");
+        toast.error(
+          response.data?.message ||
+            response.data?.EM ||
+            "Email hoặc mật khẩu không chính xác!",
+        );
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as { EM?: string; message?: string };
-        toast.error(serverError?.EM || serverError?.message || "Tài khoản hoặc mật khẩu không đúng!");
+        const serverError = error.response?.data as {
+          EM?: string;
+          message?: string;
+        };
+        toast.error(
+          serverError?.EM ||
+            serverError?.message ||
+            "Tài khoản hoặc mật khẩu không đúng!",
+        );
       } else {
         toast.error("Đã xảy ra lỗi không xác định!");
       }
@@ -83,30 +101,45 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         <p>Vui lòng nhập thông tin để truy cập</p>
       </div>
 
-      <div className={styles.socialButtons} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <div style={{ flex: 1, padding: "0 24px", height: "44px", overflow: "hidden", borderRadius: "30px", display: "flex", justifyContent: "center" }}>
+      <div className={styles.socialButtons}>
+        <div className={styles.googleButtonWrap}>
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
               try {
                 setIsLoading(true);
-                if (!credentialResponse.credential) throw new Error("No credential");
-                const response = await postLoginGoogle(credentialResponse.credential);
-                
-                if (response.data && response.data.EC === 0) {
-                  const data = response.data.DT;
+                if (!credentialResponse.credential)
+                  throw new Error("No credential");
+                const response = await postLoginGoogle(
+                  credentialResponse.credential,
+                );
+
+                if (
+                  response.data &&
+                  (response.data.status === 200 || response.data.EC === 0)
+                ) {
+                  const data = response.data.data || response.data.DT;
                   const user = data.user;
-                  if (data.accessToken) localStorage.setItem("token", data.accessToken);
-                  if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
-                  localStorage.setItem("user", JSON.stringify(user)); 
-                  if (user.fullName) localStorage.setItem("username", user.fullName);
+                  if (data.accessToken)
+                    localStorage.setItem("token", data.accessToken);
+                  if (data.refreshToken)
+                    localStorage.setItem("refreshToken", data.refreshToken);
+                  localStorage.setItem("user", JSON.stringify(user));
+                  if (user.fullName)
+                    localStorage.setItem("username", user.fullName);
                   if (user.email) localStorage.setItem("email", user.email);
-                  if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
+                  if (user.createdAt)
+                    localStorage.setItem("createdAt", user.createdAt);
                   toast.success("Đăng nhập Google thành công! 🚀");
                   navigate("/");
                 } else {
-                  toast.error(response.data?.EM || "Đăng nhập Google thất bại!");
+                  toast.error(
+                    response.data?.message ||
+                      response.data?.EM ||
+                      "Đăng nhập Google thất bại!",
+                  );
                 }
               } catch (error) {
+                console.error("Google Login Error:", error);
                 toast.error("Lỗi đăng nhập Google!");
               } finally {
                 setIsLoading(false);
@@ -123,44 +156,55 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
             logo_alignment="center"
           />
         </div>
-        <div style={{ flex: 1, height: "44px" }}>
+        <div className={styles.facebookButtonWrap}>
           <FacebookLogin
             appId={import.meta.env.VITE_FACEBOOK_APP_ID || "3832704913701035"}
-            onSuccess={async (response: any) => {
+            onSuccess={async (response: { accessToken: string }) => {
               try {
                 setIsLoading(true);
                 const res = await postLoginFacebook(response.accessToken);
-                if (res.data && res.data.EC === 0) {
-                  const data = res.data.DT;
+                if (
+                  res.data &&
+                  (res.data.status === 200 || res.data.EC === 0)
+                ) {
+                  const data = res.data.data || res.data.DT;
                   const user = data.user;
-                  if (data.accessToken) localStorage.setItem("token", data.accessToken);
-                  if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
+                  if (data.accessToken)
+                    localStorage.setItem("token", data.accessToken);
+                  if (data.refreshToken)
+                    localStorage.setItem("refreshToken", data.refreshToken);
                   localStorage.setItem("user", JSON.stringify(user));
-                  if (user.fullName) localStorage.setItem("username", user.fullName);
+                  if (user.fullName)
+                    localStorage.setItem("username", user.fullName);
                   if (user.email) localStorage.setItem("email", user.email);
-                  if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
+                  if (user.createdAt)
+                    localStorage.setItem("createdAt", user.createdAt);
                   toast.success("Đăng nhập Facebook thành công! 🚀");
                   navigate("/");
                 } else {
-                  toast.error(res.data?.EM || "Đăng nhập Facebook thất bại!");
+                  toast.error(
+                    res.data?.message ||
+                      res.data?.EM ||
+                      "Đăng nhập Facebook thất bại!",
+                  );
                 }
-              } catch (error: any) {
+              } catch (error: unknown) {
+                console.error("Facebook Login Error:", error);
                 toast.error("Lỗi đăng nhập Facebook!");
               } finally {
                 setIsLoading(false);
               }
             }}
-            onFail={(error: any) => {
+            onFail={(error: unknown) => {
               console.error("Facebook Login Failed:", error);
               toast.error("Đăng nhập Facebook bị hủy bỏ hoặc thất bại!");
             }}
-            render={({ onClick }: any) => (
+            render={({ onClick }: { onClick?: () => void }) => (
               <button
                 type="button"
                 className={`${styles.socialBtn} ${styles.facebook}`}
                 onClick={onClick}
                 disabled={isLoading}
-                style={{ width: "100%", height: "100%", margin: 0 }}
               >
                 <FacebookLogo weight="fill" size={20} /> Facebook
               </button>

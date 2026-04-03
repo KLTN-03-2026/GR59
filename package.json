@@ -51,6 +51,7 @@
     "@types/redux-devtools-extension": "^2.13.0",
     "@types/redux-persist": "^4.0.0",
     "@types/redux-thunk": "^2.1.32",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^5.1.1",
     "css-loader": "^7.1.4",
     "eslint": "^9.39.1",

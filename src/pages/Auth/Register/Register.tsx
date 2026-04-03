@@ -17,8 +17,10 @@ import {
 } from "../../../services/userService";
 import styles from "./Register.module.scss";
 import { GoogleLogin } from "@react-oauth/google";
-import FacebookLoginExport from '@greatsumini/react-facebook-login';
-const FacebookLogin = (FacebookLoginExport as any).default || FacebookLoginExport;
+import FacebookLoginExport from "@greatsumini/react-facebook-login";
+const FacebookLogin =
+  (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
+  FacebookLoginExport;
 import axios from "axios";
 
 interface Props {
@@ -42,8 +44,9 @@ const Register: React.FC<Props> = ({ onToggle }) => {
   // Helper function to save tokens and user data
   const saveAuthData = (data: AuthResponseData) => {
     if (data.accessToken) localStorage.setItem("token", data.accessToken);
-    if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
-    
+    if (data.refreshToken)
+      localStorage.setItem("refreshToken", data.refreshToken);
+
     const user = data.user;
     localStorage.setItem("user", JSON.stringify(user));
     if (user.fullName) localStorage.setItem("username", user.fullName);
@@ -65,40 +68,43 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     const cleanName = formData.name.trim();
     const cleanEmail = formData.email.trim();
     const isValidEmail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    
+
     // Password validation: 8-32 chars, at least one digit, one lowercase, one uppercase
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}$/;
 
     if (cleanName.length < 4) return toast.error("Tên quá ngắn, không hợp lệ");
-    if (!isValidEmail.test(cleanEmail)) return toast.error("Email không đúng định dạng");
+    if (!isValidEmail.test(cleanEmail))
+      return toast.error("Email không đúng định dạng");
     if (!passwordRegex.test(formData.pass)) {
-      return toast.error("Mật khẩu phải từ 8-32 ký tự, bao gồm chữ hoa, chữ thường và số");
+      return toast.error(
+        "Mật khẩu phải từ 8-32 ký tự, bao gồm chữ hoa, chữ thường và số",
+      );
     }
-    if (formData.pass !== formData.confirm) return toast.error("Mật khẩu xác nhận không khớp!");
+    if (formData.pass !== formData.confirm)
+      return toast.error("Mật khẩu xác nhận không khớp!");
     if (!terms) return toast.warn("Bạn cần đồng ý với điều khoản!");
 
     setIsLoading(true);
     try {
       const res = await postSignUp(cleanName, cleanEmail, formData.pass);
 
-      if (res.data && res.data.EC === 0) {
-        toast.success(res.data.EM || "Đăng ký thành công!");
-        // Nếu Backend trả về luôn token sau khi đăng ký thì lưu luôn
-        if (res.data.DT && res.data.DT.accessToken) {
-            saveAuthData(res.data.DT);
-            navigate("/");
-        } else {
-            setTimeout(() => {
-                onToggle(); // Chuyển sang tab Login
-            }, 1500);
-        }
+      if (res.data && res.data.status === 200) {
+        toast.success(res.data.message || "Đăng ký thành công!");
+        setTimeout(() => {
+          onToggle();
+        }, 1500);
       } else {
-        toast.error(res.data.EM || "Đăng ký thất bại!");
+        toast.error(res.data.message || res.data.EM || "Đăng ký thất bại!");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as { EM?: string; message?: string };
-        toast.error(serverError?.EM || serverError?.message || "Lỗi xử lý từ server");
+        const serverError = error.response?.data as {
+          EM?: string;
+          message?: string;
+        };
+        toast.error(
+          serverError?.EM || serverError?.message || "Lỗi xử lý từ server",
+        );
       } else {
         toast.error("Đã xảy ra lỗi không xác định");
       }
@@ -114,23 +120,34 @@ const Register: React.FC<Props> = ({ onToggle }) => {
         <p>Gia nhập cộng đồng du lịch thông minh</p>
       </div>
 
-      <div className={styles.socialButtons} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <div style={{ flex: 1, padding: "0 24px", height: "44px", overflow: "hidden", borderRadius: "30px", display: "flex", justifyContent: "center" }}>
+      <div className={styles.socialButtons}>
+        <div className={styles.googleButtonWrap}>
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
               try {
                 setIsLoading(true);
-                if (!credentialResponse.credential) throw new Error("No credential");
-                const response = await postLoginGoogle(credentialResponse.credential);
-                
-                if (response.data && response.data.EC === 0) {
-                  saveAuthData(response.data.DT);
+                if (!credentialResponse.credential)
+                  throw new Error("No credential");
+                const response = await postLoginGoogle(
+                  credentialResponse.credential,
+                );
+
+                if (
+                  response.data &&
+                  (response.data.status === 200 || response.data.EC === 0)
+                ) {
+                  saveAuthData(response.data.data || response.data.DT);
                   toast.success("Đăng ký Google thành công! 🚀");
                   navigate("/");
                 } else {
-                  toast.error(response.data?.EM || "Đăng ký Google thất bại!");
+                  toast.error(
+                    response.data?.message ||
+                      response.data?.EM ||
+                      "Đăng ký Google thất bại!",
+                  );
                 }
               } catch (error) {
+                console.error("Google Register Error:", error);
                 toast.error("Lỗi đăng ký Google!");
               } finally {
                 setIsLoading(false);
@@ -144,33 +161,40 @@ const Register: React.FC<Props> = ({ onToggle }) => {
             shape="pill"
           />
         </div>
-        <div style={{ flex: 1, height: "44px" }}>
+        <div className={styles.facebookButtonWrap}>
           <FacebookLogin
             appId={import.meta.env.VITE_FACEBOOK_APP_ID || "3832704913701035"}
-            onSuccess={async (response: any) => {
+            onSuccess={async (response: { accessToken: string }) => {
               try {
                 setIsLoading(true);
                 const res = await postLoginFacebook(response.accessToken);
-                if (res.data && res.data.EC === 0) {
-                  saveAuthData(res.data.DT);
+                if (
+                  res.data &&
+                  (res.data.status === 200 || res.data.EC === 0)
+                ) {
+                  saveAuthData(res.data.data || res.data.DT);
                   toast.success("Đăng ký Facebook thành công! 🚀");
                   navigate("/");
                 } else {
-                  toast.error(res.data?.EM || "Đăng ký Facebook thất bại!");
+                  toast.error(
+                    res.data?.message ||
+                      res.data?.EM ||
+                      "Đăng ký Facebook thất bại!",
+                  );
                 }
-              } catch (error: any) {
+              } catch (error: unknown) {
+                console.error("Facebook Register Error:", error);
                 toast.error("Lỗi đăng ký Facebook!");
               } finally {
                 setIsLoading(false);
               }
             }}
-            render={({ onClick }: any) => (
+            render={({ onClick }: { onClick?: () => void }) => (
               <button
                 type="button"
                 className={`${styles.socialBtn} ${styles.facebook}`}
                 onClick={onClick}
                 disabled={isLoading}
-                style={{ width: "100%", height: "100%", margin: 0 }}
               >
                 <FacebookLogo weight="fill" size={20} /> Facebook
               </button>

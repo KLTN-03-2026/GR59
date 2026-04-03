@@ -25,14 +25,17 @@ export interface AuthResponseData {
 }
 
 export interface BackendResponse<T = unknown> {
-  EC: number;
-  EM: string;
-  DT: T;
+  status: number;
+  message: string;
+  data: T;
+  EC?: number;
+  EM?: string;
+  DT?: T;
 }
 
 // 1. Đăng ký (Thay API thật)
 export const postSignUp = (
-  username: string, 
+  username: string,
   email: string,
   pass: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
@@ -64,18 +67,24 @@ export const postLogin = (
 export const postLoginGoogle = (
   token: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
-  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/google", {
-    token, 
-  });
+  return instance.post<BackendResponse<AuthResponseData>>(
+    "/api/v1/auth/google",
+    {
+      token,
+    },
+  );
 };
 
 // 3.1. Đăng nhập Facebook
 export const postLoginFacebook = (
   accessToken: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
-  return instance.post<BackendResponse<AuthResponseData>>("/api/v1/auth/facebook", {
-    accessToken,
-  });
+  return instance.post<BackendResponse<AuthResponseData>>(
+    "/api/v1/auth/facebook",
+    {
+      accessToken,
+    },
+  );
 };
 
 // 4. Quên mật khẩu & Cập nhật mật khẩu mới (Đã chuẩn hóa Type)
@@ -86,7 +95,7 @@ export const updatePasswordByEmail = async (
   const res = await instance.get<BackendResponse<UserData[]>>(
     `/users?email=${email}`,
   );
-  const users = res.data.DT;
+  const users = res.data.data || res.data.DT;
 
   if (users && users.length > 0) {
     const user = users[0];
@@ -96,9 +105,9 @@ export const updatePasswordByEmail = async (
   } else {
     return {
       data: {
-        EC: -1,
-        EM: "Email không tồn tại trên hệ thống!",
-        DT: null,
+        status: 404,
+        message: "Email không tồn tại trên hệ thống!",
+        data: null,
       },
     } as AxiosResponse<BackendResponse<null>>;
   }
@@ -139,6 +148,6 @@ export const postVerifyOTP = (
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   return instance.post<BackendResponse<unknown>>("/api/v1/auth/verify-email", {
     email,
-    otp, 
+    otp,
   });
 };
