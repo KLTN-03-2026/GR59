@@ -6,6 +6,7 @@ import {
   FacebookLogo,
   LockKey,
   User,
+  GoogleLogo,
 } from "phosphor-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -16,7 +17,7 @@ import {
   type AuthResponseData,
 } from "../../../services/userService";
 import styles from "./Register.module.scss";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import FacebookLoginExport from "@greatsumini/react-facebook-login";
 const FacebookLogin =
   (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
@@ -54,6 +55,38 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
   };
 
+  const loginGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        const response = await postLoginGoogle(tokenResponse.access_token);
+
+        if (
+          response.data &&
+          (response.data.status === 200 || response.data.EC === 0)
+        ) {
+          saveAuthData(response.data.data || response.data.DT);
+          toast.success("Đăng ký Google thành công! 🚀");
+          navigate("/");
+        } else {
+          toast.error(
+            response.data?.message ||
+              response.data?.EM ||
+              "Đăng ký Google thất bại!",
+          );
+        }
+      } catch (error) {
+        console.error("Google Register Error:", error);
+        toast.error("Lỗi đăng ký Google!");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      toast.error("Đăng ký Google thất bại!");
+    },
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -69,7 +102,6 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     const cleanEmail = formData.email.trim();
     const isValidEmail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
-    // Password validation: 8-32 chars, at least one digit, one lowercase, one uppercase
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}$/;
 
     if (cleanName.length < 4) return toast.error("Tên quá ngắn, không hợp lệ");
@@ -122,44 +154,14 @@ const Register: React.FC<Props> = ({ onToggle }) => {
 
       <div className={styles.socialButtons}>
         <div className={styles.googleButtonWrap}>
-          <GoogleLogin
-            onSuccess={async (credentialResponse) => {
-              try {
-                setIsLoading(true);
-                if (!credentialResponse.credential)
-                  throw new Error("No credential");
-                const response = await postLoginGoogle(
-                  credentialResponse.credential,
-                );
-
-                if (
-                  response.data &&
-                  (response.data.status === 200 || response.data.EC === 0)
-                ) {
-                  saveAuthData(response.data.data || response.data.DT);
-                  toast.success("Đăng ký Google thành công! 🚀");
-                  navigate("/");
-                } else {
-                  toast.error(
-                    response.data?.message ||
-                      response.data?.EM ||
-                      "Đăng ký Google thất bại!",
-                  );
-                }
-              } catch (error) {
-                console.error("Google Register Error:", error);
-                toast.error("Lỗi đăng ký Google!");
-              } finally {
-                setIsLoading(false);
-              }
-            }}
-            onError={() => {
-              toast.error("Đăng ký Google thất bại!");
-            }}
-            theme="outline"
-            size="large"
-            shape="pill"
-          />
+          <button
+            type="button"
+            className={`${styles.socialBtn} ${styles.google}`}
+            disabled={isLoading}
+            onClick={() => loginGoogle()}
+          >
+            <GoogleLogo weight="bold" size={20} /> Google
+          </button>
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin
@@ -253,7 +255,7 @@ const Register: React.FC<Props> = ({ onToggle }) => {
               required
               disabled={isLoading}
             />
-            <span className={styles.eye} onClick={() => setShowPass(!showPass)}>
+            <span className={styles.eye} onClick={() => !isLoading && setShowPass(!showPass)}>
               {showPass ? (
                 <EyeSlash weight="duotone" />
               ) : (
@@ -278,7 +280,7 @@ const Register: React.FC<Props> = ({ onToggle }) => {
             />
             <span
               className={styles.eye}
-              onClick={() => setShowConfirm(!showConfirm)}
+              onClick={() => !isLoading && setShowConfirm(!showConfirm)}
             >
               {showConfirm ? (
                 <EyeSlash weight="duotone" />

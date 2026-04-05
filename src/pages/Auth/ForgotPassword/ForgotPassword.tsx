@@ -12,7 +12,7 @@ import {
   EyeSlash,
 } from "phosphor-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-toastify"; // Đảm bảo bạn đã cài react-toastify
+import { toast } from "react-toastify";
 import styles from "./ForgotPassword.module.scss";
 import {
   postResetPassword,
@@ -36,7 +36,7 @@ const ForgotPassword: React.FC = () => {
 
   useEffect(() => {
     if (step === "otp") {
-      otpRefs.current[0]?.focus();
+      setTimeout(() => otpRefs.current[0]?.focus(), 150);
     }
   }, [step]);
 
@@ -47,7 +47,6 @@ const ForgotPassword: React.FC = () => {
     transition: { duration: 0.3 },
   };
 
-  // 1. Xử lý gửi Email (Bước 1)
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim();
@@ -58,13 +57,9 @@ const ForgotPassword: React.FC = () => {
       const res = await postSendOTP(cleanEmail);
       if (res.data && (res.data.status === 200 || res.data.EC === 0)) {
         setStep("otp");
-        toast.success(
-          res.data.message || "Mã OTP đã được gửi về Email của bạn! 📧",
-        );
+        toast.success(res.data.message || "Mã OTP đã được gửi về Email của bạn! 📧");
       } else {
-        toast.error(
-          res.data?.EM || res.data?.message || "Gửi mã OTP thất bại!",
-        );
+        toast.error(res.data?.EM || res.data?.message || "Gửi mã OTP thất bại!");
       }
     } catch (error) {
       toast.error("Lỗi kết nối Server khi gửi OTP!");
@@ -73,24 +68,47 @@ const ForgotPassword: React.FC = () => {
     }
   };
 
-  const handleOtpChange = (index: number, value: string) => {
-    if (isNaN(Number(value))) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.substring(value.length - 1);
-    setOtp(newOtp);
+  const handleOtpChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    // Chặn sự kiện lan truyền (giảm thiểu browser side-effects)
+    e.stopPropagation();
+    
+    const value = e.target.value;
+    // Chỉ lấy chữ số cuối cùng nếu có dữ liệu
+    const char = value.length > 0 ? value[value.length - 1] : "";
 
-    if (value && index < 5) {
+    // Chỉ cho phép số
+    if (char && !/^\d$/.test(char)) return;
+
+    setOtp((prev) => {
+      const next = [...prev];
+      next[index] = char;
+      return next;
+    });
+
+    // Tự động chuyển tập trung (focus)
+    if (char && index < 5) {
       otpRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (!otp[index] && index > 0) {
+        otpRefs.current[index - 1]?.focus();
+      }
     }
   };
 
-  // 2. Xử lý xác nhận mã OTP (Bước 2)
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const data = e.clipboardData.getData("text").trim();
+    if (!/^\d{6}$/.test(data)) return;
+
+    const digits = data.split("");
+    setOtp(digits);
+    otpRefs.current[5]?.focus();
+  };
+
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fullOtp = otp.join("");
@@ -101,18 +119,13 @@ const ForgotPassword: React.FC = () => {
 
     try {
       setIsLoading(true);
-      // Gọi API xác minh OTP
       const res = await postVerifyOTP(email, Number(fullOtp));
 
       if (res.data && (res.data.status === 200 || res.data.EC === 0)) {
         setStep("reset");
         toast.success(res.data.message || "Xác minh danh tính thành công!");
       } else {
-        toast.error(
-          res.data?.EM ||
-            res.data?.message ||
-            "Mã OTP không đúng hoặc đã hết hạn!",
-        );
+        toast.error(res.data?.EM || res.data?.message || "Mã OTP không đúng hoặc đã hết hạn!");
       }
     } catch (error) {
       toast.error("Lỗi kết nối Server khi xác minh OTP!");
@@ -121,42 +134,28 @@ const ForgotPassword: React.FC = () => {
     }
   };
 
-  // 3. Xử lý cập nhật mật khẩu mới (Bước 3 - Cập nhật db.json)
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (newPassword !== confirmPassword) {
-      return toast.error("Mật khẩu xác nhận không khớp!");
-    }
-
-    if (newPassword.length < 6) {
-      return toast.error("Mật khẩu mới phải từ 6 ký tự trở lên!");
-    }
+    if (newPassword !== confirmPassword) return toast.error("Mật khẩu xác nhận không khớp!");
+    if (newPassword.length < 6) return toast.error("Mật khẩu mới phải từ 6 ký tự trở lên!");
 
     try {
       setIsLoading(true);
-      // Gọi API đặt lại mật khẩu mới
       const res = await postResetPassword(email, newPassword);
-      
       if (res.data && (res.data.status === 200 || res.data.EC === 0)) {
         setStep("success");
         toast.success(res.data.message || "Cập nhật mật khẩu thành công!");
       } else {
         toast.error(res.data.EM || res.data.message || "Có lỗi xảy ra, vui lòng thử lại!");
       }
-    } catch (error: unknown) {
-      // Xử lý lỗi chuẩn TypeScript (Tránh lỗi 'error' is of type 'unknown')
-      let errorMessage = "Lỗi kết nối Server!";
-
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage);
+    } catch (error) {
+      toast.error("Lỗi kết nối Server!");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const fieldNames = ["field-q", "field-w", "field-e", "field-r", "field-t", "field-y"];
 
   return (
     <main className={styles.authMain}>
@@ -175,35 +174,15 @@ const ForgotPassword: React.FC = () => {
               {step === "success" && "Khôi phục \n thành công!"}
             </h1>
             <p className={styles.description}>
-              {step === "email" &&
-                "Đừng lo lắng! Nhập email tài khoản của bạn và làm theo hướng dẫn. Chúng tôi giúp bạn:"}
-              {step === "otp" &&
-                "Mã xác minh đã được gửi đến email của bạn. Vui lòng kiểm tra và nhập mã để tiếp tục."}
-              {step === "reset" &&
-                "Vui lòng chọn một mật khẩu mạnh để bảo vệ tài khoản của bạn tốt hơn."}
-              {step === "success" &&
-                "Tài khoản của bạn đã được cập nhật thành công. Bây giờ bạn có thể trải nghiệm lại Travel AI."}
+              {step === "email" && "Đừng lo lắng! Nhập email tài khoản của bạn và làm theo hướng dẫn."}
+              {step === "otp" && "Mã xác minh đã được gửi đến email của bạn. Vui lòng kiểm tra và nhập mã."}
+              {step === "reset" && "Vui lòng chọn một mật khẩu mạnh để bảo vệ tài khoản của bạn tốt hơn."}
+              {step === "success" && "Tài khoản của bạn đã được cập nhật thành công."}
             </p>
-
             <ul className={styles.authFeatures}>
-              <li>
-                <div className={styles.featureIcon}>
-                  <PaperPlaneTilt weight="duotone" />
-                </div>
-                Nhận đường dẫn khôi phục cấp tốc
-              </li>
-              <li>
-                <div className={styles.featureIcon}>
-                  <ShieldCheck weight="duotone" />
-                </div>
-                Xác minh qua mã OTP 6 chữ số
-              </li>
-              <li>
-                <div className={styles.featureIcon}>
-                  <Lock weight="duotone" />
-                </div>
-                Đặt lại mật khẩu mới an toàn
-              </li>
+              <li><div className={styles.featureIcon}><PaperPlaneTilt weight="duotone" /></div> Nhận mã khôi phục qua Email</li>
+              <li><div className={styles.featureIcon}><ShieldCheck weight="duotone" /></div> Bảo mật với OTP 6 chữ số</li>
+              <li><div className={styles.featureIcon}><Lock weight="duotone" /></div> Thay đổi mật khẩu mới an toàn</li>
             </ul>
           </div>
         </div>
@@ -217,34 +196,28 @@ const ForgotPassword: React.FC = () => {
                     <h2>Quên mật khẩu?</h2>
                     <p>Vui lòng nhập Email để nhận mã OTP</p>
                   </div>
-                  <form
-                    onSubmit={handleEmailSubmit}
-                    className={styles.authForm}
-                  >
+                  <form onSubmit={handleEmailSubmit} className={styles.authForm}>
                     <div className={styles.formGroup}>
                       <label>Email tài khoản</label>
                       <div className={styles.inputContainer}>
-                        <EnvelopeSimple
-                          className={styles.inputIcon}
-                          weight="duotone"
-                        />
+                        <EnvelopeSimple className={styles.inputIcon} weight="duotone" />
                         <input
                           type="email"
                           placeholder="name@example.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
+                          disabled={isLoading}
                         />
                       </div>
                     </div>
-                    <button type="submit" className={styles.btnSubmit}>
-                      Gửi mã xác nhận
+                    <button type="submit" className={styles.btnSubmit} disabled={isLoading}>
+                      {isLoading ? "Đang gửi..." : "Gửi mã xác nhận"}
                     </button>
                   </form>
                   <div className={styles.authFooterText}>
                     <button onClick={() => navigate("/auth?mode=login")}>
-                      <ArrowBendUpLeft size={16} weight="bold" /> Quay lại Đăng
-                      nhập
+                      <ArrowBendUpLeft size={16} weight="bold" /> Quay lại Đăng nhập
                     </button>
                   </div>
                 </motion.div>
@@ -252,49 +225,42 @@ const ForgotPassword: React.FC = () => {
 
               {step === "otp" && (
                 <motion.div key="otp" {...slideVariants}>
-                  <button
-                    className={styles.btnBack}
-                    onClick={() => setStep("email")}
-                  >
-                    <div className={styles.btnIcon}>
-                      <ArrowLeft size={20} />
-                    </div>
+                   <button className={styles.btnBack} onClick={() => setStep("email")}>
+                    <div className={styles.btnIcon}><ArrowLeft size={20} /></div>
                   </button>
                   <div className={styles.formHeader}>
                     <h2>Xác minh OTP</h2>
-                    <p>
-                      Đã gửi tới{" "}
-                      <span style={{ color: "#ff4c94", fontWeight: 700 }}>
-                        {email}
-                      </span>
-                    </p>
+                    <p>Đã gửi tới <span style={{ color: "#ff4c94", fontWeight: 700 }}>{email}</span></p>
                   </div>
                   <form onSubmit={handleOtpSubmit} className={styles.authForm}>
                     <div className={styles.otpContainer}>
                       {otp.map((digit, idx) => (
                         <input
                           key={idx}
-                          ref={(el) => {
-                            otpRefs.current[idx] = el;
-                          }}
-                          type="text"
+                          id={fieldNames[idx]}
+                          name={fieldNames[idx]}
+                          ref={(el) => { otpRefs.current[idx] = el; }}
+                          type="tel" // Quan trọng: type=tel giúp né các bộ lọc Autofill gắt gao
                           maxLength={1}
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          autoComplete="one-time-code" // Vẫn giữ one-time-code nhưng đổi ID/Name
                           value={digit}
-                          onChange={(e) => handleOtpChange(idx, e.target.value)}
+                          onChange={(e) => handleOtpChange(idx, e)}
                           onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                          onPaste={handleOtpPaste}
+                          onFocus={(e) => e.target.select()} // Tự động bôi đen khi focus
                           className={styles.otpInput}
+                          disabled={isLoading}
                         />
                       ))}
                     </div>
-                    <button type="submit" className={styles.btnSubmit}>
-                      Xác minh ngay
+                    <button type="submit" className={styles.btnSubmit} disabled={isLoading}>
+                      {isLoading ? "Đang xác minh..." : "Xác minh ngay"}
                     </button>
                   </form>
                   <div className={styles.authFooterText}>
-                    Chưa nhận được mã?{" "}
-                    <button onClick={() => toast.info("Mã mới: 123456")}>
-                      Gửi lại mã
-                    </button>
+                    Chưa nhận được mã? <button onClick={() => toast.info("Kiểm tra Tab Network để lấy mã")}>Gửi lại mã</button>
                   </div>
                 </motion.div>
               )}
@@ -305,10 +271,7 @@ const ForgotPassword: React.FC = () => {
                     <h2>Mật khẩu mới</h2>
                     <p>Hãy tạo mật khẩu mới cho tài khoản của bạn</p>
                   </div>
-                  <form
-                    onSubmit={handleResetSubmit}
-                    className={styles.authForm}
-                  >
+                  <form onSubmit={handleResetSubmit} className={styles.authForm}>
                     <div className={styles.formGroup}>
                       <label>Mật khẩu mới</label>
                       <div className={styles.inputContainer}>
@@ -321,15 +284,8 @@ const ForgotPassword: React.FC = () => {
                           required
                           disabled={isLoading}
                         />
-                        <span
-                          className={styles.eyeIcon}
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeSlash weight="duotone" />
-                          ) : (
-                            <Eye weight="duotone" />
-                          )}
+                        <span className={styles.eyeIcon} onClick={() => setShowPassword(!showPassword)}>
+                          {showPassword ? <EyeSlash weight="duotone" /> : <Eye weight="duotone" />}
                         </span>
                       </div>
                     </div>
@@ -347,11 +303,7 @@ const ForgotPassword: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <button
-                      type="submit"
-                      className={styles.btnSubmit}
-                      disabled={isLoading}
-                    >
+                    <button type="submit" className={styles.btnSubmit} disabled={isLoading}>
                       {isLoading ? "Đang xử lý..." : "Cập nhật mật khẩu"}
                     </button>
                   </form>
@@ -359,30 +311,13 @@ const ForgotPassword: React.FC = () => {
               )}
 
               {step === "success" && (
-                <motion.div
-                  key="success"
-                  {...slideVariants}
-                  style={{ textAlign: "center" }}
-                >
-                  <div className={styles.successIconBox}>
-                    <CheckCircle size={60} weight="fill" />
-                  </div>
-                  <div
-                    className={styles.formHeader}
-                    style={{ textAlign: "center" }}
-                  >
+                <motion.div key="success" {...slideVariants} style={{ textAlign: "center" }}>
+                  <div className={styles.successIconBox}><CheckCircle size={60} weight="fill" /></div>
+                  <div className={styles.formHeader}>
                     <h2>Thành công!</h2>
                     <p>Mật khẩu đã được thay đổi. Chào mừng bạn trở lại!</p>
                   </div>
-                  <button
-                    className={styles.btnSubmit}
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                      boxShadow: "0 8px 25px rgba(16, 185, 129, 0.3)",
-                    }}
-                    onClick={() => navigate("/auth?mode=login")}
-                  >
+                  <button className={styles.btnSubmit} onClick={() => navigate("/auth?mode=login")}>
                     Đăng nhập ngay
                   </button>
                 </motion.div>

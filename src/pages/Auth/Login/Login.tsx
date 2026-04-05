@@ -5,11 +5,12 @@ import {
   Eye,
   EyeSlash,
   FacebookLogo,
+  GoogleLogo,
 } from "phosphor-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./Login.module.scss";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import FacebookLoginExport from "@greatsumini/react-facebook-login";
 const FacebookLogin =
   (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
@@ -23,20 +24,58 @@ import axios from "axios";
 
 interface Props {
   onToggle: () => void;
-  navigate: (path: string) => void;
 }
 
-const Login: React.FC<Props> = ({ onToggle, navigate }) => {
+const Login: React.FC<Props> = ({ onToggle }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 1. Xử lý đăng nhập Email/Password
+  const loginGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        const response = await postLoginGoogle(tokenResponse.access_token);
+
+        if (
+          response.data &&
+          (response.data.status === 200 || response.data.EC === 0)
+        ) {
+          const data = response.data.data || response.data.DT;
+          const user = data.user;
+          if (data.accessToken) localStorage.setItem("token", data.accessToken);
+          if (data.refreshToken)
+            localStorage.setItem("refreshToken", data.refreshToken);
+          localStorage.setItem("user", JSON.stringify(user));
+          if (user.fullName) localStorage.setItem("username", user.fullName);
+          if (user.email) localStorage.setItem("email", user.email);
+          if (user.createdAt)
+            localStorage.setItem("createdAt", user.createdAt);
+          toast.success("Đăng nhập Google thành công! 🚀");
+          navigate("/");
+        } else {
+          toast.error(
+            response.data?.message ||
+              response.data?.EM ||
+              "Đăng nhập Google thất bại!",
+          );
+        }
+      } catch (error) {
+        console.error("Google Login Error:", error);
+        toast.error("Lỗi đăng nhập Google!");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      toast.error("Đăng nhập Google thất bại!");
+    },
+  });
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // --- Validation ---
     const cleanEmail = email.trim();
     const isValidEmail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
@@ -49,23 +88,17 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
 
     setIsLoading(true);
     try {
-      // Gọi API đăng nhập thật
       const response = await postLogin(cleanEmail, password);
-
       if (response.data && response.data.status === 200) {
         const data = response.data.data;
         const user = data.user;
-
-        // Lưu thông tin vào LocalStorage
         if (data.accessToken) localStorage.setItem("token", data.accessToken);
         if (data.refreshToken)
           localStorage.setItem("refreshToken", data.refreshToken);
         localStorage.setItem("user", JSON.stringify(user));
-
         if (user.fullName) localStorage.setItem("username", user.fullName);
         if (user.email) localStorage.setItem("email", user.email);
         if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
-
         toast.success(`Chào mừng ${user.fullName || user.email} trở lại! 👋`);
         navigate("/");
       } else {
@@ -103,58 +136,14 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
 
       <div className={styles.socialButtons}>
         <div className={styles.googleButtonWrap}>
-          <GoogleLogin
-            onSuccess={async (credentialResponse) => {
-              try {
-                setIsLoading(true);
-                if (!credentialResponse.credential)
-                  throw new Error("No credential");
-                const response = await postLoginGoogle(
-                  credentialResponse.credential,
-                );
-
-                if (
-                  response.data &&
-                  (response.data.status === 200 || response.data.EC === 0)
-                ) {
-                  const data = response.data.data || response.data.DT;
-                  const user = data.user;
-                  if (data.accessToken)
-                    localStorage.setItem("token", data.accessToken);
-                  if (data.refreshToken)
-                    localStorage.setItem("refreshToken", data.refreshToken);
-                  localStorage.setItem("user", JSON.stringify(user));
-                  if (user.fullName)
-                    localStorage.setItem("username", user.fullName);
-                  if (user.email) localStorage.setItem("email", user.email);
-                  if (user.createdAt)
-                    localStorage.setItem("createdAt", user.createdAt);
-                  toast.success("Đăng nhập Google thành công! 🚀");
-                  navigate("/");
-                } else {
-                  toast.error(
-                    response.data?.message ||
-                      response.data?.EM ||
-                      "Đăng nhập Google thất bại!",
-                  );
-                }
-              } catch (error) {
-                console.error("Google Login Error:", error);
-                toast.error("Lỗi đăng nhập Google!");
-              } finally {
-                setIsLoading(false);
-              }
-            }}
-            onError={() => {
-              toast.error("Đăng nhập Google thất bại!");
-            }}
-            useOneTap={false}
-            theme="outline"
-            size="large"
-            text="signin_with"
-            shape="pill"
-            logo_alignment="center"
-          />
+          <button
+            type="button"
+            className={`${styles.socialBtn} ${styles.google}`}
+            disabled={isLoading}
+            onClick={() => loginGoogle()}
+          >
+            <GoogleLogo weight="bold" size={20} /> Google
+          </button>
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin
@@ -221,7 +210,7 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
         <div className={styles.group}>
           <div className={styles.labelRow}>
             <label>Email của bạn</label>
-          </div>{" "}
+          </div>
           <div className={styles.inputWrap}>
             <EnvelopeSimple className={styles.icon} weight="duotone" />
             <input
@@ -254,7 +243,7 @@ const Login: React.FC<Props> = ({ onToggle, navigate }) => {
             />
             <span
               className={styles.eye}
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => !isLoading && setShowPassword(!showPassword)}
             >
               {showPassword ? (
                 <EyeSlash weight="duotone" />

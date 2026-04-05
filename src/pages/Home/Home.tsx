@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import VideoHome from "../../assets/video/Da_Nang.mp4";
-
 import AOS from "aos";
 import "aos/dist/aos.css";
 import flatpickr from "flatpickr";
@@ -64,13 +62,7 @@ const Home: React.FC = () => {
     <div className={styles.home}>
       <div className={styles.main}>
         {/* Hero Section */}
-        <section className={styles.hero}>
-          <video autoPlay loop muted className={styles.video}>
-            <source src={VideoHome} type="video/mp4" />
-            Trình duyệt của bạn không hỗ trợ thẻ video.
-          </video>
-          <Hero userName={userName} />
-        </section>
+        <Hero userName={userName} />
 
         {/* Timeline Section */}
         <section className={styles.timeline}>

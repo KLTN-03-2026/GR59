@@ -97,7 +97,7 @@ const Auth: React.FC = () => {
                 {isSignUp ? (
                   <Register onToggle={toggleMode} />
                 ) : (
-                  <Login onToggle={toggleMode} navigate={navigate} />
+                  <Login onToggle={toggleMode} />
                 )}
               </motion.div>
             </AnimatePresence>

@@ -31,36 +31,27 @@
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
-    align-items: center;
+    width: 100%;
 
-    .googleButtonWrap {
-      flex: 1;
-      padding: 0 24px;
-      height: 44px;
-      overflow: hidden;
-      border-radius: 30px;
-      display: flex;
-      justify-content: center;
-    }
-
+    .googleButtonWrap,
     .facebookButtonWrap {
       flex: 1;
-      height: 44px;
+      height: 48px;
     }
 
     .socialBtn {
-      flex: 1;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 12px;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid #e2e8f0;
+      border: 1.5px solid #e2e8f0;
       background: white;
       color: #1e293b;
 
@@ -69,11 +60,15 @@
         height: 18px;
       }
 
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+      }
+
       &.google {
         &:hover {
           background: #f8fafc;
           border-color: #cbd5e1;
-          transform: translateY(-1px);
         }
       }
 
@@ -81,14 +76,11 @@
         background: #1877f2;
         color: white;
         border: none;
-        width: 100%;
-        height: 100%;
-        margin: 0;
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.15);
 
         &:hover {
           background: #166fe5;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
+          box-shadow: 0 8px 20px rgba(24, 119, 242, 0.25);
         }
       }
     }
@@ -177,6 +169,15 @@
           background: white;
           transition: all 0.3s ease;
           color: #1e293b;
+
+          &:-webkit-autofill,
+          &:-webkit-autofill:hover,
+          &:-webkit-autofill:focus,
+          &:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+            -webkit-text-fill-color: #1e293b !important;
+            transition: background-color 5000s ease-in-out 0s;
+          }
 
           &::placeholder {
             color: #cbd5e1;
