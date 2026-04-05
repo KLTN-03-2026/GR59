@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify"; // Đảm bảo bạn đã cài react-toastify
 import styles from "./ForgotPassword.module.scss";
 import {
-  updatePasswordByEmail,
+  postResetPassword,
   postSendOTP,
   postVerifyOTP,
 } from "../../../services/userService";
@@ -56,11 +56,15 @@ const ForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       const res = await postSendOTP(cleanEmail);
-      if (res.data && res.data.EC === 0) {
+      if (res.data && (res.data.status === 200 || res.data.EC === 0)) {
         setStep("otp");
-        toast.success("Mã OTP đã được gửi về Email của bạn! 📧");
+        toast.success(
+          res.data.message || "Mã OTP đã được gửi về Email của bạn! 📧",
+        );
       } else {
-        toast.error(res.data?.EM || "Gửi mã OTP thất bại!");
+        toast.error(
+          res.data?.EM || res.data?.message || "Gửi mã OTP thất bại!",
+        );
       }
     } catch (error) {
       toast.error("Lỗi kết nối Server khi gửi OTP!");
@@ -98,13 +102,17 @@ const ForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       // Gọi API xác minh OTP
-      const res = await postVerifyOTP(email, fullOtp);
-      
-      if (res.data && res.data.EC === 0) {
+      const res = await postVerifyOTP(email, Number(fullOtp));
+
+      if (res.data && (res.data.status === 200 || res.data.EC === 0)) {
         setStep("reset");
-        toast.success("Xác minh danh tính thành công!");
+        toast.success(res.data.message || "Xác minh danh tính thành công!");
       } else {
-        toast.error(res.data?.EM || "Mã OTP không đúng hoặc đã hết hạn!");
+        toast.error(
+          res.data?.EM ||
+            res.data?.message ||
+            "Mã OTP không đúng hoặc đã hết hạn!",
+        );
       }
     } catch (error) {
       toast.error("Lỗi kết nối Server khi xác minh OTP!");
@@ -127,14 +135,14 @@ const ForgotPassword: React.FC = () => {
 
     try {
       setIsLoading(true);
-      // Gọi hàm cập nhật mật khẩu xuống JSON Server
-      const res = await updatePasswordByEmail(email, newPassword);
-
-      if (res.data && res.data.EC === 0) {
+      // Gọi API đặt lại mật khẩu mới
+      const res = await postResetPassword(email, newPassword);
+      
+      if (res.data && (res.data.status === 200 || res.data.EC === 0)) {
         setStep("success");
-        toast.success("Cập nhật mật khẩu thành công!");
+        toast.success(res.data.message || "Cập nhật mật khẩu thành công!");
       } else {
-        toast.error(res.data.EM || "Có lỗi xảy ra, vui lòng thử lại!");
+        toast.error(res.data.EM || res.data.message || "Có lỗi xảy ra, vui lòng thử lại!");
       }
     } catch (error: unknown) {
       // Xử lý lỗi chuẩn TypeScript (Tránh lỗi 'error' is of type 'unknown')
@@ -248,7 +256,9 @@ const ForgotPassword: React.FC = () => {
                     className={styles.btnBack}
                     onClick={() => setStep("email")}
                   >
-                    <ArrowLeft size={18} />
+                    <div className={styles.btnIcon}>
+                      <ArrowLeft size={20} />
+                    </div>
                   </button>
                   <div className={styles.formHeader}>
                     <h2>Xác minh OTP</h2>

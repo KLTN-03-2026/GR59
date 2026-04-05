@@ -225,23 +225,35 @@ vars.$bg-main */
   flex: 1;
 
   label {
-    font-size: 0.65rem;
-    font-weight: 600;
+    font-size: 0.6rem;
+    font-weight: 700;
     color: var(--text-h);
-    margin-bottom: 2px;
+    margin-bottom: 1px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  input {
+  input,
+  .budgetSelect {
     width: 100%;
     border: none;
     background: transparent;
-    font-size: 0.8rem;
-    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1e293b;
     outline: none;
+    padding: 0;
+    cursor: pointer;
 
     &::placeholder {
       color: #94a3b8;
     }
+  }
+
+  .budgetSelect {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
   }
 }
 

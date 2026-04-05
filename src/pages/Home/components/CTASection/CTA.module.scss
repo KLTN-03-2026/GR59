@@ -11,11 +11,18 @@
 }
 
 .ctaCard {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: #0f172a; /* Màu nền chính */
+  background-image:
+    radial-gradient(at 0% 0%, hsla(197, 100%, 49%, 0.15) 0px, transparent 50%),
+    radial-gradient(
+      at 100% 100%,
+      hsla(190, 100%, 70%, 0.1) 0px,
+      transparent 50%
+    );
   border-radius: 40px;
+  color: white;
   padding: 80px 40px;
   text-align: center;
-  color: white;
   position: relative;
   overflow: hidden;
 
@@ -60,7 +67,8 @@
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(51, 215, 209, 0.4);color: #fff;
+    box-shadow: 0 0 25px rgba(51, 215, 209, 0.4);
+    color: #fff;
   }
 }
 

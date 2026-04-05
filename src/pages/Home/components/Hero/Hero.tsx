@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   RocketLaunch,
@@ -88,9 +88,25 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
   const [dest, setDest] = useState("");
   const [budget, setBudget] = useState("");
   const [guests, setGuests] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Không còn khởi tạo Flatpickr ở Hero, người dùng sẽ chọn ngày ở Planner
+
+    // Xử lý sự kiện click ra ngoài để đóng dropdown
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const checkAuth = () => {
@@ -137,6 +153,14 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
       },
     });
   };
+
+  // Lọc danh sách tỉnh thành dựa trên từ khoá tìm kiếm
+  const filteredProvinces =
+    dest.trim() === ""
+      ? [] // Ẩn danh sách khi chưa nhập gì để không bị dài và lẹm vào section dưới
+      : VIETNAM_PROVINCES.filter((province) =>
+          province.toLowerCase().includes(dest.toLowerCase()),
+        );
 
   return (
     <section className={styles.hero}>
@@ -205,25 +229,53 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
         >
           <form className={styles.premiumSearchWidget} onSubmit={handleSearch}>
             {/* Field: Điểm đến */}
-            <div className={styles.searchField}>
+            <div className={styles.searchField} ref={dropdownRef}>
               <div className={styles.fieldIcon}>
                 <MapPin weight="duotone" />
               </div>
               <div className={styles.fieldInfo}>
-                <label>Điểm đến</label>
+                <label htmlFor="destination">Điểm đến</label>
                 <input
+                  id="destination"
                   type="text"
-                  list="vietnam-provinces"
                   placeholder="Bạn muốn đi đâu?"
                   required
                   value={dest}
-                  onChange={(e) => setDest(e.target.value)}
+                  onChange={(e) => {
+                    setDest(e.target.value);
+                    setShowDropdown(true);
+                  }}
+                  onFocus={() => setShowDropdown(true)}
                 />
-                <datalist id="vietnam-provinces">
-                  {VIETNAM_PROVINCES.map((province) => (
-                    <option key={province} value={province} />
-                  ))}
-                </datalist>
+
+                {/* Custom Suggestions Dropdown */}
+                <div
+                  className={`${styles.suggestionsDropdown} ${
+                    showDropdown && filteredProvinces.length > 0
+                      ? styles.show
+                      : ""
+                  }`}
+                  style={{ minWidth: "250px" }}
+                >
+                  <div className={styles.suggestionsHeader}>GỢI Ý ĐIỂM ĐẾN</div>
+                  <div style={{ maxHeight: "250px", overflowY: "auto" }}>
+                    {filteredProvinces.map((province) => (
+                      <div
+                        key={province}
+                        className={styles.suggestionItem}
+                        onClick={() => {
+                          setDest(province);
+                          setShowDropdown(false);
+                        }}
+                      >
+                        <MapPin size={18} weight="duotone" color="#94a3b8" />
+                        <span style={{ fontSize: "0.85rem", fontWeight: 500 }}>
+                          {province}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -235,37 +287,28 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
                 <CurrencyCircleDollar weight="duotone" />
               </div>
               <div className={styles.fieldInfo}>
-                <label>Ngân sách</label>
+                <label htmlFor="budget">Ngân sách</label>
                 <select
+                  id="budget"
                   required
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
-                  style={{
-                    border: "none",
-                    outline: "none",
-                    background: "transparent",
-                    width: "100%",
-                    fontSize: "15px",
-                    fontWeight: "600",
-                    color: "#1e293b",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
+                  className={styles.budgetSelect}
                 >
                   <option value="" disabled hidden>
-                    Ngân sách dự kiến...
+                    Chọn ngân sách...
                   </option>
                   <option value="Dưới 5 triệu">
-                    Tiết kiệm (Dưới 5 triệu VNĐ)
+                    Tiết kiệm ({"<"} 5 Triệu VNĐ)
                   </option>
                   <option value="5 - 10 triệu">
-                    Tiêu chuẩn (5 - 10 triệu VNĐ)
+                    Tiêu chuẩn (5 - 10 Triệu VNĐ)
                   </option>
                   <option value="10 - 20 triệu">
-                    Thoải mái (10 - 20 triệu VNĐ)
+                    Thoải mái (10 - 20 Triệu VNĐ)
                   </option>
                   <option value="Trên 20 triệu">
-                    Cao cấp (Trên 20 triệu VNĐ)
+                    Đẳng cấp ({">"} 20 Triệu VNĐ)
                   </option>
                 </select>
               </div>
@@ -279,8 +322,9 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
                 <Users weight="duotone" />
               </div>
               <div className={styles.fieldInfo}>
-                <label>Số khách</label>
+                <label htmlFor="guests">Số khách</label>
                 <input
+                  id="guests"
                   type="number"
                   placeholder="Thêm khách"
                   min="1"

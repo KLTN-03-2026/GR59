@@ -132,22 +132,45 @@ export const postRefreshToken = (
   );
 };
 
+export interface SendOtpResponseData {
+  expiresIn: number;
+  email: string;
+  status: string;
+}
+
 // 7. Gửi mã OTP
 export const postSendOTP = (
   email: string,
-): Promise<AxiosResponse<BackendResponse<unknown>>> => {
-  return instance.post<BackendResponse<unknown>>("/api/v1/auth/send-otp", {
-    email,
-  });
+): Promise<AxiosResponse<BackendResponse<SendOtpResponseData>>> => {
+  return instance.post<BackendResponse<SendOtpResponseData>>(
+    "/api/v1/auth/send-otp",
+    {
+      email,
+    },
+  );
 };
 
-// 8. Xác minh OTP
+// 8. Xác minh OTP - Trả về BackendResponse chung hoặc cụ thể nếu cần
 export const postVerifyOTP = (
   email: string,
-  otp: string,
+  otp: number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
-  return instance.post<BackendResponse<unknown>>("/api/v1/auth/verify-email", {
+  return instance.post<BackendResponse<unknown>>("/api/v1/auth/verify-otp", {
     email,
     otp,
   });
+};
+
+// 9. Đặt lại mật khẩu mới sau khi OTP thành công
+export const postResetPassword = (
+  email: string,
+  newPass: string,
+): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  return instance.post<BackendResponse<unknown>>(
+    "/api/v1/auth/reset-password-otp",
+    {
+      email: email,
+      new_password: newPass,
+    },
+  );
 };
