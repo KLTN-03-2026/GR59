@@ -10,7 +10,7 @@ import "nprogress/nprogress.css";
 NProgress.configure({ showSpinner: false, trickleSpeed: 100 });
 
 const instance = axios.create({
-  baseURL: "http://localhost:8888",
+  baseURL: "http://localhost:8888/api/v1/",
 });
 
 instance.interceptors.request.use(

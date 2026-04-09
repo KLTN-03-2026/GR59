@@ -28,15 +28,37 @@
   }
 
   .socialButtons {
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
     margin-bottom: 24px;
     width: 100%;
 
     .googleButtonWrap,
     .facebookButtonWrap {
-      flex: 1;
       height: 48px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 40px; // Bo góc mạnh mẽ
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .googleButtonWrap {
+      // Container cho Google iframe
+      & > div {
+        width: 100% !important;
+        iframe {
+          width: 100% !important;
+          margin: 0 auto;
+        }
+      }
     }
 
     .socialBtn {
@@ -46,41 +68,24 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      border-radius: 12px;
+      border-radius: 40px;
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1.5px solid #e2e8f0;
+      transition: all 0.3s ease;
+      border: 1.5px solid #f1f5f9;
       background: white;
       color: #1e293b;
-
-      img {
-        width: 18px;
-        height: 18px;
-      }
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
-      }
-
-      &.google {
-        &:hover {
-          background: #f8fafc;
-          border-color: #cbd5e1;
-        }
-      }
 
       &.facebook {
         background: #1877f2;
         color: white;
         border: none;
-        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.15);
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
 
         &:hover {
           background: #166fe5;
-          box-shadow: 0 8px 20px rgba(24, 119, 242, 0.25);
+          box-shadow: 0 8px 25px rgba(24, 119, 242, 0.3);
         }
       }
     }

@@ -5,12 +5,11 @@ import {
   Eye,
   EyeSlash,
   FacebookLogo,
-  GoogleLogo,
 } from "phosphor-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./Login.module.scss";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import FacebookLoginExport from "@greatsumini/react-facebook-login";
 const FacebookLogin =
   (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
@@ -33,45 +32,34 @@ const Login: React.FC<Props> = ({ onToggle }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loginGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setIsLoading(true);
-        const response = await postLoginGoogle(tokenResponse.access_token);
+  // Logic xử lý khi đăng nhập Google thành công
+  const handleGoogleSuccess = async (credential: string) => {
+    try {
+      setIsLoading(true);
+      const response = await postLoginGoogle(credential);
 
-        if (
-          response.data &&
-          response.data.status === 200
-        ) {
-          const data = response.data.data;
-          const user = data.user;
-          if (data.accessToken) localStorage.setItem("token", data.accessToken);
-          if (data.refreshToken)
-            localStorage.setItem("refreshToken", data.refreshToken);
-          localStorage.setItem("user", JSON.stringify(user));
-          if (user.fullName) localStorage.setItem("username", user.fullName);
-          if (user.email) localStorage.setItem("email", user.email);
-          if (user.createdAt)
-            localStorage.setItem("createdAt", user.createdAt);
-          toast.success("Đăng nhập Google thành công! 🚀");
-          navigate("/");
-        } else {
-          toast.error(
-            response.data?.message ||
-              "Đăng nhập Google thất bại!",
-          );
-        }
-      } catch (error) {
-        console.error("Google Login Error:", error);
-        toast.error("Lỗi đăng nhập Google!");
-      } finally {
-        setIsLoading(false);
+      if (response.data && response.data.status === 200 && response.data.data) {
+        const data = response.data.data;
+        const user = data.user;
+        if (data.accessToken) localStorage.setItem("token", data.accessToken);
+        if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
+        localStorage.setItem("user", JSON.stringify(user));
+        if (user.fullName) localStorage.setItem("username", user.fullName);
+        if (user.email) localStorage.setItem("email", user.email);
+        if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
+        toast.success("Đăng nhập Google thành công! 🚀");
+        navigate("/");
+      } else {
+        toast.error(response.data?.message || "Đăng nhập Google thất bại!");
       }
-    },
-    onError: () => {
-      toast.error("Đăng nhập Google thất bại!");
-    },
-  });
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      toast.error("Lỗi đăng nhập Google!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +76,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
     setIsLoading(true);
     try {
       const response = await postLogin(cleanEmail, password);
-      if (response.data && response.data.status === 200) {
+      if (response.data && response.data.status === 200 && response.data.data) {
         const data = response.data.data;
         const user = data.user;
         if (data.accessToken) localStorage.setItem("token", data.accessToken);
@@ -134,14 +122,21 @@ const Login: React.FC<Props> = ({ onToggle }) => {
 
       <div className={styles.socialButtons}>
         <div className={styles.googleButtonWrap}>
-          <button
-            type="button"
-            className={`${styles.socialBtn} ${styles.google}`}
-            disabled={isLoading}
-            onClick={() => loginGoogle()}
-          >
-            <GoogleLogo weight="bold" size={20} /> Google
-          </button>
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              if (credentialResponse.credential) {
+                handleGoogleSuccess(credentialResponse.credential);
+              }
+            }}
+            onError={() => {
+              toast.error("Đăng nhập Google thất bại!");
+            }}
+            theme="outline"
+            size="large"
+            shape="pill"
+            width="100%"
+            text="continue_with"
+          />
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin
@@ -152,7 +147,8 @@ const Login: React.FC<Props> = ({ onToggle }) => {
                 const res = await postLoginFacebook(response.accessToken);
                 if (
                   res.data &&
-                  res.data.status === 200
+                  res.data.status === 200 &&
+                  res.data.data
                 ) {
                   const data = res.data.data;
                   const user = data.user;

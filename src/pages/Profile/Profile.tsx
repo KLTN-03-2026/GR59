@@ -6,7 +6,7 @@ import ProfileHeader from "./components/ProfileHeader/ProfileHeader";
 import ProfileTabs from "./components/ProfileTabs/ProfileTabs";
 import ProfileForm from "./components/ProfileForm/ProfileForm";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
-import { getSavedTrips } from "../../services/profileService";
+import { getProfile, getSavedTrips } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
 
 const Profile: React.FC = () => {
@@ -18,50 +18,88 @@ const Profile: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        // 1. Lấy thông tin User từ LocalStorage (Được lưu từ bước Đăng nhập phía trước!)
-        const userStr = localStorage.getItem("user");
+        // 1. Gọi API lấy thông tin Profile mới nhất
+        let profileData: ProfileData | null = null;
+        try {
+          const res = await getProfile();
+          // Backend thật trả về dữ liệu trong trường 'data'
+          const dt = res.data.data as any;
+          if (dt) {
+            let formattedJoinDate = "Mới tham gia";
+            if (dt.createdAt) {
+              const date = new Date(dt.createdAt);
+              const month = (date.getMonth() + 1).toString().padStart(2, "0");
+              const year = date.getFullYear();
+              formattedJoinDate = `${month}/${year}`;
+            }
 
-        if (userStr) {
-          const userData = JSON.parse(userStr);
-          
-          let formattedJoinDate = "Mới tham gia";
-          if (userData.createdAt) {
-            const date = new Date(userData.createdAt);
-            const month = (date.getMonth() + 1).toString().padStart(2, "0");
-            const year = date.getFullYear();
-            formattedJoinDate = `${month}/${year}`;
+            profileData = {
+              fullName: dt.fullName || "Thành viên",
+              email: dt.email || "",
+              phone: dt.phone || "Chưa cập nhật",
+              address: dt.address || "Chưa cập nhật",
+              bio:
+                dt.bio ||
+                "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
+              avatar:
+                dt.avatarUrl ||
+                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
+              cover:
+                dt.cover ||
+                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
+              badge: dt.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
+              joinDate: formattedJoinDate,
+              location: dt.address || "Việt Nam",
+            };
           }
-
-          const profileData = {
-            name: userData.fullName || userData.email || "Thành viên",
-            email: userData.email || "Không rõ email",
-            phone: userData.phone || "Chưa cập nhật",
-            address: userData.address || "Chưa cập nhật",
-            bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
-            avatar: userData.avatarUrl || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png", 
-            cover: "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg", // Tạm mặc định
-            badge: userData.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
-            joinDate: formattedJoinDate,
-            location: userData.address || "Việt Nam",
-          };
-
-          setProfile(profileData);
-        } else {
-          // Xử lý báo lỗi nếu vào profile mà LocalStorage chưa có gì (chưa đăng nhập)
-          console.warn("Không tìm thấy dữ liệu user trong local storage");
+        } catch (apiErr) {
+          console.warn(
+            "Lỗi khi gọi API profile, dùng localStorage làm dự phòng:",
+            apiErr,
+          );
         }
 
-        // 2. Tạm thời vẫn lấy các danh sách chuyến đi từ API cũ. 
-        // (Sau này BE mà có API chuyến đi riêng thì sẽ tính sau) 
+        // 2. Nếu API không trả về dữ liệu, dùng LocalStorage (Đã lưu từ bước Đăng nhập)
+        if (!profileData) {
+          const userStr = localStorage.getItem("user");
+          if (userStr) {
+            const userData = JSON.parse(userStr);
+            let formattedJoinDate = "Mới tham gia";
+            if (userData.createdAt) {
+              const date = new Date(userData.createdAt);
+              const month = (date.getMonth() + 1).toString().padStart(2, "0");
+              const year = date.getFullYear();
+              formattedJoinDate = `${month}/${year}`;
+            }
+
+            profileData = {
+              fullName: userData.fullName || userData.email || "Thành viên",
+              email: userData.email || "Không rõ email",
+              phone: userData.phone || "Chưa cập nhật",
+              address: userData.address || "Chưa cập nhật",
+              bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
+              avatar: userData.avatarUrl || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
+              cover: "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
+              badge: userData.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
+              joinDate: formattedJoinDate,
+              location: userData.address || "Việt Nam",
+            };
+          }
+        }
+
+        if (profileData) {
+          setProfile(profileData);
+        }
+
+        // 3. Lấy danh sách chuyến đi
         try {
           const savedTripsRes = await getSavedTrips();
           if (savedTripsRes && savedTripsRes.data && savedTripsRes.data.data) {
-             setSavedTrips(savedTripsRes.data.data);
+            setSavedTrips(savedTripsRes.data.data);
           }
-        } catch (tripErr) { 
-           console.warn("Chưa tải được mock saved_trips", tripErr); 
+        } catch (tripErr) {
+          console.warn("Chưa tải được mock saved_trips", tripErr);
         }
-
       } catch (error) {
         console.error("Lỗi khi tải thông tin profile:", error);
       }
@@ -89,7 +127,7 @@ const Profile: React.FC = () => {
       <div className={styles.container}>
         <div data-aos="fade-down">
           <ProfileHeader
-            name={profile.name}
+            name={profile.fullName}
             email={profile.email}
             badge={profile.badge}
             avatar={profile.avatar}

@@ -38,7 +38,7 @@ export const postSignUp = (
   pass: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>(
-    "/api/v1/auth/register",
+    "/auth/register",
     {
       full_name: username,
       email: email,
@@ -53,7 +53,7 @@ export const postLogin = (
   pass: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>(
-    "/api/v1/auth/login",
+    "/auth/login",
     {
       email: email,
       password: pass,
@@ -66,7 +66,7 @@ export const postLoginGoogle = (
   token: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>(
-    "/api/v1/auth/google",
+    "/auth/google",
     {
       token,
     },
@@ -78,7 +78,7 @@ export const postLoginFacebook = (
   accessToken: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>(
-    "/api/v1/auth/facebook",
+    "/auth/facebook",
     {
       accessToken,
     },
@@ -115,7 +115,7 @@ export const updatePasswordByEmail = async (
 export const postLogout = (): Promise<
   AxiosResponse<BackendResponse<unknown>>
 > => {
-  return instance.post<BackendResponse<unknown>>("/api/v1/auth/logout");
+  return instance.post<BackendResponse<unknown>>("/auth/logout");
 };
 
 // 6. Refresh Token
@@ -123,7 +123,7 @@ export const postRefreshToken = (
   refreshToken: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>(
-    "/api/v1/auth/refresh-token",
+    "/auth/refresh-token",
     {
       refreshToken: refreshToken,
     },
@@ -141,7 +141,7 @@ export const postSendOTP = (
   email: string,
 ): Promise<AxiosResponse<BackendResponse<SendOtpResponseData>>> => {
   return instance.post<BackendResponse<SendOtpResponseData>>(
-    "/api/v1/auth/send-otp",
+    "/auth/send-otp",
     {
       email,
     },
@@ -153,7 +153,7 @@ export const postVerifyOTP = (
   email: string,
   otp: number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
-  return instance.post<BackendResponse<unknown>>("/api/v1/auth/verify-otp", {
+  return instance.post<BackendResponse<unknown>>("/auth/verify-otp", {
     email,
     otp,
   });
@@ -165,7 +165,7 @@ export const postResetPassword = (
   newPass: string,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   return instance.post<BackendResponse<unknown>>(
-    "/api/v1/auth/reset-password-otp",
+    "/auth/reset-password-otp",
     {
       email: email,
       new_password: newPass,

@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from "react-toastify";
 import styles from "./ProfileForm.module.scss";
 
 interface ProfileFormProps {
@@ -8,6 +9,20 @@ interface ProfileFormProps {
 }
 
 import type { ProfileData } from "../../../../services/profileService";
+import {
+  UserCircle,
+  LockKey,
+  User,
+  Phone,
+  MapPin,
+  Key,
+  Password,
+  CheckCircle,
+  Eye,
+  EyeSlash,
+  Check,
+  ShieldCheck,
+} from "phosphor-react";
 import {
   updateProfile,
   changePassword,
@@ -25,7 +40,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
 
     if (mode === "info") {
       const data = {
-        name: formData.get("name") as string,
+        fullName: formData.get("fullName") as string,
         phone: formData.get("phone") as string,
         address: formData.get("address") as string,
         bio: formData.get("bio") as string,
@@ -33,32 +48,38 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
 
       try {
         await updateProfile(data);
-        alert("Cập nhật thông tin thành công!");
+        toast.success("Cập nhật thông tin thành công! ✨");
         // Tải lại trang để hiển thị thông tin mới nhất
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 1500);
       } catch (error) {
         console.error("Lỗi cập nhật thông tin:", error);
-        alert("Đã xảy ra lỗi khi cập nhật thông tin.");
+        toast.error("Đã xảy ra lỗi khi cập nhật thông tin.");
       }
     } else if (mode === "password") {
-      const currentPassword = formData.get("currentPassword") as string;
-      const newPassword = formData.get("newPassword") as string;
-      const confirmPassword = formData.get("confirmPassword") as string;
+      const old_password = formData.get("old_password") as string;
+      const new_password = formData.get("newPassword") as string;
+      const confirm_password = formData.get("confirmPassword") as string;
 
-      if (newPassword !== confirmPassword) {
-        alert("Mật khẩu xác nhận không khớp!");
+      if (new_password !== confirm_password) {
+        toast.error("Mật khẩu xác nhận không khớp! ❌");
         return;
       }
 
       try {
-        await changePassword({ currentPassword, newPassword });
-        alert("Cập nhật mật khẩu thành công!");
-        form.reset();
+        const res = await changePassword({
+          old_password,
+          new_password,
+          confirm_password,
+        });
+        if (res.data && res.data.status === 200) {
+          toast.success(res.data.message || "Đổi mật khẩu thành công! 🔐");
+          form.reset();
+        } else {
+          toast.error(res.data?.message || "Đổi mật khẩu thất bại!");
+        }
       } catch (error) {
         console.error("Lỗi cập nhật mật khẩu:", error);
-        alert(
-          "Đã xảy ra lỗi khi cập nhật mật khẩu. (Có thể API mock chưa hỗ trợ route này)",
-        );
+        toast.error("Đã xảy ra lỗi khi cập nhật mật khẩu.");
       }
     }
   };
@@ -67,11 +88,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
     <div className={styles.sectionCard}>
       <div className={styles.cardHeader}>
         <div className={styles.iconBox}>
-          <i
-            className={
-              mode === "info" ? "ph-fill ph-user-circle" : "ph-fill ph-lock-key"
-            }
-          ></i>
+          {mode === "info" ? (
+            <UserCircle weight="fill" />
+          ) : (
+            <LockKey weight="fill" />
+          )}
         </div>
         <div className={styles.cardHeaderText}>
           <h3>{title}</h3>
@@ -89,11 +110,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
             <div className={styles.formGroup}>
               <label>Họ và tên</label>
               <div className={styles.inputWrapper}>
-                <i className="ph-bold ph-user"></i>
+                <User weight="bold" />
                 <input
                   type="text"
-                  name="name"
-                  defaultValue={profile?.name || ""}
+                  name="fullName"
+                  defaultValue={profile?.fullName || ""}
                   placeholder="Nhập họ tên"
                 />
               </div>
@@ -102,7 +123,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
             <div className={styles.formGroup}>
               <label>Số điện thoại</label>
               <div className={styles.inputWrapper}>
-                <i className="ph-bold ph-phone"></i>
+                <Phone weight="bold" />
                 <input
                   type="text"
                   name="phone"
@@ -115,7 +136,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
             <div className={styles.formGroup} style={{ gridColumn: "span 2" }}>
               <label>Địa chỉ</label>
               <div className={styles.inputWrapper}>
-                <i className="ph-bold ph-map-pin"></i>
+                <MapPin weight="bold" />
                 <input
                   type="text"
                   name="address"
@@ -140,10 +161,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
             <div className={styles.formGroup}>
               <label>Mật khẩu hiện tại</label>
               <div className={styles.inputWrapper}>
-                <i className="ph-bold ph-key"></i>
+                <Key weight="bold" />
                 <input
                   type={showCurrent ? "text" : "password"}
-                  name="currentPassword"
+                  name="old_password"
                   required
                   placeholder="********"
                 />
@@ -157,11 +178,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
                       : "Show current password"
                   }
                 >
-                  <i
-                    className={
-                      showCurrent ? "ph-bold ph-eye-slash" : "ph-bold ph-eye"
-                    }
-                  ></i>
+                  {showCurrent ? (
+                    <EyeSlash weight="bold" />
+                  ) : (
+                    <Eye weight="bold" />
+                  )}
                 </button>
               </div>
             </div>
@@ -169,7 +190,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
               <div className={styles.formGroup}>
                 <label>Mật khẩu mới</label>
                 <div className={styles.inputWrapper}>
-                  <i className="ph-bold ph-password"></i>
+                  <Password weight="bold" />
                   <input
                     type={showNew ? "text" : "password"}
                     name="newPassword"
@@ -184,18 +205,18 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
                       showNew ? "Hide new password" : "Show new password"
                     }
                   >
-                    <i
-                      className={
-                        showNew ? "ph-bold ph-eye-slash" : "ph-bold ph-eye"
-                      }
-                    ></i>
+                    {showNew ? (
+                      <EyeSlash weight="bold" />
+                    ) : (
+                      <Eye weight="bold" />
+                    )}
                   </button>
                 </div>
               </div>
               <div className={styles.formGroup}>
                 <label>Xác nhận mật khẩu</label>
                 <div className={styles.inputWrapper}>
-                  <i className="ph-bold ph-check-circle"></i>
+                  <CheckCircle weight="bold" />
                   <input
                     type={showConfirm ? "text" : "password"}
                     name="confirmPassword"
@@ -212,11 +233,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
                         : "Show confirm password"
                     }
                   >
-                    <i
-                      className={
-                        showConfirm ? "ph-bold ph-eye-slash" : "ph-bold ph-eye"
-                      }
-                    ></i>
+                    {showConfirm ? (
+                      <EyeSlash weight="bold" />
+                    ) : (
+                      <Eye weight="bold" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -233,11 +254,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
           >
             {mode === "info" ? (
               <>
-                <i className="ph-bold ph-check"></i> Lưu thay đổi
+                <Check weight="bold" /> Lưu thay đổi
               </>
             ) : (
               <>
-                <i className="ph-bold ph-shield-check"></i> Cập nhật mật khẩu
+                <ShieldCheck weight="bold" /> Cập nhật mật khẩu
               </>
             )}
           </button>

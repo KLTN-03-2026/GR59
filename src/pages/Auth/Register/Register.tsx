@@ -6,7 +6,6 @@ import {
   FacebookLogo,
   LockKey,
   User,
-  GoogleLogo,
 } from "phosphor-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -17,7 +16,7 @@ import {
   type AuthResponseData,
 } from "../../../services/userService";
 import styles from "./Register.module.scss";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import FacebookLoginExport from "@greatsumini/react-facebook-login";
 const FacebookLogin =
   (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
@@ -55,36 +54,27 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
   };
 
-  const loginGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setIsLoading(true);
-        const response = await postLoginGoogle(tokenResponse.access_token);
+  // Logic xử lý khi đăng ký/đăng nhập Google thành công
+  const handleGoogleSuccess = async (credential: string) => {
+    try {
+      setIsLoading(true);
+      const response = await postLoginGoogle(credential);
 
-        if (
-          response.data &&
-          response.data.status === 200
-        ) {
-          saveAuthData(response.data.data);
-          toast.success("Đăng ký Google thành công! 🚀");
-          navigate("/");
-        } else {
-          toast.error(
-            response.data?.message ||
-              "Đăng ký Google thất bại!",
-          );
-        }
-      } catch (error) {
-        console.error("Google Register Error:", error);
-        toast.error("Lỗi đăng ký Google!");
-      } finally {
-        setIsLoading(false);
+      if (response.data && response.data.status === 200 && response.data.data) {
+        saveAuthData(response.data.data);
+        toast.success("Đăng ký Google thành công! 🚀");
+        navigate("/");
+      } else {
+        toast.error(response.data?.message || "Đăng ký Google thất bại!");
       }
-    },
-    onError: () => {
-      toast.error("Đăng ký Google thất bại!");
-    },
-  });
+    } catch (error) {
+      console.error("Google Register Error:", error);
+      toast.error("Lỗi đăng ký Google!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -153,14 +143,21 @@ const Register: React.FC<Props> = ({ onToggle }) => {
 
       <div className={styles.socialButtons}>
         <div className={styles.googleButtonWrap}>
-          <button
-            type="button"
-            className={`${styles.socialBtn} ${styles.google}`}
-            disabled={isLoading}
-            onClick={() => loginGoogle()}
-          >
-            <GoogleLogo weight="bold" size={20} /> Google
-          </button>
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              if (credentialResponse.credential) {
+                handleGoogleSuccess(credentialResponse.credential);
+              }
+            }}
+            onError={() => {
+              toast.error("Đăng ký Google thất bại!");
+            }}
+            theme="outline"
+            size="large"
+            shape="pill"
+            width="100%"
+            text="continue_with"
+          />
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin
@@ -171,7 +168,8 @@ const Register: React.FC<Props> = ({ onToggle }) => {
                 const res = await postLoginFacebook(response.accessToken);
                 if (
                   res.data &&
-                  res.data.status === 200
+                  res.data.status === 200 &&
+                  res.data.data
                 ) {
                   saveAuthData(res.data.data);
                   toast.success("Đăng ký Facebook thành công! 🚀");
