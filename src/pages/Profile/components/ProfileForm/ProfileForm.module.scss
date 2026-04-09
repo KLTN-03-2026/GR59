@@ -1,0 +1,200 @@
+.sectionCard {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border: 2px solid #b4bac0;
+  transition: transform 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    border-color: #ffdec2;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 30px;
+  align-items: center;
+
+  .iconBox {
+    width: 44px;
+    height: 44px;
+    background: #fff7ed;
+    color: #ff7e00;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .cardHeaderText {
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+    p {
+      font-size: 13px;
+      color: #64748b;
+      margin: 2px 0 0;
+    }
+  }
+}
+
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.passwordFields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.passwordRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #eef2f6;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #334155;
+    background: white;
+    outline: none;
+    transition: all 0.2s ease;
+    resize: none;
+
+    &:focus {
+      border-color: #ffdec2;
+      box-shadow: 0 0 0 3px rgba(255, 126, 0, 0.05);
+    }
+  }
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #94a3b8;
+    pointer-events: none; // Ensure clicking passes through to input
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 45px 12px 42px; // Tăng padding-right để tránh text đè icon eye
+    border: 1px solid #eef2f6;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    background: white;
+    outline: none;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #ffdec2;
+      box-shadow: 0 0 0 3px rgba(255, 126, 0, 0.05);
+    }
+  }
+
+  .eyeBtn {
+    position: absolute;
+    right: 12px; // Chỉnh lại vị trí nút eye chuẩn hơn
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: color 0.2s ease;
+    z-index: 5;
+
+    &:hover {
+      color: #64748b;
+    }
+  }
+}
+
+.formFooter {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btnPrimary,
+.btnSecondary {
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btnPrimary {
+  background: #ff7e00;
+  color: white;
+
+  &:hover {
+    background: #ff6a00;
+    box-shadow: 0 4px 12px rgba(255, 126, 0, 0.2);
+  }
+}
+
+.btnSecondary {
+  background: #1e293b;
+  color: white;
+
+  &:hover {
+    background: #0f172a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}

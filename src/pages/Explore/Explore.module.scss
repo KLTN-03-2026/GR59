@@ -1,0 +1,253 @@
+$bg-color: #fffaf5; // Màu kem nhạt nền (ngả cam)
+$primary-color: #ff7a00; // Màu cam chủ đạo mới
+$text-secondary: #666;
+$border-color: #eee;
+$max-width: 1200px;
+
+.explorePage {
+  background-color: $bg-color;
+  min-height: 100vh;
+  padding-bottom: 60px; // Tạo khoảng cách ở cuối trang
+}
+
+.mainContainer {
+  max-width: $max-width;
+  margin: 0 auto; // Căn giữa
+  padding: 0 20px; // Padding 2 bên để không bị dính viền màn hình
+}
+
+// Bố cục linh hoạt cho các thẻ địa điểm
+.cardGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 30px;
+  margin-bottom: 50px;
+
+  // Mỗi item mặc định chiếm đúng 1/3 hàng, không tự co giãn quá mức
+  > div {
+    flex: 0 0 calc(33.333% - 20px); // Fix cứng tỷ lệ 3 card/hàng
+    transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 320px;
+    will-change: flex; // Tối ưu hóa hiệu năng render
+  }
+
+  // Hiệu ứng mở rộng chuyên nghiệp
+  @media (min-width: 701px) {
+    &:has(> div:hover), 
+    &:has(> div:has([data-is-playing="true"])) {
+      > div {
+        flex: 0 0 calc(25% - 20px) !important; // Thu nhỏ các card khác (từ 20% lên 25%)
+        opacity: 0.6;
+        filter: grayscale(0.5) blur(1px);
+        @media (max-width: 1100px) {
+           flex: 0 0 calc(35% - 15px) !important;
+        }
+      }
+
+      > div:hover,
+      > div:has([data-is-playing="true"]) {
+        flex: 0 0 calc(50% - 10px) !important; // Mở rộng card đang chọn (từ 60% xuống 50%)
+        opacity: 1;
+        filter: grayscale(0) blur(0);
+        z-index: 10;
+        @media (max-width: 1100px) {
+           flex: 0 0 calc(65% - 10px) !important;
+        }
+      }
+    }
+  }
+
+  // Responsive: Khi màn hình nhỏ hơn 1100px (2 card)
+  @media (max-width: 1100px) {
+    justify-content: center;
+    > div {
+      flex: 0 0 calc(50% - 15px);
+    }
+  }
+
+  // Responsive: Khi màn hình điện thoại (1 card)
+  @media (max-width: 700px) {
+    > div {
+      flex: 0 0 100%;
+      min-width: unset;
+    }
+  }
+}
+
+// Style cho phần phân trang số
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 50px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f0f0f0;
+
+  .pageNavBtn {
+    background: white;
+    color: #666;
+    border: 1px solid #eee;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover:not(:disabled) {
+      background: #fdf2e9;
+      color: $primary-color;
+      border-color: $primary-color;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #fafafa;
+    }
+  }
+
+  .pageNumbers {
+    display: flex;
+    gap: 8px;
+
+    .pageBtn {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid #eee;
+      background: white;
+      color: #555;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      &:hover {
+        border-color: $primary-color;
+        color: $primary-color;
+        transform: scale(1.1);
+      }
+
+      &.activePage {
+        background: $primary-color;
+        color: white;
+        border-color: $primary-color;
+        box-shadow: 0 8px 20px rgba($primary-color, 0.3);
+      }
+    }
+  }
+}
+.floatingMapBtn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #1a365d;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 50px;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s;
+
+  &:hover {
+    transform: scale(1.1) rotate(-3deg);
+    background: #ff7a00;
+  }
+}
+.exploreWrapper {
+  background: #ffffff;
+  color: #111;
+}
+
+.heroSection {
+  padding: 100px 5%;
+  background: radial-gradient(circle at top right, #fff4e6, #ffffff);
+
+  h1 {
+    font-size: clamp(3rem, 8vw, 5rem);
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -2px;
+    span {
+      color: #ff7a00;
+    } // Điểm nhấn màu cam dự án của bạn
+  }
+}
+
+.stickyControls {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px); // Hiệu ứng kính mờ
+  padding: 20px 5%;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.contentLayout {
+  display: flex;
+  gap: 40px;
+  padding: 40px 5%;
+
+  .listSection {
+    flex: 1;
+  }
+
+  .mapSidebar {
+    width: 400px;
+    @media (max-width: 1024px) {
+      display: none;
+    } // Ẩn bản đồ trên mobile
+  }
+}
+
+.mapStickyInner {
+  position: sticky;
+  top: 120px;
+  height: calc(100vh - 150px);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+// Masonry Grid: Card to nhỏ xen kẽ nhìn rất nghệ thuật
+.masonryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+
+  .largeCard {
+    grid-row: span 2; // Card này sẽ dài gấp đôi
+  }
+}
+
+.noResults {
+  grid-column: 1 / -1; // Chiếm hết các cột
+  padding: 80px 20px;
+  text-align: center;
+  background: white;
+  border-radius: 20px;
+  border: 1px dashed #ddd;
+
+  p {
+    color: #666;
+    font-size: 18px;
+    margin: 0;
+  }
+}

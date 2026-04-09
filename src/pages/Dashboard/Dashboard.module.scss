@@ -1,0 +1,99 @@
+$primary: #ff7a00;
+$navy: #1a365d;
+$bg-light: #f8fafc;
+
+.dashboardLayout {
+  display: flex;
+  min-height: 100vh;
+  background: $bg-light;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.pageContent { 
+  padding: 40px; 
+  flex: 1;
+}
+
+.topRow {
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 32px; 
+  margin-bottom: 50px;
+
+  > div {
+    min-width: 0; // Prevent content from pushing grid column width
+  }
+
+  @media (max-width: 1300px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 30px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .headerTitle {
+    h2 {
+      font-size: 24px;
+      font-weight: 900;
+      color: $navy;
+      margin-bottom: 4px;
+    }
+    p {
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      span { color: $primary; font-weight: 800; }
+    }
+  }
+}
+
+.tripFilters {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 5px;
+  border-radius: 12px;
+
+  .filterBtn {
+    border: none;
+    background: none;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #64748b;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover { color: $primary; }
+    &.active {
+      background: white;
+      color: $primary;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+  }
+}
+
+.tripGrid {
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+  gap: 32px;
+  margin-bottom: 40px;
+}

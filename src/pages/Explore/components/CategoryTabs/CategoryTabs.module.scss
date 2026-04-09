@@ -1,0 +1,39 @@
+.tabsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+
+  .tabItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: none;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background: #f0f0f0;
+    }
+
+    &.active {
+      background: linear-gradient(
+        135deg,
+        #00ced1 0%,
+        #008b8b 100%
+      ); // Gradient xanh ngọc
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 206, 209, 0.25);
+    }
+
+    .icon {
+      font-size: 18px;
+    }
+  }
+}

@@ -1,0 +1,315 @@
+@use "../../../../components/styles/variables.scss" as vars;
+
+.locations {
+  background-color: transparent;
+  position: relative;
+  z-index: 2;
+  margin-top: 140px;
+  margin-bottom: 40px;
+}
+
+.headerWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 30px;
+  }
+}
+
+.header {
+  text-align: left;
+  max-width: 600px;
+
+  .sectionTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 3px;
+  }
+  .highlightUnderline {
+    margin-left: 2px;
+  }
+
+  .sectionDescription {
+    color: vars.$text-gray;
+    font-size: 0.9rem;
+    text-align: left;
+    max-width: 450px;
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-width: 576px) {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.sliderTabs {
+  display: flex;
+  gap: 8px;
+  background: white;
+  padding: 6px;
+  border-radius: 999px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.sliderTab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: vars.$text-gray;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &.active {
+    background: #33d7d1; // Màu chuẩn từ ảnh
+    color: white;
+    box-shadow: 0 4px 10px rgba(51, 215, 209, 0.3);
+  }
+}
+
+.sliderNav {
+  display: flex;
+  gap: 12px;
+
+  .sliderBtn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+
+    // CĂN GIỮA HOÀN HẢO BẰNG FLEXBOX
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0; // Đảm bảo không có padding làm lệch icon
+
+    &:hover {
+      background: #33d7d1;
+      color: white;
+      border-color: #33d7d1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(51, 215, 209, 0.3);
+    }
+
+    // Nếu bạn vẫn muốn dùng class sliderIcon bọc ngoài Icon
+    .sliderIcon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      // Xóa position absolute cũ đi để nó tự căn theo Flex của cha
+    }
+
+    svg {
+      font-size: 1.25rem; // Chỉnh kích thước icon vừa vặn
+    }
+  }
+}
+
+.sliderWrap {
+  margin-bottom: 50px;
+}
+
+.sliderContent {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 5px 30px;
+  scrollbar-width: none; // Firefox
+
+  &.gridContent {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding-bottom: 50px;
+    height: auto;
+    overflow: visible;
+
+    @media (max-width: 992px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+
+    .locationCard {
+      flex: none;
+      width: 100%;
+      min-width: 0;
+    }
+  }
+}
+
+.locationCard {
+  flex: 0 0 calc(33.333% - 20px);
+  text-align: left;
+  min-width: 250px;
+  background: white;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.locationImage {
+  position: relative;
+  height: 200px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.1s ease;
+    &:hover {
+      transform: scale(1.05);
+      transition: all 0.6s ease-in;
+    }
+  }
+
+  .locationBadge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #33d7d1;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.locationContent {
+  padding: 24px;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #1e293b;
+  }
+
+  .locationRating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+
+    .stars {
+      color: #fbbf24;
+      display: flex;
+      gap: 1px;
+    }
+    span {
+      font-size: 0.6rem;
+      color: vars.$text-gray;
+    }
+  }
+
+  p {
+    font-size: 0.8rem;
+    color: vars.$text-gray;
+    line-height: 1.3;
+    margin-bottom: 17px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .moreLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #33d7d1;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+    width: 100%;
+
+    &:hover {
+      color: #020303;
+    }
+
+    svg {
+      transition: transform 0.3s ease;
+    }
+    &:hover svg {
+      transform: translateX(4px);
+    }
+  }
+}
+
+.highlightUnderline {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #33d7d1;
+    border-radius: 2px;
+  }
+}
+
+.btnOutlineBlue {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  color: white;
+  background-color: #33d7d1;
+  border: 1px solid #feffff;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #f5f6f6;
+    color: #33d7d1;
+    border: 1px solid #33d7d1;
+    box-shadow: 0 10px 20px rgba(51, 215, 209, 0.3);
+  }
+}

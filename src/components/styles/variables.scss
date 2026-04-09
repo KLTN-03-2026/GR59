@@ -1,0 +1,23 @@
+// Global variables for the project
+$primary-blue: #00ffffbc;
+$primary-gradient: linear-gradient(135deg, #00ffffbc 0%, #00b8b8bc 100%);
+$primary-blue-gradient: linear-gradient(135deg, #00ffffbc 0%, #00e5e5bc 100%);
+$premium-gradient: linear-gradient(135deg, #0ea5e9 0%, #00ffff 100%);
+$text-dark: #1e293b;
+$text-gray: #64748b;
+$text-light: #94a3b8;
+
+$bg-main: #f0f7f9;
+$bg-white: #ffffff;
+$bg-dark-card: #0f172a;
+
+$border-color: #e2e8f0;
+$glass-bg: rgba(255, 255, 255, 0.7);
+$glass-border: rgba(255, 255, 255, 0.5);
+
+$font-main: 'Plus Jakarta Sans', sans-serif;
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);

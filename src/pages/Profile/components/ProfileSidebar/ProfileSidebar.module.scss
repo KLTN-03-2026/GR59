@@ -1,0 +1,184 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border: 2px solid #b4bac0;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  span {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    i {
+      color: #ff7e00;
+      font-size: 18px;
+    }
+  }
+
+  a {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff7e00;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.tripList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tripItem {
+    text-align: left;
+
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background: #fffaf5;
+    transform: translateX(4px);
+
+    .imageWrapper img {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.imageWrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+}
+
+.tripInfo {
+  flex: 1;
+
+  .tripTitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .time {
+    font-size: 12px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    i {
+      font-size: 14px;
+    }
+  }
+}
+
+.referral {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  padding: 24px;
+  border-radius: 20px;
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 126, 0, 0.2);
+    border-radius: 50%;
+  }
+
+  .referralIcon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
+    color: #ff7e00;
+  }
+
+  h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.5;
+    margin: 0 0 20px;
+
+    strong {
+      color: #ff7e00;
+    }
+  }
+}
+
+.copyBtn {
+  width: 100%;
+  padding: 12px;
+  background: white;
+  color: #1e293b;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}

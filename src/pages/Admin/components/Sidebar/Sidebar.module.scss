@@ -1,0 +1,123 @@
+.sidebar {
+  width: 280px;
+  background-color: #0f172a; // Deep Ocean
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 50;
+  left: 0;
+  top: 0;
+  padding: 0;
+  box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.sidebarLogo {
+  padding: 48px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .logoContainer {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+  }
+
+  .logoText {
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: white;
+      margin: 0;
+      letter-spacing: -0.025em;
+    }
+    p {
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+  }
+}
+
+.nav {
+  flex: 1;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebarItem {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #94a3b8;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.03);
+    color: white;
+  }
+
+  &.active {
+    color: white;
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+
+  .activeIndicator {
+    position: absolute;
+    left: -16px;
+    width: 6px;
+    height: 24px;
+    background-color: #2563eb;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 4px 0 15px rgba(37, 99, 235, 0.5);
+  }
+}
+
+.sidebarFooter {
+  padding: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  color: #ef4444;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  border: 1px solid rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.03);
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background: #ef4444;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+  }
+}
