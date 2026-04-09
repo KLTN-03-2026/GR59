@@ -1,0 +1,250 @@
+@use "../../styles/variables" as vars;
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid vars.$border-color;
+  z-index: 99000;
+  transition: all 0.3s ease;
+  // Khi cuộn chuột xuống thì đổi sang nền đục (tùy chọn)
+  &.scrolled {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+  }
+}
+
+.navContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+  color: vars.$text-dark;
+  text-decoration: none;
+
+  .logoIcon {
+    width: 190px;
+    height: 100px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+
+    .logoImg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+.navLinks {
+  display: flex;
+  gap: 32px;
+
+  a {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: vars.$text-gray;
+    text-decoration: none;
+    position: relative; // Quan trọng để định vị line
+    padding: 4px 0;
+    transition: all 0.3s ease;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background-color: vars.$primary-blue; // Hoặc màu primary của bạn
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+
+    &:hover,
+    &.active {
+      color: vars.$text-dark;
+
+      &::after {
+        width: 100%; // Mở rộng ra toàn bộ chiều rộng link
+      }
+    }
+  }
+}
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  .userDropdown {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+  }
+}
+
+.loginBtn {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: vars.$text-dark;
+  text-decoration: none;
+  margin-right: 10px;
+
+  &:hover {
+    color: vars.$primary-blue;
+  }
+}
+
+.ctaBtn {
+  background-color: vars.$primary-blue;
+  color: #0f172a;
+  padding: 10px 24px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 14px 0 rgba(0, 255, 255, 0.3);
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+    background-color: #00e5e5;
+    color: black;
+  }
+}
+
+// User Dropdown (extracted from app.css)
+.userDropdown {
+  position: relative;
+  display: inline-block;
+
+  .userTrigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid vars.$border-color;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+    }
+
+    img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+    }
+
+    .userName {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: vars.$text-dark;
+    }
+
+    i {
+      font-size: 0.75rem;
+      color: vars.$text-gray;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  &:hover .dropdownMenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &:hover .userTrigger i {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdownMenu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: #fff;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 240px;
+  background: white;
+  border-radius: 20px;
+  padding: 12px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+  border: 1px solid vars.$border-color;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdownHeader {
+  color: #fff;
+
+  padding: 12px 16px;
+  border-bottom: 1px solid vars.$border-color;
+  margin-bottom: 8px;
+
+  span {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+
+    color: vars.$text-gray;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .userDisplayName {
+    font-size: 1rem;
+    font-weight: 800;
+    color: vars.$text-dark;
+  }
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: vars.$border-color;
+  margin: 8px 12px;
+}
+.dropdownItem {
+  color: rgb(27, 26, 26);
+  text-decoration: none;
+  padding:6px 16px;
+}
+.logoutItem {
+  width: 100%;
+  color: rgb(0, 0, 0);
+  text-decoration: none;
+  padding: 12px 16px;
+  border-top: 1px solid vars.$border-color;
+}

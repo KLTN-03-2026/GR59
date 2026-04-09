@@ -1,0 +1,17 @@
+.destMain {
+  max-width: 1068px;
+  margin: 40px auto 80px;
+  padding: 20px 30px;
+}
+
+.destContentGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+}
+
+@media (max-width: 1024px) {
+  .destContentGrid {
+    grid-template-columns: 1fr;
+  }
+}

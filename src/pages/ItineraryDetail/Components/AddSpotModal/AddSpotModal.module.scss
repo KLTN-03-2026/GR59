@@ -1,0 +1,296 @@
+@import "../../../../components/styles/variables.scss";
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.75); /* Tăng độ mờ để che nền tốt hơn */
+  backdrop-filter: blur(12px); /* Tăng độ nhòe để tách biệt hoàn toàn */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000; /* Tăng cao vượt trội so với các thành phần khác */
+  padding: 20px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.modalContent {
+  background: $bg-white;
+  border-radius: 24px;
+  max-width: 850px;
+  width: 95%;
+  padding: 32px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-height: 95vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 10000;
+  pointer-events: auto;
+  text-align: left;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  text-align: left;
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 950;
+    margin: 0;
+    color: #0f172a;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.modalClose {
+  background: #f8fafc;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    transform: scale(1.1);
+  }
+}
+
+.addSpotForm {
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+.formBody {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 20px;
+
+  @media screen and (max-width: 850px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.formColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; 
+}
+
+.sectionHeader {
+  margin-bottom: 4px;
+}
+
+.columnTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+
+.columnDesc {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.searchSection {
+  position: relative;
+  z-index: 100; /* Cao hơn để dropdown hiện lên trên */
+}
+
+.searchInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  color: #0ea5e9;
+  font-size: 1.25rem;
+  pointer-events: none;
+}
+
+.modalSearchInput {
+  width: 100%;
+  padding: 16px 16px 16px 52px;
+  border: 2px solid #f1f5f9;
+  border-radius: 20px;
+  font-size: 1rem;
+  background: #f8fafc;
+  outline: none;
+  transition: all 0.3s;
+  color: #1e293b;
+  pointer-events: auto;
+
+  &:focus {
+    border-color: #0ea5e9;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+  }
+}
+
+.suggestionsDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  z-index: 101;
+  overflow: hidden;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.suggestionItem {
+  padding: 14px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid #f8fafc;
+  &:hover { background: #f0f9ff; }
+}
+
+.formGroup {
+  margin-bottom: 0; /* Đã có gap của formColumn quản lý */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #f1f5f9;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    background: white;
+    outline: none;
+    transition: all 0.2s;
+    color: #1e293b;
+    pointer-events: auto;
+
+    &:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+    }
+  }
+}
+
+.manualEntrySection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formRow {
+  display: flex;
+  gap: 20px;
+}
+
+.flexGroup {
+  flex: 1;
+}
+
+.noteGroup {
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0369a1 !important;
+  }
+}
+
+.noteTextarea {
+  background: #f0f9ff !important;
+  border: 2px dashed #bae6fd !important;
+  line-height: 1.6;
+  resize: none;
+  font-size: 0.95rem !important;
+
+  &:focus {
+    background: white !important;
+    border-style: solid !important;
+  }
+}
+
+.errorMessage {
+  background: #fff1f2;
+  color: #e11d48;
+  padding: 14px 20px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid #ffe4e6;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btnCancel, .btnSubmit {
+  padding: 14px 32px;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btnCancel {
+  background: #f8fafc;
+  color: #64748b;
+  &:hover { background: #f1f5f9; }
+}
+
+.btnSubmit {
+  background: linear-gradient(135deg, #0ea5e9, #0369a1);
+  color: white;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+  }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
