@@ -1,0 +1,423 @@
+@import "../../../../components/styles/variables.scss";
+
+.itinerarySidebar {
+  position: relative;
+  width: 440px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 28px;
+  margin: 24px;
+  height: calc(100vh - 72px - 48px);
+  max-height: calc(100vh - 72px - 48px);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  box-shadow: 0 20px 60px rgba(14, 165, 233, 0.1);
+}
+
+.itiSidebarHeader {
+  padding: 40px 32px 32px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+  text-align: left;
+}
+
+.itiTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.itiMainTitle {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: $bg-dark-card;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+
+.itiDescription {
+  color: $text-gray;
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+
+.itiContentScrollable {
+  flex: 1;
+  overflow-y: auto;
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(14, 165, 233, 0.3);
+    border-radius: 10px;
+  }
+
+  /* Journey Connector Line */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 40px;
+    left: 36px;
+    bottom: 100px;
+    width: 2px;
+    background: linear-gradient(to bottom, #0ea5e9, transparent);
+    opacity: 0.2;
+    z-index: 1;
+  }
+}
+
+.itiDaysTabs {
+  display: flex;
+  padding: 0 0 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid $border-color;
+  overflow-x: auto;
+  gap: 8px;
+}
+
+.dayTab {
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-gray;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  border-radius: 24px;
+  border: 1px solid $border-color;
+  background: $bg-white;
+
+  &:hover {
+    color: #0ea5e9;
+    background: rgba(14, 165, 233, 0.05);
+  }
+
+  &.active {
+    background: #0ea5e9;
+    color: white;
+    border-color: transparent;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+  }
+}
+
+.tabStats {
+  margin-left: auto;
+}
+
+/* Wikipedia Info Box Styles */
+.loadingInfo {
+  text-align: center;
+  padding: 20px;
+  color: $text-gray;
+}
+
+.wikiInfoBox {
+  background: $bg-white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+  border: 1px solid $border-color;
+}
+
+.wikiImage {
+  width: 100%;
+  height: 140px;
+  background-position: center;
+  background-size: cover;
+}
+
+.wikiContent {
+  padding: 20px;
+}
+
+.wikiTitle {
+  font-size: 1.2rem;
+  color: $bg-dark-card;
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.wikiDesc {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.btnTTS {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+
+  &.idle {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #bbf7d0;
+  }
+
+  &.speaking {
+    background: #fef2f2;
+    color: #ef4444;
+    border-color: #fecaca;
+
+    i {
+      animation: pulse 1s infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Timeline Group Styles */
+.timeGroup {
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px dashed $border-color;
+  margin-bottom: 24px;
+}
+
+.timeGroupIcon {
+  position: absolute;
+  left: -14px;
+  top: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.groupTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: $bg-dark-card;
+  margin-bottom: 16px;
+  padding-left: 8px;
+  text-align: left;
+}
+
+.transportInfo {
+  display: flex;
+  align-items: center;
+  margin: 8px 0 8px 12px;
+  gap: 12px;
+}
+
+.transportLine {
+  flex: 1;
+  height: 2px;
+  background: repeating-linear-gradient(to right, $border-color, $border-color 4px, transparent 4px, transparent 8px);
+  opacity: 0.5;
+}
+
+.transportBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $text-gray;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s;
+
+  i {
+    font-size: 1rem;
+    color: #94a3b8;
+  }
+
+  &:hover {
+    background: white;
+    border-color: #0ea5e9;
+    color: #0ea5e9;
+    i { color: #0ea5e9; }
+  }
+}
+
+.loadingPulse {
+  animation: pulseOpacity 1.5s infinite;
+}
+
+@keyframes pulseOpacity {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* Stats (Cost Estimation) Styles */
+.statsBox {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.statsTitle {
+  font-size: 1.1rem;
+  color: $bg-dark-card;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+
+  i {
+    color: #10b981;
+  }
+}
+
+.statsRow {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.statsLabel {
+  color: $text-gray;
+}
+
+.statsValue {
+  font-weight: 600;
+  color: $bg-dark-card;
+}
+
+.statsTotalRow {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.statsTotalLabel {
+  color: $bg-dark-card;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.statsTotalValue {
+  font-weight: 800;
+  color: #0ea5e9;
+  font-size: 1.1rem;
+}
+
+/* Footer Action Buttons Styles */
+.footerActions {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 24px;
+  height: 52px;
+}
+
+.btnItiPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1.5px solid rgba(14, 165, 233, 0.2);
+  border-radius: 14px;
+  color: #0369a1;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  height: 100%;
+  white-space: nowrap;
+
+  &:hover {
+    background: #0ea5e9;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 255, 255, 0.2);
+  }
+
+  &Active {
+    background: #ef4444 !important;
+    border-color: #ef4444 !important;
+    color: white !important;
+    animation: pulseRed 2s infinite;
+  }
+}
+
+.btnAddSpot {
+  flex: 1;
+  padding: 14px;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  background: $bg-white;
+  border-radius: 14px;
+  color: $bg-dark-card;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  height: 100%;
+
+  &:hover {
+    background: rgba(0, 255, 255, 0.05);
+    border-color: #0ea5e9;
+    color: #0ea5e9;
+  }
+}
+
+@keyframes pulseRed {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .itinerarySidebar {
+    width: 100%;
+    margin: 0;
+    height: 55vh;
+    max-height: 55vh;
+    border-radius: 32px 32px 0 0;
+    margin-top: -24px;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+  }
+}

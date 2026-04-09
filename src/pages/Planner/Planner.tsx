@@ -43,7 +43,7 @@ const Planner: React.FC = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [userLocationLatLng, setUserLocationLatLng] = useState<string | null>(null);
-  const [userLocationStatus, setUserLocationStatus] = useState<string>("Đang dò vị trí...");
+
 
   // Lấy vị trí hiện tại của người dùng khi vừa vào trang
   useEffect(() => {
@@ -53,15 +53,13 @@ const Planner: React.FC = () => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           setUserLocationLatLng(`${lat},${lng}`);
-          setUserLocationStatus("Vị trí hiện tại của bạn");
         },
         (error) => {
           console.error("Lỗi lấy vị trí:", error);
-          setUserLocationStatus("Việt Nam"); // Fallback
         }
       );
     } else {
-      setUserLocationStatus("Việt Nam"); // Fallback
+      // Fallback logic could go here
     }
   }, []);
 
@@ -169,8 +167,8 @@ const Planner: React.FC = () => {
       setIsSubmitting(true);
       await postTravelPlan(formData);
       toast.success("AI đang thiết kế lộ trình cho bạn, chờ chút nhé! 🤖");
-      // Sau khi gọi API thành công, redirect sang trang dashboard
-      navigate("/dashboard");
+      // Chuyển hướng sang trang chi tiết lộ trình thay vì dashboard
+      navigate("/itinerary-detail", { state: { planData: formData } });
     } catch (error) {
       console.error("Lỗi khi lưu kế hoạch chuyến đi:", error);
       toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
@@ -207,10 +205,7 @@ const Planner: React.FC = () => {
     mapIframeUrl = `https://maps.google.com/maps?q=Vietnam&t=&z=6&ie=UTF8&iwloc=&output=embed`;
   }
     
-  // Hiển thị text lên UI
-  const displayTitle = debouncedDestination
-    ? debouncedDestination
-    : userLocationStatus;
+
 
   return (
     <div className={styles.plannerWrapper}>

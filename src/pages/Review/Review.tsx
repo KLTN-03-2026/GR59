@@ -4,15 +4,7 @@ import styles from "./Review.module.scss";
 import { X, Camera, PaperPlaneTilt } from "@phosphor-icons/react";
 import AOS from "aos";
 import "aos/dist/aos.css"; // Đảm bảo đã import CSS của AOS
-// --- Interfaces ---
-interface Review {
-  id: number;
-  userName: string;
-  avatar: string;
-  timeAgo: string;
-  rating: number;
-  comment: string;
-}
+import { getReviews, postReview, type ReviewItem } from "../../services/reviewService";
 
 const Review: React.FC = () => {
   // Khởi tạo AOS khi component mount
@@ -31,49 +23,53 @@ const Review: React.FC = () => {
     "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80",
   ]);
 
-  // Dữ liệu mẫu cho Recent Reviews
-  const recentReviews: Review[] = [
-    {
-      id: 1,
-      userName: "Linh Nguyễn",
-      avatar: "https://i.pravatar.cc/150?u=user1",
-      timeAgo: "2 ngày trước",
-      rating: 5,
-      comment:
-        "Chuyến đi thật tuyệt vời! Lịch trình rất hợp lý, tôi không cảm thấy quá mệt mỏi nhưng vẫn tham quan được nhiều địa điểm đẹp.",
-    },
-    {
-      id: 2,
-      userName: "Minh Trần",
-      avatar: "https://i.pravatar.cc/150?u=user2",
-      timeAgo: "1 tuần trước",
-      rating: 4,
-      comment:
-        "Giá cả khá cạnh tranh so với mặt bằng chung. Hướng dẫn viên rất nhiệt tình và chu đáo với khách hàng.",
-    },
-    {
-      id: 3,
-      userName: "Minh Trần",
-      avatar: "https://i.pravatar.cc/150?u=user2",
-      timeAgo: "1 tuần trước",
-      rating: 4,
-      comment:
-        "Giá cả khá cạnh tranh so với mặt bằng chung. Hướng dẫn viên rất nhiệt tình và chu đáo với khách hàng.",
-    },
-  ];
+  const [recentReviews, setRecentReviews] = useState<ReviewItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Lấy dữ liệu API lúc đầu
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setIsLoading(true);
+        const res = await getReviews();
+        if (res.data && res.data.status === 200) {
+          setRecentReviews(res.data.data);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải đánh giá:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchReviews();
+  }, []);
 
   // --- Handlers ---
   const handleRemoveImage = (index: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (rating === 0) {
       alert("Vui lòng chọn mức độ đánh giá sao!");
       return;
     }
-    console.log("Submit Review:", { rating, comment, images: uploadedImages });
-    alert("Cảm ơn bạn đã gửi đánh giá! Ý kiến của bạn đã được ghi nhận.");
+    try {
+      const res = await postReview({
+        rating,
+        comment,
+        images: uploadedImages,
+      });
+      if (res.data && res.data.status === 201) {
+        alert("Cảm ơn bạn đã gửi đánh giá! Ý kiến của bạn đã được ghi nhận.");
+        setRating(0);
+        setComment("");
+        setUploadedImages([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi gửi đánh giá:", err);
+      alert("Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại!");
+    }
   };
 
   return (

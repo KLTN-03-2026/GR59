@@ -55,8 +55,8 @@ const Profile: React.FC = () => {
         // (Sau này BE mà có API chuyến đi riêng thì sẽ tính sau) 
         try {
           const savedTripsRes = await getSavedTrips();
-          if (savedTripsRes && savedTripsRes.data && savedTripsRes.data.DT) {
-             setSavedTrips(savedTripsRes.data.DT);
+          if (savedTripsRes && savedTripsRes.data && savedTripsRes.data.data) {
+             setSavedTrips(savedTripsRes.data.data);
           }
         } catch (tripErr) { 
            console.warn("Chưa tải được mock saved_trips", tripErr); 

@@ -32,8 +32,7 @@ instance.interceptors.response.use(
   (response: AxiosResponse) => {
     NProgress.done();
 
-    // BE thật đã trả về cấu trúc { EC, EM, DT } nên ta trả về nguyên bản response.
-    // Dữ liệu { EC, EM, DT } sẽ nằm trong res.data
+    // BE trả về cấu trúc { status, message, data }
     return response;
   },
   async (error: AxiosError) => {
@@ -51,13 +50,13 @@ instance.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          // Gọi API refresh token trực tiếp (không dùng instance để tránh loop)
+          // Gọi API refresh token trực tiếp
           const res = await axios.post("http://localhost:8888/api/v1/auth/refresh-token", {
             refreshToken: refreshToken,
           });
 
-          if (res.data && res.data.EC === 0) {
-            const data = res.data.DT;
+          if (res.data && res.data.status === 200) {
+            const data = res.data.data;
 
             // Cập nhật token mới vào storage
             if (data.accessToken) localStorage.setItem("token", data.accessToken);

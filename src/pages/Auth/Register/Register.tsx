@@ -63,15 +63,14 @@ const Register: React.FC<Props> = ({ onToggle }) => {
 
         if (
           response.data &&
-          (response.data.status === 200 || response.data.EC === 0)
+          response.data.status === 200
         ) {
-          saveAuthData(response.data.data || response.data.DT);
+          saveAuthData(response.data.data);
           toast.success("Đăng ký Google thành công! 🚀");
           navigate("/");
         } else {
           toast.error(
             response.data?.message ||
-              response.data?.EM ||
               "Đăng ký Google thất bại!",
           );
         }
@@ -126,7 +125,7 @@ const Register: React.FC<Props> = ({ onToggle }) => {
           onToggle();
         }, 1500);
       } else {
-        toast.error(res.data.message || res.data.EM || "Đăng ký thất bại!");
+        toast.error(res.data.message || "Đăng ký thất bại!");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -172,15 +171,14 @@ const Register: React.FC<Props> = ({ onToggle }) => {
                 const res = await postLoginFacebook(response.accessToken);
                 if (
                   res.data &&
-                  (res.data.status === 200 || res.data.EC === 0)
+                  res.data.status === 200
                 ) {
-                  saveAuthData(res.data.data || res.data.DT);
+                  saveAuthData(res.data.data);
                   toast.success("Đăng ký Facebook thành công! 🚀");
                   navigate("/");
                 } else {
                   toast.error(
                     res.data?.message ||
-                      res.data?.EM ||
                       "Đăng ký Facebook thất bại!",
                   );
                 }

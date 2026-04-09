@@ -41,9 +41,9 @@ const Login: React.FC<Props> = ({ onToggle }) => {
 
         if (
           response.data &&
-          (response.data.status === 200 || response.data.EC === 0)
+          response.data.status === 200
         ) {
-          const data = response.data.data || response.data.DT;
+          const data = response.data.data;
           const user = data.user;
           if (data.accessToken) localStorage.setItem("token", data.accessToken);
           if (data.refreshToken)
@@ -58,7 +58,6 @@ const Login: React.FC<Props> = ({ onToggle }) => {
         } else {
           toast.error(
             response.data?.message ||
-              response.data?.EM ||
               "Đăng nhập Google thất bại!",
           );
         }
@@ -104,7 +103,6 @@ const Login: React.FC<Props> = ({ onToggle }) => {
       } else {
         toast.error(
           response.data?.message ||
-            response.data?.EM ||
             "Email hoặc mật khẩu không chính xác!",
         );
       }
@@ -154,9 +152,9 @@ const Login: React.FC<Props> = ({ onToggle }) => {
                 const res = await postLoginFacebook(response.accessToken);
                 if (
                   res.data &&
-                  (res.data.status === 200 || res.data.EC === 0)
+                  res.data.status === 200
                 ) {
-                  const data = res.data.data || res.data.DT;
+                  const data = res.data.data;
                   const user = data.user;
                   if (data.accessToken)
                     localStorage.setItem("token", data.accessToken);
@@ -173,7 +171,6 @@ const Login: React.FC<Props> = ({ onToggle }) => {
                 } else {
                   toast.error(
                     res.data?.message ||
-                      res.data?.EM ||
                       "Đăng nhập Facebook thất bại!",
                   );
                 }

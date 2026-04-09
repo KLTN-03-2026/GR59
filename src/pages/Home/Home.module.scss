@@ -80,6 +80,7 @@ vars.$bg-main */
   color: #1e293b;
   border: 1px solid transparent;
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   &:hover {
     background: transparent;
@@ -122,6 +123,7 @@ vars.$bg-main */
   font-size: 0.8rem;
   /* margin-bottom: 24px; */
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .heroBadge .badgeIcon {

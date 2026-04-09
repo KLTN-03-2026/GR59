@@ -13,7 +13,7 @@ export type {
 
 // ─── Generic hook ─────────────────────────────────────────────────────────────
 
-function useCollection<T>(fetchFn: () => Promise<{ data: T[] }>) {
+function useCollection<T>(fetchFn: () => Promise<any>) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,10 +23,11 @@ function useCollection<T>(fetchFn: () => Promise<{ data: T[] }>) {
       setLoading(true);
       setError(null);
       const response = await fetchFn();
-      setData(response.data);
+      // Trích xuất dữ liệu từ DT hoặc data của BackendResponse
+      const actualData = response.data?.DT || response.data?.data || response.data || [];
+      setData(actualData);
     } catch (err) {
-      setError('Không thể kết nối tới máy chủ. Hãy chắc chắn json-server (port 8081) đang chạy.');
-
+      setError('Không thể kết nối tới máy chủ.');
       console.error(`[useAdminData] Fetch failed:`, err);
     } finally {
       setLoading(false);
@@ -42,30 +43,30 @@ function useCollection<T>(fetchFn: () => Promise<{ data: T[] }>) {
 
 // ─── Specific hooks ───────────────────────────────────────────────────────────
 
-export const useHotels = () => useCollection(adminService.fetchHotelsList);
-export const useRestaurants = () => useCollection(adminService.fetchRestaurantsList);
-export const useDbUsers = () => useCollection(adminService.fetchUsersList);
-export const useDashboardStats = () => useCollection(adminService.fetchDashboardStats);
-export const useRecentActivity = () => useCollection(adminService.fetchRecentActivity);
-export const usePopularLocations = () => useCollection(adminService.fetchPopularLocations);
+export const useHotels = () => useCollection<adminService.Hotel>(adminService.fetchHotelsList);
+export const useRestaurants = () => useCollection<adminService.Restaurant>(adminService.fetchRestaurantsList);
+export const useDbUsers = () => useCollection<adminService.DbUser>(adminService.fetchUsersList);
+export const useDashboardStats = () => useCollection<adminService.DashboardStat>(adminService.fetchDashboardStats);
+export const useRecentActivity = () => useCollection<adminService.RecentActivity>(adminService.fetchRecentActivity);
+export const usePopularLocations = () => useCollection<adminService.PopularLocation>(adminService.fetchPopularLocations);
 
 // ─── CRUD helpers (delegating to adminService) ────────────────────────────────
 
 export const deleteRecord = async (endpoint: string, id: string): Promise<void> => {
   switch (endpoint) {
-    case 'hotels': return (await adminService.removeHotel(id)).data;
-    case 'restaurants': return (await adminService.removeRestaurant(id)).data;
-    case 'users': return (await adminService.removeUser(id)).data;
-    default: return (await adminService.removeAdminRecord(endpoint, id)).data;
+    case 'hotels': return (await adminService.removeHotel(id)).data as any;
+    case 'restaurants': return (await adminService.removeRestaurant(id)).data as any;
+    case 'users': return (await adminService.removeUser(id)).data as any;
+    default: return (await adminService.removeAdminRecord(endpoint, id)).data as any;
   }
 };
 
 export const updateRecord = async <T>(endpoint: string, id: string, data: Partial<T>): Promise<T> => {
   const response = await adminService.updateAdminRecord<T>(endpoint, id, data);
-  return response.data;
+  return (response.data.DT || response.data.data) as T;
 };
 
 export const createRecord = async <T>(endpoint: string, data: Omit<T, 'id'>): Promise<T> => {
   const response = await adminService.createAdminRecord<T>(endpoint, data);
-  return response.data;
+  return (response.data.DT || response.data.data) as T;
 };

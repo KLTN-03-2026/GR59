@@ -257,6 +257,8 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
                         className={styles.counterBtn}
                         onClick={() => setGuests(Math.max(1, guests - 1))}
                         disabled={guests <= 1}
+                        aria-label="Giảm số lượng khách"
+                        title="Giảm số lượng khách"
                       >
                         <Minus size={14} weight="bold" />
                       </button>
@@ -265,6 +267,8 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
                         type="button"
                         className={styles.counterBtn}
                         onClick={() => setGuests(guests + 1)}
+                        aria-label="Tăng số lượng khách"
+                        title="Tăng số lượng khách"
                       >
                         <Plus size={14} weight="bold" />
                       </button>

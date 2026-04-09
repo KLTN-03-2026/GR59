@@ -3,7 +3,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import styles from "./News.module.scss";
-import { dragonBridge } from "../../assets/images/img";
+
 import FeaturedPost from "./components/FeaturedPost/FeaturedPost";
 import NewsCard from "./components/NewsCard/NewsCard";
 import Newsletter from "./components/Newsletter/Newsletter";
@@ -11,123 +11,16 @@ import CategoryTabs from "./components/CategoryTabs/CategoryTabs";
 import NewsSidebar from "./components/NewsSidebar/NewsSidebar";
 import type { NewsItem } from "./types";
 
-const MOCK_NEWS: NewsItem[] = [
-  {
-    id: 1,
-    title: "Hội An Lọt Top Những Điểm Đến Lãng Mạn Nhất Thế Giới 2024",
-    excerpt:
-      "Khám phá vẻ đẹp cổ kính và lung linh của phố Hội qua góc nhìn mới rực rỡ dưới ánh đèn lồng...",
-    image: dragonBridge,
-    category: "Điểm đến",
-    date: "15 Th03, 2024",
-    readTime: "5 phút đọc",
-    isFeatured: true,
-  },
-  {
-    id: 2,
-    title: "10 Món Ăn Đường Phố Phải Thử Khi Đến Bangkok",
-    excerpt:
-      "Trải nghiệm tinh hoa ẩm thực Thái Lan qua những gian hàng rực rỡ màu sắc và hương vị khó quên...",
-    image:
-      "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=800",
-    category: "Ẩm thực",
-    date: "10 Th03, 2024",
-    readTime: "6 phút đọc",
-  },
-  {
-    id: 3,
-    title: "Bí kíp săn vé máy bay giá rẻ mùa cao điểm 2024",
-    excerpt:
-      "Đừng để chi phí vé máy bay làm cản trở chuyến đi của bạn. Hãy áp dụng ngay 5 mẹo nhỏ này...",
-    image:
-      "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=800",
-    category: "Mẹo du lịch",
-    date: "08 Th03, 2024",
-    readTime: "4 phút đọc",
-  },
-  {
-    id: 4,
-    title: "Lễ hội khinh khí cầu quốc tế tại Đà Nẵng có gì hot?",
-    excerpt:
-      "Cùng chiêm ngưỡng màn trình diễn ánh sáng và màu sắc tuyệt vời trên bầu trời Đà Nẵng tháng 4 này...",
-    image:
-      "https://images.unsplash.com/photo-1507608830114-70fbc6f5a322?q=80&w=800",
-    category: "Sự kiện",
-    date: "05 Th03, 2024",
-    readTime: "7 phút đọc",
-  },
-  {
-    id: 5,
-    title: "Top 5 homestay view biển cực chill ở Phú Quốc",
-    excerpt:
-      "Bạn đang tìm kiếm một nơi nghỉ dưỡng yên tĩnh và có góc chụp hình sống ảo? Đây là danh sách dành cho bạn...",
-    image:
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800",
-    category: "Điểm đến",
-    date: "01 Th03, 2024",
-    readTime: "5 phút đọc",
-  },
-  {
-    id: 6,
-    title: "Hành trình chinh phục Fansipan bằng đường bộ",
-    excerpt:
-      "Một trải nghiệm đầy thử thách nhưng vô cùng xứng đáng cho những ai yêu thích leo núi khám phá...",
-    image:
-      "https://images.unsplash.com/photo-1504457047772-27fad17438e2?q=80&w=800",
-    category: "Mẹo du lịch",
-    date: "28 Th02, 2024",
-    readTime: "10 phút đọc",
-  },
-  {
-    id: 7,
-    title: "Cà phê muối - Nét độc đáo của ẩm thực Huế",
-    excerpt:
-      "Vị mặn của muối hòa quyện cùng vị đắng của cà phê tạo nên một hương vị khó quên cho du khách khi đến cố đô...",
-    image:
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800",
-    category: "Ẩm thực",
-    date: "25 Th02, 2024",
-    readTime: "3 phút đọc",
-  },
-  {
-    id: 8,
-    title: "Flycam: Toàn cảnh vịnh Hạ Long từ trên cao",
-    excerpt:
-      "Những thước phim tuyệt đẹp khoe trọn vẻ hùng vĩ của một trong những kỳ quan thiên nhiên thế giới...",
-    image:
-      "https://images.unsplash.com/photo-1559592442-7e18ad73d631?q=80&w=800",
-    category: "Điểm đến",
-    date: "20 Th02, 2024",
-    readTime: "5 phút đọc",
-  },
-  {
-    id: 9,
-    title: "Du lịch Nhật Bản mùa hoa anh đào: Kinh nghiệm từ A-Z",
-    excerpt:
-      "Tất cả những gì bạn cần biết để có một chuyến thưởng hoa trọn vẹn tại xứ sở mặt trời mọc...",
-    image:
-      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800",
-    category: "Mẹo du lịch",
-    date: "15 Th02, 2024",
-    readTime: "12 phút đọc",
-  },
-  {
-    id: 10,
-    title: "Khai mạc tuần lễ văn hóa dân gian tại Sa Pa",
-    excerpt:
-      "Nhiều hoạt động văn hóa đặc sắc của các dân tộc thiểu số sẽ được tái hiện chân thực tại thị trấn mờ sương...",
-    image:
-      "https://images.unsplash.com/photo-1534073828943-f801091bb18c?q=80&w=800",
-    category: "Sự kiện",
-    date: "10 Th02, 2024",
-    readTime: "6 phút đọc",
-  },
-];
+import { getNewsList } from "../../services/newsService";
+
+
 
 const News: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Tất cả");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [newsData, setNewsData] = useState<NewsItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const ITEMS_PER_PAGE = 6;
   const categories = [
     "Tất cả",
@@ -143,22 +36,38 @@ const News: React.FC = () => {
       once: true,
       easing: "ease-out-quad",
     });
+
+    const fetchNews = async () => {
+      setIsLoading(true);
+      try {
+        const res = await getNewsList();
+        if (res.data && res.data.status === 200) {
+          setNewsData(res.data.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải tin tức:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNews();
   }, []);
 
-  const featured = useMemo(() => MOCK_NEWS.find((n) => n.isFeatured), []);
+  const featured = useMemo(() => newsData.find((n) => n.isFeatured), [newsData]);
   
   const trendingNews = useMemo(() => 
-    MOCK_NEWS.slice(0, 5) // Mock trending as first 5 items
-  , []);
+    newsData.slice(0, 5) // Mock trending as first 5 items
+  , [newsData]);
 
   const filteredNews = useMemo(() => {
-    return MOCK_NEWS.filter((n) => {
+    return newsData.filter((n) => {
       const matchesTab = activeTab === "Tất cả" || n.category === activeTab;
       const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                            n.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       return !n.isFeatured && matchesTab && matchesSearch;
     });
-  }, [activeTab, searchQuery]);
+  }, [activeTab, searchQuery, newsData]);
 
   const totalPages = Math.ceil(filteredNews.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -210,7 +119,11 @@ const News: React.FC = () => {
           <div className={styles.layoutWrapper}>
             <main className={styles.mainGrid}>
               <div className={styles.grid}>
-                {displayedNews.length > 0 ? (
+                {isLoading ? (
+                  <div className={styles.loadingState}>
+                    <p>Đang tải dữ liệu...</p>
+                  </div>
+                ) : displayedNews.length > 0 ? (
                   displayedNews.map((item, index) => (
                     <div
                       key={item.id}

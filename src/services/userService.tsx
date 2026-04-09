@@ -27,9 +27,7 @@ export interface AuthResponseData {
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
-  data: T;
-  EC?: number;
-  EM?: string;
+  data?: T;
   DT?: T;
 }
 
@@ -95,7 +93,7 @@ export const updatePasswordByEmail = async (
   const res = await instance.get<BackendResponse<UserData[]>>(
     `/users?email=${email}`,
   );
-  const users = res.data.data || res.data.DT;
+  const users = res.data.data;
 
   if (users && users.length > 0) {
     const user = users[0];

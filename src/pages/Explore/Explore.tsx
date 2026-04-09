@@ -37,7 +37,7 @@ const Explore: React.FC = () => {
           getPlaces(),
           getSavedTrips(),
         ]);
-        setPlaces(placesRes.data.DT);
+        setPlaces(placesRes.data.DT || []);
         setSavedTrips(savedTripsRes.data.DT || []);
       } catch (err) {
         console.error("Lỗi khi tải dữ liệu khám phá:", err);
@@ -66,7 +66,7 @@ const Explore: React.FC = () => {
     setCurrentPage(1); // Reset to first page when changing category
   };
 
-  const filteredData = places.filter((item) => {
+  const filteredData = (places || []).filter((item) => {
     const matchesCategory =
       activeCategory === "all"
         ? item.type !== "itinerary"
