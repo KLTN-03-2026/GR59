@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import styles from './HotelsView.module.scss';
+import styles from './DestinationsView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, FileArrowDown, Check } from "@phosphor-icons/react";
+import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, Globe, FileArrowDown, Check } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from 'framer-motion';
-import { useHotels, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
+import { useDestinations, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
 import { toast } from 'react-toastify';
@@ -19,8 +19,8 @@ const rowVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
 } as const;
 
-const HotelsView: React.FC = () => {
-  const { data: hotels, loading, error, refetch } = useHotels();
+const DestinationsView: React.FC = () => {
+  const { data: destinations, loading, error, refetch } = useDestinations();
 
   const [activeTab, setActiveTab] = useState<'all' | 'HOẠT ĐỘNG' | 'BẢO TRÌ'>('all');
   const [search, setSearch] = useState('');
@@ -28,29 +28,28 @@ const HotelsView: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
 
-  // ─── derived stats ───────────────────────────────────────────────────────────
-  const totalActive = hotels.filter(h => h.status === 'HOẠT ĐỘNG').length;
-  const totalMaintain = hotels.filter(h => h.status === 'BẢO TRÌ').length;
+  // Stats
+  const totalActive = destinations.filter(d => d.status === 'HOẠT ĐỘNG').length;
 
-  // ─── filtered & paginated ────────────────────────────────────────────────────
+  // Filter & Pagination
   const filtered = useMemo(() => {
-    let list = [...hotels];
-    if (activeTab !== 'all') list = list.filter(h => h.status === activeTab);
+    let list = [...destinations];
+    if (activeTab !== 'all') list = list.filter(d => d.status === activeTab);
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(h => h.name.toLowerCase().includes(q) || h.location.toLowerCase().includes(q));
+      list = list.filter(d => d.title.toLowerCase().includes(q) || d.location.toLowerCase().includes(q));
     }
     return list;
-  }, [hotels, activeTab, search]);
+  }, [destinations, activeTab, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bạn có chắc muốn xóa khách sạn này không?')) return;
+    if (!confirm('Bạn có chắc muốn xóa địa điểm này không?')) return;
     try {
-      await deleteRecord('hotels', id);
-      toast.success('Đã xóa khách sạn');
+      await deleteRecord('destinations', id);
+      toast.success('Đã xóa địa điểm thành công');
       refetch();
     } catch {
       toast.error('Xóa thất bại!');
@@ -58,16 +57,15 @@ const HotelsView: React.FC = () => {
   };
 
   const handleExportCSV = () => {
-    const headers = ['ID', 'Tên khách sạn', 'Vị trí', 'Đánh giá', 'Lượt reviews', 'Loại hình', 'Giá', 'Trạng thái'];
-    const rows = filtered.map(h => [
-      h.id,
-      `"${h.name}"`,
-      `"${h.location}"`,
-      h.rating,
-      `"${h.reviews}"`,
-      `"${h.type}"`,
-      `"${h.price}/${h.unit}"`,
-      h.status
+    const headers = ['ID', 'Tiêu đề', 'Vị trí', 'Đánh giá', 'Lượt reviews', 'Danh mục', 'Trạng thái'];
+    const rows = filtered.map(d => [
+      d.id,
+      `"${d.title}"`,
+      `"${d.location}"`,
+      d.rating,
+      `"${d.reviews}"`,
+      `"${d.category}"`,
+      d.status
     ]);
     
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -75,7 +73,7 @@ const HotelsView: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `hotels_${new Date().getTime()}.csv`);
+    link.setAttribute('download', `destinations_${new Date().getTime()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -84,11 +82,11 @@ const HotelsView: React.FC = () => {
   const handleSave = async (data: any) => {
     try {
       if (editingItem) {
-        await updateRecord('hotels', editingItem.id, data);
-        toast.success('Cập nhật khách sạn thành công');
+        await updateRecord('destinations', editingItem.id, data);
+        toast.success('Cập nhật địa điểm thành công');
       } else {
-        await createRecord('hotels', data);
-        toast.success('Thêm khách sạn thành công');
+        await createRecord('destinations', data);
+        toast.success('Thêm địa điểm mới thành công');
       }
       setIsModalOpen(false);
       setEditingItem(null);
@@ -98,20 +96,30 @@ const HotelsView: React.FC = () => {
     }
   };
 
+  const openAddModal = () => {
+    setEditingItem(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (item: any) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
+
   return (
     <motion.div className={styles.contentArea} initial="hidden" animate="visible" variants={containerVariants}>
       <motion.div variants={rowVariants} className={styles.pageHeader}>
         <div className={styles.pageTitle}>
-          <h2>Quản lý Khách sạn</h2>
-          <p>Theo dõi và quản lý toàn bộ cơ sở lưu trú trên hệ thống</p>
+          <h2>Quản lý Địa điểm</h2>
+          <p>Tùy chỉnh và cập nhật các điểm đến du lịch trên toàn lãnh thổ</p>
         </div>
         <div className={styles.pageActions}>
           <button className={styles.btnExport} onClick={handleExportCSV} title="Xuất CSV">
             <FileArrowDown size={22} weight="bold" />
           </button>
-          <button className={styles.btnPrimary} onClick={() => { setEditingItem(null); setIsModalOpen(true); }}>
+          <button className={styles.btnPrimary} onClick={openAddModal}>
             <Plus size={18} weight="bold" />
-            <span>Thêm khách sạn</span>
+            <span>Thêm địa điểm</span>
           </button>
         </div>
       </motion.div>
@@ -119,10 +127,10 @@ const HotelsView: React.FC = () => {
       {error && <ErrorBanner message={error} onRetry={refetch} />}
 
       <motion.div variants={rowVariants} className={styles.statsGrid}>
-        <StatCard label="TỔNG KHÁCH SẠN" value={loading ? '...' : String(hotels.length)} trend="+12% tháng này" trendUp={true} icon="Bed" colorClass="bgBlue" />
-        <StatCard label="HOẠT ĐỘNG" value={loading ? '...' : String(totalActive)} footerText="Đang vận hành" icon="CheckCircle" colorClass="bgEmerald" />
-        <StatCard label="BẢO TRÌ" value={loading ? '...' : String(totalMaintain)} trend="Theo lịch trình" trendUp={true} icon="Wrench" colorClass="bgAmber" />
-        <StatCard label="YÊU CẦU MỚI" value="92" trend="Chờ phê duyệt" trendUp={true} icon="Storefront" colorClass="bgPurple" />
+        <StatCard label="TỔNG ĐIỂM ĐẾN" value={loading ? '...' : String(destinations.length)} trend="+5 tháng này" trendUp={true} icon="MapPin" colorClass="bgBlue" />
+        <StatCard label="HOẠT ĐỘNG" value={loading ? '...' : String(totalActive)} footerText="Đang đón khách" icon="CheckCircle" colorClass="bgEmerald" />
+        <StatCard label="VÙNG MIỀN" value="3" trend="Miền Bắc, Trung, Nam" trendUp={true} icon="Globe" colorClass="bgPurple" />
+        <StatCard label="DI SẢN" value="8" trend="UNESCO công nhận" trendUp={true} icon="Buildings" colorClass="bgAmber" />
       </motion.div>
 
       <motion.div variants={rowVariants} className={styles.filterSection}>
@@ -131,7 +139,7 @@ const HotelsView: React.FC = () => {
             <button
               className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
               onClick={() => { setActiveTab('all'); setPage(1); }}
-            >Tất cả ({hotels.length})</button>
+            >Tất cả ({destinations.length})</button>
             <button
               className={`${styles.tab} ${activeTab === 'HOẠT ĐỘNG' ? styles.tabActive : ''}`}
               onClick={() => { setActiveTab('HOẠT ĐỘNG'); setPage(1); }}
@@ -143,14 +151,14 @@ const HotelsView: React.FC = () => {
           </div>
         </div>
         <div className={styles.filterRow}>
-          <span className={styles.filterLabel}>Lọc:</span>
+          <span className={styles.filterLabel}>Tìm kiếm:</span>
           <div className={styles.searchGroup}>
             <MagnifyingGlass size={18} className={styles.searchIcon} />
             <input
               type="text"
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Tìm theo tên hoặc địa điểm..."
+              placeholder="Tìm tên địa điểm hoặc tỉnh thành..."
             />
           </div>
         </div>
@@ -160,10 +168,10 @@ const HotelsView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>THÔNG TIN KHÁCH SẠN</th>
-              <th>ĐỊA ĐIỂM</th>
+              <th>THÔNG TIN ĐỊA ĐIỂM</th>
+              <th>VỊ TRÍ</th>
               <th>ĐÁNH GIÁ</th>
-              <th>PHONG CÁCH</th>
+              <th>DANH MỤC</th>
               <th>TRẠNG THÁI</th>
               <th style={{ textAlign: 'right' }}>THAO TÁC</th>
             </tr>
@@ -175,54 +183,54 @@ const HotelsView: React.FC = () => {
               {paged.length === 0 ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
-                    Không tìm thấy kết quả phù hợp
+                    Không tìm thấy địa điểm nào
                   </td>
                 </tr>
-              ) : paged.map((hotel, idx) => (
-                <motion.tr key={hotel.id} variants={rowVariants} custom={idx}>
+              ) : paged.map((dest, idx) => (
+                <motion.tr key={dest.id} variants={rowVariants} custom={idx}>
                   <td>
                     <div className={styles.infoCol}>
                       <div className={styles.imgWrapper}>
-                        <img src={hotel.image} alt="" />
+                        <img src={dest.img || dest.heroImage} alt="" />
                         <span 
                           className={styles.statusIndicator} 
-                          style={{ backgroundColor: hotel.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}
+                          style={{ backgroundColor: dest.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}
                         ></span>
                       </div>
                       <div className={styles.textInfo}>
-                        <p>{hotel.name}</p>
-                        <p>#{hotel.id}</p>
+                        <p>{dest.title}</p>
+                        <p>#{dest.id}</p>
                       </div>
                     </div>
                   </td>
                   <td>
                     <div className={styles.locationCol}>
                       <MapPin size={16} color="#94a3b8" />
-                      <span>{hotel.location}</span>
+                      <span>{dest.location}</span>
                     </div>
                   </td>
                   <td>
                     <div className={styles.ratingCol}>
                       <Star size={16} weight="fill" color="#f59e0b" />
-                      <span>{hotel.rating}</span>
-                      <span>({hotel.reviews})</span>
+                      <span>{dest.rating}</span>
+                      <span>({dest.reviews})</span>
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${hotel.type === 'RESORT' ? styles.bgBlue : hotel.type === 'CỔ ĐIỂN' ? styles.bgAmber : styles.bgPurple}`}>{hotel.type}</span>
+                    <span className={`${styles.badge} ${dest.category === 'popular' ? styles.bgBlue : styles.bgPurple}`}>{dest.category}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${hotel.status === 'HOẠT ĐỘNG' ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: hotel.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}></span>
-                      {hotel.status}
+                    <span className={`${styles.badge} ${dest.status === 'HOẠT ĐỘNG' ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: dest.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}></span>
+                      {dest.status}
                     </span>
                   </td>
                   <td>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                      <button className={styles.actionBtn} onClick={() => { setEditingItem(hotel); setIsModalOpen(true); }}>
+                      <button className={styles.actionBtn} onClick={() => openEditModal(dest)}>
                         <Pencil size={24} weight="bold" />
                       </button>
-                      <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => handleDelete(hotel.id)}>
+                      <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => handleDelete(dest.id)}>
                         <Trash size={24} weight="bold" />
                       </button>
                     </div>
@@ -233,19 +241,12 @@ const HotelsView: React.FC = () => {
           )}
         </table>
 
-        {/* Pagination */}
         <div className={styles.pagination}>
-          <p className={styles.paginationInfo}>
-            Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)}</span> của <span>{filtered.length}</span> kết quả
-          </p>
+          <p className={styles.paginationInfo}>Hiển thị <span>{paged.length}</span> của <span>{filtered.length}</span> kết quả</p>
           <div className={styles.paginationBtns}>
-            <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}>
-              <CaretLeft size={16} />
-            </button>
-            <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</button>
-            <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
-              <CaretRight size={16} />
-            </button>
+             <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}><CaretLeft size={16} /></button>
+             <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</button>
+             <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}><CaretRight size={16} /></button>
           </div>
         </div>
       </motion.div>
@@ -254,14 +255,14 @@ const HotelsView: React.FC = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onSave={handleSave} 
-        title={editingItem ? 'Cập nhật khách sạn' : 'Thêm khách sạn mới'}
-        type="hotel"
+        title={editingItem ? 'Chỉnh sửa địa điểm' : 'Thêm địa điểm mới'}
+        type="destination"
         initialData={editingItem}
       />
     </motion.div>
   );
 };
 
-export default HotelsView;
+export default DestinationsView;
 
 

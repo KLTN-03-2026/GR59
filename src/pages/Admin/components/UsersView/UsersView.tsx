@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import styles from '../_shared.module.scss';
+import styles from './UsersView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { Envelope, Pencil, Trash, MagnifyingGlass, DotsThreeVertical, CheckCircle, XCircle, Clock, UserPlus, CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { Envelope, Pencil, Trash, MagnifyingGlass, DotsThreeVertical, CheckCircle, XCircle, Clock, UserPlus, CaretLeft, CaretRight, Users, User, ShieldCheck, ClockCounterClockwise, ShieldWarning, UserCheck } from "@phosphor-icons/react";
 import { motion } from 'framer-motion';
 import { useDbUsers, deleteRecord } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
@@ -26,8 +26,8 @@ const UsersView: React.FC = () => {
 
   const getRoleStyle = (role: string) => {
     switch (role) {
-      case 'ADMIN': return styles.bgBlue;
-      case 'EDITOR': return styles.bgPurple;
+      case 'ADMIN': return styles.bgPurple;
+      case 'EDITOR': return styles.bgBlue;
       default: return styles.bgSlate;
     }
   };
@@ -54,7 +54,7 @@ const UsersView: React.FC = () => {
     if (activeRoleFilter !== 'All') list = list.filter(u => u.role === activeRoleFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+      list = list.filter(u => (u.username || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q));
     }
     return list;
   }, [users, activeRoleFilter, search]);
@@ -161,13 +161,13 @@ const UsersView: React.FC = () => {
               ) : paged.map((user, idx) => (
                 <motion.tr key={user.id} variants={rowVariants} custom={idx}>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                      <img src={`https://i.pravatar.cc/100?u=${user.id}`} alt="" style={{ width: '44px', height: '44px', borderRadius: '14px', objectFit: 'cover', border: '2px solid #f1f5f9' }} />
-                      <div>
-                        <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 3px 0', fontFamily: "'Manrope', sans-serif" }}>{user.username}</p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                          <Envelope size={12} style={{ color: '#cbd5e1' }} />
-                          <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#94a3b8' }}>{user.email}</span>
+                    <div className={styles.infoCol}>
+                      <img src={`https://i.pravatar.cc/100?u=${user.id}`} alt="" />
+                      <div className={styles.textInfo}>
+                        <p>{user.username}</p>
+                        <div className={styles.emailBox}>
+                          <Envelope size={12} color="#cbd5e1" />
+                          <span>{user.email}</span>
                         </div>
                       </div>
                     </div>
@@ -182,10 +182,12 @@ const UsersView: React.FC = () => {
                     </span>
                   </td>
                   <td>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#475569', margin: 0 }}>
-                      {new Date(user.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </p>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', margin: '2px 0 0 0' }}>#{user.id}</p>
+                    <div className={styles.dateCol}>
+                      <p>
+                        {new Date(user.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                      <p>#{user.id}</p>
+                    </div>
                   </td>
                   <td>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
@@ -230,3 +232,4 @@ const UsersView: React.FC = () => {
 };
 
 export default UsersView;
+

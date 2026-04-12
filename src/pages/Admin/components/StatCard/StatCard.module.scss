@@ -1,53 +1,24 @@
-// ─── Color Tokens ─────────────────────────────────────────────────────────────
-$blue-start: #2563eb;
-$blue-end: #1d4ed8;
-$emerald-start: #10b981;
-$emerald-end: #059669;
-$orange-start: #f97316;
-$orange-end: #ea580c;
-$purple-start: #8b5cf6;
-$purple-end: #7c3aed;
-$amber-start: #f59e0b;
-$amber-end: #d97706;
+// ─── Sky & Horizon Tokens ───────────────────────────────────────────────────
+$bg-main: #F8FAFC;
+$text-main: #1E293B; // Dark Blue Gray
+$text-sub: #64748B;
+$accent-sky: #38BDF8;
+$accent-deep: #0EA5E9;
 
 // ─── StatCard ─────────────────────────────────────────────────────────────────
 .statCard {
   background: white;
-  padding: 36px;
-  border-radius: 2rem;
-  border: 1px solid #f1f5f9;
-  box-shadow:
-    0 1px 2px rgba(0,0,0,0.02),
-    0 4px 8px rgba(0,0,0,0.02),
-    0 12px 24px rgba(0,0,0,0.02);
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 32px;
+  border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
-
-  // Decorative shimmer in the corner
-  &::after {
-    content: '';
-    position: absolute;
-    top: -40px;
-    right: -40px;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    opacity: 0.03;
-    background: radial-gradient(circle, #000 0%, transparent 70%);
-    transition: all 0.5s;
-  }
 
   &:hover {
-    transform: translateY(-6px);
-    box-shadow:
-      0 4px 6px rgba(0,0,0,0.04),
-      0 12px 24px rgba(0,0,0,0.06),
-      0 24px 48px rgba(0,0,0,0.04);
-
-    &::after {
-      opacity: 0.07;
-    }
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+    border-color: #cbd5e1;
   }
 }
 
@@ -55,35 +26,37 @@ $amber-end: #d97706;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .statLabel {
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 800;
-  color: #94a3b8;
+  color: $text-sub;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin: 0 0 10px 0;
+  letter-spacing: 0.15em;
+  margin: 0 0 8px 0;
 }
 
 .statValue {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 900;
-  color: #0f172a;
+  color: $text-main;
   letter-spacing: -0.04em;
   line-height: 1;
-  font-family: 'Manrope', sans-serif;
 }
 
 .statIcon {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: #f1f5f9;
+  border: 1px solid #f1f5f9;
+  color: $accent-sky; // Sky Blue icons
+  transition: all 0.3s;
 }
 
 .statTrend {
@@ -91,34 +64,22 @@ $amber-end: #d97706;
   align-items: center;
   gap: 6px;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 700;
   margin-top: 4px;
 }
 
-// ─── Gradient Icon Backgrounds ─────────────────────────────────────────────────
-.bgBlue {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.05));
-  color: $blue-start;
-}
-.bgEmerald {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
-  color: $emerald-start;
-}
-.bgAmber {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
-  color: $amber-start;
-}
-.bgOrange {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.05));
-  color: $orange-start;
-}
-.bgPurple {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
-  color: $purple-start;
+// ─── Semantic Colors (Minimal) ─────────────────────────────────────────────────
+.bgBlue, .bgEmerald, .bgAmber, .bgOrange, .bgPurple {
+  background: #f8fafc;
+  color: #334155; // Neutral icons
 }
 
-// ─── Trend Text Colors ─────────────────────────────────────────────────────────
-.textEmerald { color: $emerald-start; }
-.textAmber { color: $amber-start; }
-.textBlue { color: $blue-start; }
+.statCard:hover .statIcon {
+  color: $accent-sky;
+}
+
+// ─── Trend Contexts ───────────────────────────────────────────────────────────
+.textEmerald { color: #10b981; }
+.textAmber { color: #f59e0b; }
+.textBlue { color: #2563eb; }
 .textRed { color: #ef4444; }

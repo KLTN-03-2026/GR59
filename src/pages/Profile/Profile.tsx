@@ -6,7 +6,7 @@ import ProfileHeader from "./components/ProfileHeader/ProfileHeader";
 import ProfileTabs from "./components/ProfileTabs/ProfileTabs";
 import ProfileForm from "./components/ProfileForm/ProfileForm";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
-import { getProfile, getSavedTrips } from "../../services/profileService";
+import { getProfile, getSavedTrips, updateProfile } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
 
 const Profile: React.FC = () => {
@@ -41,10 +41,12 @@ const Profile: React.FC = () => {
               bio:
                 dt.bio ||
                 "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
-              avatar:
+              avatar_url:
+                dt.avatar_url ||
                 dt.avatarUrl ||
                 "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
-              cover:
+              cover_url:
+                dt.cover_url ||
                 dt.cover ||
                 "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
               badge: dt.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
@@ -78,8 +80,8 @@ const Profile: React.FC = () => {
               phone: userData.phone || "Chưa cập nhật",
               address: userData.address || "Chưa cập nhật",
               bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
-              avatar: userData.avatarUrl || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
-              cover: "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
+              avatar_url: userData.avatar_url || userData.avatarUrl || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
+              cover_url: userData.cover_url || userData.cover || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
               badge: userData.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
               joinDate: formattedJoinDate,
               location: userData.address || "Việt Nam",
@@ -108,6 +110,14 @@ const Profile: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleAvatarUpdate = (newUrl: string) => {
+    setProfile((prev) => (prev ? { ...prev, avatar_url: newUrl } : null));
+  };
+
+  const handleCoverUpdate = (newUrl: string) => {
+    setProfile((prev) => (prev ? { ...prev, cover_url: newUrl } : null));
+  };
+
   if (!profile)
     return (
       <div
@@ -130,10 +140,12 @@ const Profile: React.FC = () => {
             name={profile.fullName}
             email={profile.email}
             badge={profile.badge}
-            avatar={profile.avatar}
-            cover={profile.cover}
+            avatar_url={profile.avatar_url}
+            cover_url={profile.cover_url}
             joinDate={profile.joinDate}
             location={profile.location}
+            onAvatarUpdate={handleAvatarUpdate}
+            onCoverUpdate={handleCoverUpdate}
           />
         </div>
 

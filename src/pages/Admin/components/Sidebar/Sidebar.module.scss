@@ -1,6 +1,6 @@
 .sidebar {
   width: 280px;
-  background-color: #0f172a; // Deep Ocean
+  background-color: #0F172A; // Deep Dark Blue (Sky & Horizon)
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -9,11 +9,12 @@
   left: 0;
   top: 0;
   padding: 0;
-  box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
 }
 
 .sidebarLogo {
-  padding: 48px 32px;
+  padding: 40px 32px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -21,30 +22,30 @@
   .logoContainer {
     width: 44px;
     height: 44px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    border-radius: 14px;
+    background: #38BDF8; // Primary Accent (Sky Blue)
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
   }
 
   .logoText {
     h1 {
       font-size: 1.25rem;
-      font-weight: 800;
-      color: white;
+      font-weight: 900;
+      color: white; // High contrast for dark background
       margin: 0;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.05em;
     }
     p {
       font-size: 0.625rem;
       font-weight: 700;
-      color: #64748b;
-      margin-top: 4px;
+      color: #94a3b8;
+      margin-top: 2px;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
     }
   }
 }
@@ -54,7 +55,7 @@
   padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .sidebarItem {
@@ -62,41 +63,42 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  border-radius: 16px;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
   color: #94a3b8;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   background: transparent;
   cursor: pointer;
   text-align: left;
 
   &:hover:not(.active) {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 255, 255, 0.04);
     color: white;
   }
 
   &.active {
     color: white;
-    background-color: rgba(37, 99, 235, 0.1);
-  }
-
-  .activeIndicator {
-    position: absolute;
-    left: -16px;
-    width: 6px;
-    height: 24px;
-    background-color: #2563eb;
-    border-radius: 0 4px 4px 0;
-    box-shadow: 4px 0 15px rgba(37, 99, 235, 0.5);
+    background-color: #0EA5E9; // Active State (Deep Sky Blue)
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: white;
+    }
   }
 }
 
 .sidebarFooter {
-  padding: 32px;
+  padding: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -106,18 +108,18 @@
   align-items: center;
   gap: 12px;
   padding: 14px 20px;
-  border-radius: 14px;
-  color: #ef4444;
-  font-size: 0.9375rem;
+  border-radius: 12px;
+  color: #94a3b8;
+  font-size: 0.875rem;
   font-weight: 700;
-  border: 1px solid rgba(239, 68, 68, 0.1);
-  background: rgba(239, 68, 68, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
 
   &:hover {
-    background: #ef4444;
-    color: white;
-    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
   }
 }

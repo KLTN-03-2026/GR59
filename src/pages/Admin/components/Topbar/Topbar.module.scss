@@ -1,31 +1,27 @@
 .topbar {
   height: 80px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(241, 245, 249, 0.5);
+  background: #F8FAFC; // Cool White Background
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 48px;
+  padding: 0 40px;
   position: sticky;
   top: 0;
   z-index: 40;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
 .viewTitle {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #0f172a;
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #1E293B; // Dark Blue Gray
   margin: 0;
-  font-family: 'Manrope', sans-serif;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.05em;
 }
 
 .searchRel {
   position: relative;
-  width: 420px;
+  width: 400px;
   
   .searchIcon {
     position: absolute;
@@ -33,34 +29,27 @@
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8;
-    transition: all 0.3s;
   }
 
   input {
     width: 100%;
     padding: 12px 24px 12px 52px;
-    background-color: #f1f5f9;
-    border: 1px solid transparent;
-    border-radius: 18px;
-    font-size: 0.9375rem;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: #334155;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #1E293B;
+    transition: all 0.2s;
     
     &:focus {
       outline: none;
-      background-color: white;
-      border-color: #2563eb;
-      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
-      
-      + .searchIcon {
-        color: #2563eb;
-      }
+      border-color: #38BDF8; // Primary Accent (Sky Blue)
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
     }
 
     &::placeholder {
       color: #94a3b8;
-      font-weight: 500;
     }
   }
 }
@@ -68,66 +57,62 @@
 .iconBtn {
   width: 44px;
   height: 44px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: white;
-  border: 1px solid #f1f5f9;
+  border: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #64748b;
   position: relative;
-  transition: all 0.3s;
+  transition: all 0.2s;
   cursor: pointer;
 
   &:hover {
-    color: #0f172a;
-    background-color: #f8fafc;
-    border-color: #e2e8f0;
-    transform: translateY(-2px);
+    color: #38BDF8;
+    border-color: #38BDF8;
+    background-color: white;
   }
 
   .badge {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 10px;
-    height: 10px;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
     background-color: #ef4444;
     border: 2px solid white;
-    border-radius: 9999px;
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    border-radius: 50%;
   }
 }
 
 .userProfile {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 6px 6px 6px 16px;
-  background-color: #f8fafc;
-  border: 1px solid #f1f5f9;
-  border-radius: 18px;
-  transition: all 0.3s;
+  gap: 14px;
+  padding: 6px 6px 6px 14px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
   cursor: pointer;
+  transition: all 0.2s;
 
   &:hover {
-    background-color: white;
-    border-color: #e2e8f0;
-    box-shadow: var(--shadow-sm);
+    border-color: #38BDF8;
   }
 
   .userInfo {
     text-align: right;
     p:first-child {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 800;
-      color: #0f172a;
+      color: #1E293B;
       margin: 0;
     }
     p:last-child {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       font-weight: 700;
-      color: #2563eb;
+      color: #0EA5E9; // Smart Highlight
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin: 0;
@@ -135,11 +120,10 @@
   }
 
   .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     object-fit: cover;
-    border: 2px solid white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 2px solid #38BDF8;
   }
 }

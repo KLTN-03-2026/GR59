@@ -3,6 +3,7 @@ import styles from './AdminDashboard.module.scss';
 import Sidebar from './components/Sidebar/Sidebar';
 import Topbar from './components/Topbar/Topbar';
 import DashboardView from './components/DashboardView/DashboardView';
+import DestinationsView from './components/DestinationsView/DestinationsView';
 import HotelsView from './components/HotelsView/HotelsView';
 import RestaurantsView from './components/RestaurantsView/RestaurantsView';
 import UsersView from './components/UsersView/UsersView';
@@ -22,6 +23,8 @@ const AdminDashboard: React.FC = () => {
     switch (activeView) {
       case 'dashboard':
         return <DashboardView />;
+      case 'destinations':
+        return <DestinationsView />;
       case 'hotels':
         return <HotelsView />;
       case 'restaurants':
@@ -45,6 +48,7 @@ const AdminDashboard: React.FC = () => {
   const getTitle = () => {
     const titles: Record<string, string> = {
       dashboard: 'Tổng quan',
+      destinations: 'Địa điểm',
       hotels: 'Khách sạn',
       restaurants: 'Nhà hàng',
       users: 'Người dùng',

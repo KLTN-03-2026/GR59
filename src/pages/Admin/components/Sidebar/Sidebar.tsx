@@ -19,6 +19,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Tổng Quan', icon: SquaresFour },
+    { id: 'destinations', label: 'Địa điểm', icon: Compass },
     { id: 'restaurants', label: 'Nhà hàng', icon: ForkKnife },
     { id: 'hotels', label: 'Khách sạn', icon: Bed },
     { id: 'users', label: 'Người dùng', icon: Users },

@@ -8,7 +8,8 @@ export type {
   DbUser, 
   DashboardStat, 
   RecentActivity, 
-  PopularLocation 
+  PopularLocation,
+  Destination 
 } from '../../../services/adminService';
 
 // ─── Generic hook ─────────────────────────────────────────────────────────────
@@ -49,6 +50,7 @@ export const useDbUsers = () => useCollection<adminService.DbUser>(adminService.
 export const useDashboardStats = () => useCollection<adminService.DashboardStat>(adminService.fetchDashboardStats);
 export const useRecentActivity = () => useCollection<adminService.RecentActivity>(adminService.fetchRecentActivity);
 export const usePopularLocations = () => useCollection<adminService.PopularLocation>(adminService.fetchPopularLocations);
+export const useDestinations = () => useCollection<adminService.Destination>(adminService.fetchDestinationsList);
 
 // ─── CRUD helpers (delegating to adminService) ────────────────────────────────
 
@@ -57,6 +59,7 @@ export const deleteRecord = async (endpoint: string, id: string): Promise<void> 
     case 'hotels': return (await adminService.removeHotel(id)).data as any;
     case 'restaurants': return (await adminService.removeRestaurant(id)).data as any;
     case 'users': return (await adminService.removeUser(id)).data as any;
+    case 'destinations': return (await adminService.removeDestination(id)).data as any;
     default: return (await adminService.removeAdminRecord(endpoint, id)).data as any;
   }
 };

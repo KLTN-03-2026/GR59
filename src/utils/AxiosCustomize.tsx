@@ -10,7 +10,7 @@ import "nprogress/nprogress.css";
 NProgress.configure({ showSpinner: false, trickleSpeed: 100 });
 
 const instance = axios.create({
-  baseURL: "http://localhost:8888/api/v1/",
+  baseURL: "/api/v1/",
 });
 
 instance.interceptors.request.use(
@@ -50,8 +50,8 @@ instance.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          // Gọi API refresh token trực tiếp
-          const res = await axios.post("http://localhost:8888/api/v1/auth/refresh-token", {
+          // Gọi API refresh token trực tiếp thông qua proxy
+          const res = await axios.post("/api/v1/auth/refresh-token", {
             refreshToken: refreshToken,
           });
 

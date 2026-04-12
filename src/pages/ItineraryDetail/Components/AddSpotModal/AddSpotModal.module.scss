@@ -41,7 +41,7 @@
 
   h2 {
     font-size: 1.75rem;
-    font-weight: 950;
+    font-weight: 900;
     margin: 0;
     color: #0f172a;
     letter-spacing: -1px;
@@ -93,7 +93,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px; 
+  gap: 16px;
 }
 
 .sectionHeader {
@@ -158,7 +158,9 @@
   right: 0;
   background: white;
   border-radius: 20px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   border: 1px solid #f1f5f9;
   z-index: 101;
   overflow: hidden;
@@ -174,7 +176,9 @@
   cursor: pointer;
   transition: all 0.2s;
   border-bottom: 1px solid #f8fafc;
-  &:hover { background: #f0f9ff; }
+  &:hover {
+    background: #f0f9ff;
+  }
 }
 
 .formGroup {
@@ -190,7 +194,9 @@
     color: #475569;
   }
 
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     width: 100%;
     padding: 14px 18px;
     border: 2px solid #f1f5f9;
@@ -265,7 +271,8 @@
   border-top: 1px solid #f1f5f9;
 }
 
-.btnCancel, .btnSubmit {
+.btnCancel,
+.btnSubmit {
   padding: 14px 32px;
   border-radius: 16px;
   font-weight: 800;
@@ -278,7 +285,9 @@
 .btnCancel {
   background: #f8fafc;
   color: #64748b;
-  &:hover { background: #f1f5f9; }
+  &:hover {
+    background: #f1f5f9;
+  }
 }
 
 .btnSubmit {
@@ -293,4 +302,8 @@
   }
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

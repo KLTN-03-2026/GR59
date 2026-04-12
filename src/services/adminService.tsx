@@ -9,9 +9,15 @@ export interface Hotel {
   location: string;
   rating: number;
   reviews: string;
-  type: string;
-  status: string;
+  type: 'RESORT' | 'CỔ ĐIỂN' | 'HIỆN ĐẠI' | 'HOMESTAY';
+  status: 'HOẠT ĐỘNG' | 'BẢO TRÌ';
   image: string;
+  previewVideo?: string;
+  description: string;
+  price: string;
+  unit: string;
+  gallery: string[];
+  amenities: string[];
 }
 
 export interface Restaurant {
@@ -21,8 +27,76 @@ export interface Restaurant {
   rating: number;
   reviews: string;
   cuisine: string;
-  status: string;
+  status: 'ĐANG MỞ' | 'TẠM ĐÓNG';
   image: string;
+  previewVideo?: string;
+  description: string;
+  priceRange: string;
+  gallery: string[];
+  features: string[];
+}
+
+export interface ItineraryStep {
+  time: string;
+  activity: string;
+  dist: string;
+}
+
+export interface Destination {
+  id: string;
+  title: string;
+  location: string;
+  heroImage: string; // Used in DestinationDetail
+  img?: string;      // Compatibility for db.json
+  rating: string;
+  reviews: string;
+  distance: string;
+  price: string;
+  time: string;
+  category: string;
+  description: string;
+  gallery: string[];
+  status: 'HOẠT ĐỘNG' | 'BẢO TRÌ' | 'ĐÓNG CỬA';
+  previewVideo?: string;
+  // Geo
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  travelTimeFromHanoi: string;
+  mapScreenshot: string;
+  // Detailed sections
+  weatherCurrent: {
+    temp: number;
+    description: string;
+    icon: string;
+  };
+  travelTips: {
+    icon: string;
+    title: string;
+    content: string;
+  }[];
+  quickInfo: {
+    id: number;
+    label: string;
+    value: string;
+  }[];
+  services: {
+    id: number;
+    type: string;
+    name: string;
+    location: string;
+    price: string;
+    unit: string;
+    rating: number;
+    image: string;
+    buttonText: string;
+  }[];
+  // Itinerary fields
+  type?: 'pin' | 'itinerary' | string;
+  maxPeople?: number;
+  duration?: string;
+  steps?: ItineraryStep[];
 }
 
 export interface DbUser {
@@ -95,12 +169,131 @@ const MOCK_POPULAR_LOCATIONS: PopularLocation[] = [
 ];
 
 const MOCK_HOTELS: Hotel[] = [
-  { "id": "AZ-1024", "name": "Grand Azure Resort", "location": "Đà Nẵng, Việt Nam", "rating": 4.9, "reviews": "2.4k", "type": "RESORT", "status": "HOẠT ĐỘNG", "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=80&h=80&fit=crop" },
-  { "id": "AZ-2051", "name": "Slate Heritage Palace", "location": "Hà Nội, Việt Nam", "rating": 4.7, "reviews": "1.8k", "type": "CỔ ĐIỂN", "status": "BẢO TRÌ", "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=80&h=80&fit=crop" }
+  { 
+    "id": "AZ-1024", 
+    "name": "Grand Azure Resort", 
+    "location": "Đà Nẵng, Việt Nam", 
+    "rating": 4.9, 
+    "reviews": "2.4k", 
+    "type": "RESORT", 
+    "status": "HOẠT ĐỘNG", 
+    "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=80&h=80&fit=crop",
+    "description": "Trải nghiệm nghỉ dưỡng đẳng cấp 5 sao bên bờ biển Đà Nẵng với dịch vụ spa chuyên nghiệp và hồ bơi vô cực.",
+    "price": "3.500.000đ",
+    "unit": "đêm",
+    "gallery": ["https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800"],
+    "amenities": ["Hồ bơi", "Spa", "Gym", "Nhà hàng", "Wifi miễn phí"]
+  },
+  { 
+    "id": "AZ-2051", 
+    "name": "Slate Heritage Palace", 
+    "location": "Hà Nội, Việt Nam", 
+    "rating": 4.7, 
+    "reviews": "1.8k", 
+    "type": "CỔ ĐIỂN", 
+    "status": "BẢO TRÌ", 
+    "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=80&h=80&fit=crop",
+    "description": "Khách sạn mang phong cách kiến trúc Pháp cổ kính nằm ngay trung tâm phố cổ Hà Nội.",
+    "price": "2.200.000đ",
+    "unit": "đêm",
+    "gallery": ["https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800"],
+    "amenities": ["Bar", "Nhà hàng", "Phòng họp", "Dịch vụ phòng"]
+  }
 ];
 
 const MOCK_RESTAURANTS: Restaurant[] = [
-  { "id": "RS-4821", "name": "The Azure Kitchen", "location": "Quận 1, TP. Hồ Chí Minh", "rating": 4.8, "reviews": "1.2k", "cuisine": "VIỆT NAM", "status": "ĐANG MỞ", "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=80&h=80&fit=crop" }
+  { 
+    "id": "RS-4821", 
+    "name": "The Azure Kitchen", 
+    "location": "Quận 1, TP. Hồ Chí Minh", 
+    "rating": 4.8, 
+    "reviews": "1.2k", 
+    "cuisine": "VIỆT NAM", 
+    "status": "ĐANG MỞ", 
+    "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=80&h=80&fit=crop",
+    "description": "Nhà hàng chuyên các món ăn Việt Nam truyền thống với phong cách chế biến hiện đại.",
+    "priceRange": "500.000đ - 2.000.000đ",
+    "gallery": ["https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&q=80&w=800"],
+    "features": ["Chỗ để xe", "Phòng VIP", "Thanh toán thẻ", "View đẹp"]
+  }
+];
+
+const MOCK_DESTINATIONS: Destination[] = [
+  {
+    id: "1",
+    title: "Vịnh Hạ Long",
+    location: "QUẢNG NINH, VIỆT NAM",
+    heroImage: "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
+    img: "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
+    rating: "4.8",
+    reviews: "2.3k",
+    distance: "165 km",
+    price: "1.5tr - 5tr VNĐ",
+    time: "2-3 ngày",
+    category: "Di sản",
+    description: "Vịnh Hạ Long là di sản thiên nhiên thế giới nổi tiếng với hàng ngàn đảo đá vôi kỳ vĩ.",
+    gallery: ["https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800"],
+    status: "HOẠT ĐỘNG",
+    coordinates: { lat: 20.9101, lng: 107.1839 },
+    travelTimeFromHanoi: "2h 30m",
+    mapScreenshot: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=600",
+    previewVideo: "",
+    type: "pin",
+    weatherCurrent: {
+      temp: 28,
+      description: "Trời nắng đẹp",
+      icon: "CloudSun"
+    },
+    travelTips: [
+      { icon: "Camera", title: "Máy ảnh & Ống kính", content: "Nên mang theo máy ảnh để ghi lại cảnh đẹp." }
+    ],
+    quickInfo: [
+      { id: 1, label: "Giờ mở cửa", value: "24/7" }
+    ],
+    services: [
+      {
+        id: 1,
+        type: "Khách sạn",
+        name: "Vinpearl Resort",
+        location: "Hạ Long",
+        price: "2.500.000đ",
+        unit: "đêm",
+        rating: 4.9,
+        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=400",
+        buttonText: "Đặt ngay"
+      }
+    ]
+  },
+  {
+    id: "19",
+    title: "Hành trình Di sản miền Trung",
+    location: "Miền Trung, Việt Nam",
+    heroImage: "https://images.unsplash.com/photo-1555921015-5532091f6026?q=80&w=800",
+    img: "https://images.unsplash.com/photo-1555921015-5532091f6026?q=80&w=800",
+    rating: "4.9",
+    reviews: "1.5k",
+    distance: "50 km",
+    price: "1.500.000đ",
+    time: "3 ngày 2 đêm",
+    category: "Văn hóa",
+    description: "Khám phá các di sản văn hóa tại miền Trung Việt Nam.",
+    gallery: ["https://images.unsplash.com/photo-1555921015-5532091f6026?q=80&w=800"],
+    status: "HOẠT ĐỘNG",
+    coordinates: { lat: 16.0471, lng: 108.2062 },
+    travelTimeFromHanoi: "1h 15m bay",
+    mapScreenshot: "",
+    previewVideo: "",
+    type: "itinerary",
+    maxPeople: 5,
+    duration: "3 Ngày 2 Đêm",
+    weatherCurrent: { temp: 25, description: "Mát mẻ", icon: "Sun" },
+    travelTips: [],
+    quickInfo: [],
+    services: [],
+    steps: [
+      { time: "08:00", activity: "Đón khách tại sân bay Đà Nẵng", dist: "2km từ TT" }
+    ]
+  }
 ];
 
 const MOCK_USERS: DbUser[] = [
@@ -150,6 +343,13 @@ export const fetchUsersList = (): Promise<AxiosResponse<BackendResponse<DbUser[]
 
 export const removeUser = (id: string): Promise<AxiosResponse<BackendResponse<any>>> => 
   instance.delete<BackendResponse<any>>(`/users/${id}`).catch(() => wrapMockRes({}));
+
+// Destinations
+export const fetchDestinationsList = (): Promise<AxiosResponse<BackendResponse<Destination[]>>> => 
+  instance.get<BackendResponse<Destination[]>>("/places?type=pin").catch(() => wrapMockRes(MOCK_DESTINATIONS));
+
+export const removeDestination = (id: string): Promise<AxiosResponse<BackendResponse<any>>> => 
+  instance.delete<BackendResponse<any>>(`/places/${id}`).catch(() => wrapMockRes({}));
 
 // Generic CRUD
 export function updateAdminRecord<T>(endpoint: string, id: string, data: Partial<T>): Promise<AxiosResponse<BackendResponse<T>>> {
