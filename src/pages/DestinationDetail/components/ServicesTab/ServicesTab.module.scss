@@ -14,7 +14,7 @@
     }
 
     .viewAll {
-      color: #f97316;
+      color: #33d7d1;
       font-weight: 600;
       cursor: pointer;
       font-size: 0.9rem;
@@ -38,7 +38,7 @@
   border: 1px solid #f1f5f9;
   transition: all 0.3s ease;
   box-shadow: 0 10px 10px 3px rgba(0, 0, 0, 0.09);
-  border: 1px solid #f59e0b;
+  border: 1px solid rgba(51, 215, 209, 0.6);
 
   &:hover {
     transform: translateY(-5px);
@@ -82,7 +82,7 @@
         color: #1e293b;
       }
       .rating {
-        color: #f59e0b;
+        color: #33d7d1;
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -112,7 +112,7 @@
       .price {
         margin-top: 20px;
         font-weight: 600;
-        color: #f97316;
+        color: #33d7d1;
         font-size: 0.9rem;
         line-height: 1.1rem;
         display: flex;
@@ -126,7 +126,7 @@
       }
 
       .btnAction {
-        background: #f97316;
+        background: #33d7d1;
         color: #fff;
         border: none;
         padding: 8px 16px;
@@ -135,7 +135,7 @@
         cursor: pointer;
         transition: 0.2s;
         &:hover {
-          background: #f97316;
+          background: #2ab3ae; /* Màu xanh đậm hơn chút cho hover */
           color: #131313;
         }
       }

@@ -12,7 +12,9 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
   margin-bottom: 45px;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-
+text-align: left;
+ z-index: 10;
+  margin-bottom: 180px;
   &:hover {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
     background: rgba(255, 255, 255, 0.85);
@@ -69,7 +71,15 @@
     gap: 14px;
     flex-wrap: wrap;
 
+    .customSelect {
+      position: relative;
+      min-width: 160px;
+    }
+
     .selectBox {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       padding: 10px 16px;
       border-radius: 12px;
       border: 1px solid #f0f0f0;
@@ -80,12 +90,6 @@
       color: #555;
       transition: all 0.2s;
       outline: none;
-      min-width: 100px;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' viewBox='0 0 10 6'%3E%3Cpath stroke='%23999' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 32px;
 
       &:hover {
         border-color: rgba(0, 168, 162, 0.4);
@@ -94,9 +98,49 @@
         transform: translateY(-1px);
       }
 
-      &:focus {
+      &.activeBox {
         border-color: rgba(0, 168, 162, 0.66);
         box-shadow: 0 0 0 3px rgba(0, 168, 162, 0.08);
+      }
+
+      .caretIcon {
+        transition: transform 0.3s ease;
+        &.rotated {
+          transform: rotate(180deg);
+        }
+      }
+    }
+
+    .dropdownMenu {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border: 1px solid #f0f0f0;
+      overflow: hidden;
+      z-index: 100;
+      animation: fadeInDown 0.2s ease forwards;
+
+      .dropdownItem {
+        padding: 12px 16px;
+        font-size: 14px;
+        color: #555;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background: #f0fbfb;
+          color: #00a8a2;
+        }
+
+        &.selectedItem {
+          background: #e6fcfb;
+          color: #00a8a2;
+          font-weight: 600;
+        }
       }
     }
 
@@ -158,5 +202,16 @@
         justify-content: center;
       }
     }
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

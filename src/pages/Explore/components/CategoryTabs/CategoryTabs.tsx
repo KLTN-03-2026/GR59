@@ -2,10 +2,9 @@ import styles from './CategoryTabs.module.scss';
 
 const categories = [
   { id: 'all', label: 'TẤT CẢ', icon: '🔍' },
-  { id: 'food', label: 'NHÀ HÀNG', icon: '🍴' },
+  { id: 'pin', label: 'ĐỊA ĐIỂM', icon: '📍' },
   { id: 'bed', label: 'KHÁCH SẠN', icon: '🏨' },
-  { id: 'pin', label: 'THAM QUAN', icon: '🏛️' },
-  { id: 'cafe', label: 'CÀ PHÊ', icon: '☕' },
+  { id: 'food', label: 'NHÀ HÀNG', icon: '🍴' },
 ];
 
 interface CategoryTabsProps {

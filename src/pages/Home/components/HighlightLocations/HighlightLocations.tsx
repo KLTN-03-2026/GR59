@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   CaretLeft,
   CaretRight,
@@ -48,8 +49,8 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
           res = await getHighlightRestaurants();
         }
 
-        if (res && res.data && res.data.EC === 0) {
-          setItems(res.data.DT);
+        if (res && res.data && (res.data.status === 200 || res.data.status === 201)) {
+          setItems(res.data.data || res.data.DT || []);
         }
       } catch (error) {
         console.error("Error fetching highlight data:", error);
@@ -116,6 +117,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
               <div className={styles.sliderNav}>
                 <button
                   className={styles.sliderBtn}
+                  title="Cuộn sang trái"
                   onClick={() => scrollSlider("left")}
                 >
                   <div className={styles.sliderIcon}>
@@ -124,6 +126,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                 </button>
                 <button
                   className={styles.sliderBtn}
+                  title="Cuộn sang phải"
                   onClick={() => scrollSlider("right")}
                 >
                   <div className={styles.sliderIcon}>
@@ -186,9 +189,9 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                       </span>
                     </div>
                     <p>{item.desc}</p>
-                    <a href="/destination" className={styles.moreLink}>
+                    <Link to={`/destination/${item.slug}`} className={styles.moreLink}>
                       Xem chi tiết <ArrowRight weight="bold" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               ))

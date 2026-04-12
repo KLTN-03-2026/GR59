@@ -8,9 +8,9 @@ import {
   PlusCircle,
   Clock,
   Lightning,
-} from "@phosphor-icons/react";
+} from "phosphor-react";
 import styles from "./Sidebar.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 const Sidebar: React.FC<{ data: Destination }> = ({ data }) => {
   return (
@@ -21,23 +21,23 @@ const Sidebar: React.FC<{ data: Destination }> = ({ data }) => {
           <div className={styles.widgetMapImg}>
             {/* Hiển thị Pin bản đồ */}
             <div className={styles.giantPin}>
-              <MapPin size={40} weight="fill" color="#ef4444" />
+              <MapPin size={40} weight="fill" color="#33d7d1" />
             </div>
           </div>
           <div className={styles.widgetContent}>
             <h4>Vị trí & Thời tiết</h4>
             <ul className={styles.widgetList}>
               <li>
-                <Cloud weight="fill" color="#f97316" />
+                <Cloud weight="fill" color="#33d7d1" />
                 <span>28°C, Trời nắng đẹp</span>
               </li>
               <li>
-                <Car weight="fill" color="#f97316" />
+                <Car weight="fill" color="#33d7d1" />
                 {/* Dùng data.distance nếu có, hoặc để mặc định */}
                 <span>{data.distance} di chuyển</span>
               </li>
               <li>
-                <Compass weight="fill" color="#f97316" />
+                <Compass weight="fill" color="#33d7d1" />
                 <span>Tọa độ: 20.91° N</span>
               </li>
             </ul>

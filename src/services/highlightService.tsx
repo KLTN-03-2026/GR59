@@ -4,6 +4,7 @@ import instance from "../utils/AxiosCustomize";
 // --- Interfaces ---
 export interface HighlightItem {
   id: string;
+  slug: string;
   title: string;
   location: string;
   rating: string | number;
@@ -27,18 +28,20 @@ export interface BackendResponse<T = unknown> {
 const MOCK_PLACES: HighlightItem[] = [
   {
     "id": "1",
+    "slug": "pho-co-hoi-an",
     "title": "Phố cổ Hội An",
     "location": "Quảng Nam",
     "rating": "4.8",
     "reviews": "1.2k",
     "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&q=80&w=800",
-    "desc": "Hội An nổi tiếng với vẻ đẹp lãng mạn, cổ kính, yên bình với những ngôi nhà cổ.",
+    "desc": "Hội An nổi tiếng with vẻ đẹp lãng mạn, cổ kính, yên bình với những ngôi nhà cổ.",
     "type": "pin",
     "category": "culture",
     "previewVideo": ""
   },
   {
     "id": "2",
+    "slug": "vinh-ha-long",
     "title": "Vịnh Hạ Long",
     "location": "Quảng Ninh",
     "rating": "4.9",
@@ -51,6 +54,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "3",
+    "slug": "da-lat",
     "title": "Thành phố Đà Lạt",
     "location": "Lâm Đồng",
     "rating": "4.7",
@@ -63,6 +67,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "4",
+    "slug": "co-do-hue",
     "title": "Cố đô Huế",
     "location": "Thừa Thiên Huế",
     "rating": "4.8",
@@ -75,6 +80,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "5",
+    "slug": "phu-quoc",
     "title": "Đảo Ngọc Phú Quốc",
     "location": "Kiên Giang",
     "rating": "4.9",
@@ -87,6 +93,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "6",
+    "slug": "intercontinental-resort",
     "title": "InterContinental Resort",
     "location": "Đà Nẵng",
     "rating": "4.9",
@@ -99,6 +106,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "7",
+    "slug": "topas-ecolodge",
     "title": "Topas Ecolodge",
     "location": "Sapa",
     "rating": "4.7",
@@ -111,6 +119,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "8",
+    "slug": "six-senses-ninh-van-bay",
     "title": "Six Senses Ninh Van Bay",
     "location": "Nha Trang",
     "rating": "4.9",
@@ -123,6 +132,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "9",
+    "slug": "hotel-de-la-coupole",
     "title": "Hotel de la Coupole",
     "location": "Sapa",
     "rating": "4.8",
@@ -135,6 +145,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "10",
+    "slug": "nha-hang-gao",
     "title": "Nhà hàng Gạo",
     "location": "TP HCM",
     "rating": "4.5",
@@ -147,6 +158,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "11",
+    "slug": "pizza-4ps",
     "title": "Pizza 4P's Bến Thành",
     "location": "TP HCM",
     "rating": "4.8",
@@ -159,6 +171,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "12",
+    "slug": "tam-vi",
     "title": "Tầm Vị",
     "location": "Hà Nội",
     "rating": "4.6",
@@ -171,6 +184,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "13",
+    "slug": "nha-hang-bien-xanh",
     "title": "Nhà hàng Biển Xanh",
     "location": "Đà Nẵng",
     "rating": "4.8",
@@ -183,6 +197,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "14",
+    "slug": "ba-na-hills",
     "title": "Bà Nà Hills",
     "location": "Đà Nẵng",
     "rating": "4.7",
@@ -195,6 +210,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "15",
+    "slug": "fansipan",
     "title": "Sapa - Fansipan",
     "location": "Lào Cai",
     "rating": "4.8",
@@ -207,6 +223,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "16",
+    "slug": "mui-ne",
     "title": "Mũi Né - Phan Thiết",
     "location": "Bình Thuận",
     "rating": "4.6",
@@ -219,6 +236,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "17",
+    "slug": "cho-ben-thanh",
     "title": "Chợ Bến Thành",
     "location": "TP HCM",
     "rating": "4.5",
@@ -231,6 +249,7 @@ const MOCK_PLACES: HighlightItem[] = [
   },
   {
     "id": "18",
+    "slug": "nha-trang",
     "title": "Bãi biển Nha Trang",
     "location": "Khánh Hòa",
     "rating": "4.8",

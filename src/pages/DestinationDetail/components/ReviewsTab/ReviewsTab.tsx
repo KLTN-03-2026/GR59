@@ -1,7 +1,7 @@
 import React from "react";
 import { Star, StarHalf } from "@phosphor-icons/react";
 import styles from "./ReviewsTab.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 interface ReviewsTabProps {
   reviews: Destination["reviewsData"];
@@ -25,11 +25,11 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ reviews }) => {
           <h2>{reviews.average}</h2>
           <div className={styles.starsRow}>
             {/* Render sao tùy vào reviews.average */}
-            <Star weight="fill" color="#f59e0b" size={18} />
-            <Star weight="fill" color="#f59e0b" size={18} />
-            <Star weight="fill" color="#f59e0b" size={18} />
-            <Star weight="fill" color="#f59e0b" size={18} />
-            <StarHalf weight="fill" color="#f59e0b" size={18} />
+            <Star weight="fill" color="#33d7d1" size={18} />
+            <Star weight="fill" color="#33d7d1" size={18} />
+            <Star weight="fill" color="#33d7d1" size={18} />
+            <Star weight="fill" color="#33d7d1" size={18} />
+            <StarHalf weight="fill" color="#33d7d1" size={18} />
           </div>
           <p>{reviews.total} đánh giá</p>
         </div>

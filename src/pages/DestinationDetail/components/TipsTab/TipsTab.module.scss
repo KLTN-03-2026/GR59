@@ -23,7 +23,7 @@
   transition: 0.3s;
 
   &:hover {
-    border-color: #f97316;
+    border-color: #33d7d1;
     background: #fffcf9;
   }
 
@@ -31,13 +31,13 @@
     width: 64px;
     height: 64px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f97316, #3b82f6);
+    background: linear-gradient(135deg, #33d7d1, #3b82f6);
     border-radius: 20px; // Bo góc kiểu "Squircle" cho hiện đại
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 10px 20px -5px rgba(51, 215, 209, 0.3);
   }
 
   h4 {

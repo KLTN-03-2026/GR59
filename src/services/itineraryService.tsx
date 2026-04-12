@@ -406,7 +406,7 @@ export const getSampleItineraries = async (): Promise<
   } catch (error) {
     console.warn("Fake API fallback cho Sample Itineraries");
     return {
-      data: { status: 200, message: "Mock data", data: MOCK_ITINERARIES },
+      data: { status: 200, message: "Mock data", data: MOCK_ITINERARIES, DT: MOCK_ITINERARIES },
       status: 200, statusText: "OK", headers: {}, config: {} as any
     };
   }

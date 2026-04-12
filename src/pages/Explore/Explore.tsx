@@ -188,25 +188,27 @@ const Explore: React.FC = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={styles.pageBtn}
+              className={styles.pageNavBtn}
               aria-label="Trang trước"
               title="Trang trước"
             >
               <CaretLeft size={20} />
             </button>
-            {Array.from({ length: totalPages }).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => handlePageChange(idx + 1)}
-                className={`${styles.pageBtn} ${currentPage === idx + 1 ? styles.active : ""}`}
-              >
-                {idx + 1}
-              </button>
-            ))}
+            <div className={styles.pageNumbers}>
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handlePageChange(idx + 1)}
+                  className={`${styles.pageBtn} ${currentPage === idx + 1 ? styles.activePage : ""}`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={styles.pageBtn}
+              className={styles.pageNavBtn}
               aria-label="Trang tiếp theo"
               title="Trang tiếp theo"
             >

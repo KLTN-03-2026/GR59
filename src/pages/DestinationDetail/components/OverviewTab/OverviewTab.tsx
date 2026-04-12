@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./OverviewTab.module.scss";
-import type { Destination } from "../../DestinationDetail"; // Import interface từ file chính
+import type { Destination } from "../../../../services/destinationService";
 
 const OverviewTab: React.FC<{ data: Destination }> = ({ data }) => {
   const [mainImage, setMainImage] = useState(data.gallery[0]);

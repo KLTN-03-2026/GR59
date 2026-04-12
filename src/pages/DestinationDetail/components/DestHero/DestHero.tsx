@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import {
   MapPin,
   Star,
-  StarHalf, // Thêm import này
+  StarHalf,
   ShareNetwork,
   Heart,
   BookmarkSimple,
-} from "@phosphor-icons/react";
+} from "phosphor-react";
 
 import styles from "./DestHero.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -30,12 +30,12 @@ const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
                 // Nếu là 4 sao đầu (index 0-3) thì dùng Star fill
                 if (i < 4) {
                   return (
-                    <Star key={i} size={18} weight="fill" color="#f59e0b" />
+                    <Star key={i} size={18} weight="fill" color="#33d7d1" />
                   );
                 }
                 // Nếu là sao cuối cùng (index 4) thì dùng StarHalf
                 return (
-                  <StarHalf key={i} size={18} weight="fill" color="#f59e0b" />
+                  <StarHalf key={i} size={18} weight="fill" color="#33d7d1" />
                 );
               })}
             </div>

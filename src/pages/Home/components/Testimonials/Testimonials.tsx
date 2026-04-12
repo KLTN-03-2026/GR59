@@ -15,8 +15,8 @@ const Testimonials: React.FC = () => {
       setLoading(true);
       try {
         const res = await getTestimonials();
-        if (res && res.data && res.data.EC === 0) {
-          setReviews(res.data.DT);
+        if (res && res.data && (res.data.status === 200 || res.data.status === 201)) {
+          setReviews(res.data.data || res.data.DT || []);
         }
       } catch (error) {
         console.error("Error fetching testimonials:", error);

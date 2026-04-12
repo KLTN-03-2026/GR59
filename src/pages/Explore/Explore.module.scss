@@ -1,5 +1,5 @@
-$bg-color: #fffaf5; // Màu kem nhạt nền (ngả cam)
-$primary-color: #ff7a00; // Màu cam chủ đạo mới
+$bg-color: #f6fdfd; // Màu cyan cực nhạt nền
+$primary-color: #33d7d1; // Màu xanh ngọc chủ đạo mới
 $text-secondary: #666;
 $border-color: #eee;
 $max-width: 1200px;
@@ -102,7 +102,7 @@ $max-width: 1200px;
     gap: 8px;
 
     &:hover:not(:disabled) {
-      background: #fdf2e9;
+      background: $bg-color;
       color: $primary-color;
       border-color: $primary-color;
       transform: translateY(-2px);
@@ -167,7 +167,7 @@ $max-width: 1200px;
 
   &:hover {
     transform: scale(1.1) rotate(-3deg);
-    background: #ff7a00;
+    background: $primary-color;
   }
 }
 .exploreWrapper {
@@ -177,7 +177,7 @@ $max-width: 1200px;
 
 .heroSection {
   padding: 100px 5%;
-  background: radial-gradient(circle at top right, #fff4e6, #ffffff);
+  background: radial-gradient(circle at top right, #e6fcfb, #ffffff);
 
   h1 {
     font-size: clamp(3rem, 8vw, 5rem);
@@ -185,8 +185,8 @@ $max-width: 1200px;
     font-weight: 900;
     letter-spacing: -2px;
     span {
-      color: #ff7a00;
-    } // Điểm nhấn màu cam dự án của bạn
+      color: $primary-color;
+    } // Điểm nhấn màu xanh dự án của bạn
   }
 }
 

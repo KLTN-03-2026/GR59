@@ -19,8 +19,9 @@
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(15, 23, 42, 0.9) 0%,
-    rgba(15, 23, 42, 0) 60%
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(15, 23, 42, 0.4) 50%,
+    rgba(15, 23, 42, 0) 80%
   );
 }
 
@@ -36,12 +37,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.6);
-  color: #f97316;
-  padding: 8px 14px;
-  border-radius: 20px;
+  background: white;
+  color: #33d7d1;
+  padding: 8px 16px;
+  border-radius: 24px;
   font-weight: 800;
   text-transform: uppercase;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .heroTitle {
@@ -88,10 +91,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   &:hover {
-    border: 1px solid #f97316;
-    color: #f97316;
+    border: 1px solid #33d7d1;
+    background: rgba(51, 215, 209, 0.2);
+    color: #33d7d1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(51, 215, 209, 0.4);
   }
 }
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Star, MapPin } from "@phosphor-icons/react";
 import styles from "./ServicesTab.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 interface ServicesTabProps {
   services: Destination["services"];

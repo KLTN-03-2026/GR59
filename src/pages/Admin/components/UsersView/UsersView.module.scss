@@ -272,6 +272,10 @@ $slate-400: #94a3b8;
   }
 }
 
+.thActions {
+  text-align: right;
+}
+
 .infoCol {
   display: flex;
   align-items: center;
@@ -323,6 +327,13 @@ $slate-400: #94a3b8;
   }
 }
 
+.emptyState {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -358,6 +369,12 @@ $slate-400: #94a3b8;
 .bgSlate {
   background: #f1f5f9;
   color: #64748b;
+}
+
+.actionGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .actionBtn {

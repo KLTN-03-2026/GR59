@@ -8,19 +8,27 @@
 .statBox {
   flex: 1;
   background: white;
-  border: 1px solid #f97316;
+  border: 1px solid rgba(51, 215, 209, 0.3);
   border-radius: 16px;
   padding: 10px;
   display: flex;
   align-items: center;
   gap: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(51, 215, 209, 0.2);
+    border-color: #33d7d1;
+  }
 }
 
 .statIcon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #f8fafc;
+  background: rgba(51, 215, 209, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;

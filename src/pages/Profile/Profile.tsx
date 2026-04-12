@@ -6,7 +6,7 @@ import ProfileHeader from "./components/ProfileHeader/ProfileHeader";
 import ProfileTabs from "./components/ProfileTabs/ProfileTabs";
 import ProfileForm from "./components/ProfileForm/ProfileForm";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
-import { getProfile, getSavedTrips, updateProfile } from "../../services/profileService";
+import { getProfile, getSavedTrips } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
 
 const Profile: React.FC = () => {
@@ -23,7 +23,12 @@ const Profile: React.FC = () => {
         try {
           const res = await getProfile();
           // Backend thật trả về dữ liệu trong trường 'data'
-          const dt = res.data.data as any;
+          const dt = res.data.data as ProfileData & {
+            createdAt?: string;
+            role?: string;
+            avatarUrl?: string;
+            cover?: string;
+          };
           if (dt) {
             let formattedJoinDate = "Mới tham gia";
             if (dt.createdAt) {
@@ -80,9 +85,16 @@ const Profile: React.FC = () => {
               phone: userData.phone || "Chưa cập nhật",
               address: userData.address || "Chưa cập nhật",
               bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
-              avatar_url: userData.avatar_url || userData.avatarUrl || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
-              cover_url: userData.cover_url || userData.cover || "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
-              badge: userData.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
+              avatar_url:
+                userData.avatar_url ||
+                userData.avatarUrl ||
+                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
+              cover_url:
+                userData.cover_url ||
+                userData.cover ||
+                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
+              badge:
+                userData.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
               joinDate: formattedJoinDate,
               location: userData.address || "Việt Nam",
             };

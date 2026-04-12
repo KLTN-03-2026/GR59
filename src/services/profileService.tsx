@@ -64,7 +64,7 @@ export const updateProfile = async (
 
 export const uploadImage = async (
   file: File,
-): Promise<AxiosResponse<BackendResponse<string>>> => {
+): Promise<AxiosResponse<BackendResponse<{ imageUrl: string }>>> => {
   const formData = new FormData();
   formData.append("file", file);
   return await instance.post<BackendResponse<{ imageUrl: string }>>(
@@ -93,7 +93,7 @@ export const getSavedTrips = async (): Promise<
 > => {
   try {
     return await instance.get<BackendResponse<SavedTrip[]>>("/saved_trips");
-  } catch (error) {
+  } catch {
     console.warn("Fake API fallback cho Saved Trips GET");
     return {
       data: {
@@ -105,7 +105,7 @@ export const getSavedTrips = async (): Promise<
       status: 200,
       statusText: "OK",
       headers: {},
-      config: {} as any,
+      config: {} as AxiosResponse<unknown>["config"],
     };
   }
 };
@@ -119,7 +119,7 @@ export const addSavedTrip = async (
       "/saved_trips",
       tripData,
     );
-  } catch (error) {
+  } catch {
     console.warn("Fake API fallback cho Saved Trips POST");
     return {
       data: {
@@ -131,7 +131,7 @@ export const addSavedTrip = async (
       status: 201,
       statusText: "Created",
       headers: {},
-      config: {} as any,
+      config: {} as AxiosResponse<unknown>["config"],
     };
   }
 };
@@ -144,7 +144,7 @@ export const removeSavedTrip = async (
     return await instance.delete<BackendResponse<object>>(
       `/saved_trips/${tripId}`,
     );
-  } catch (error) {
+  } catch {
     console.warn("Fake API fallback cho Saved Trips DELETE");
     return {
       data: {
@@ -156,7 +156,7 @@ export const removeSavedTrip = async (
       status: 200,
       statusText: "OK",
       headers: {},
-      config: {} as any,
+      config: {} as AxiosResponse<unknown>["config"],
     };
   }
 };
