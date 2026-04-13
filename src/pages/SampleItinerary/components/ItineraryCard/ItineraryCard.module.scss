@@ -138,95 +138,162 @@ $lightText: #718096;
         margin-bottom: 12px;
       }
 
-      .stepsList {
+      .daysList {
         display: flex;
         flex-direction: column;
+        gap: 20px;
 
-        .stepItem {
-          display: flex;
-          gap: 12px;
-
-          .visualLine {
+        .dayGroup {
+          .dayHeader {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            width: 10px;
+            gap: 10px;
+            margin-bottom: 12px;
 
-            .dot {
-              width: 8px;
-              height: 8px;
-              background: #fff;
-              border: 2px solid $primary;
-              border-radius: 50%;
-              flex-shrink: 0;
+            .dayBadge {
+              background: rgba($primary, 0.1);
+              color: $primary;
+              padding: 2px 8px;
+              border-radius: 6px;
+              font-size: 11px;
+              font-weight: 800;
+              text-transform: uppercase;
             }
 
-            .line {
-              width: 2px;
-              background: #edf2f7;
-              flex: 1;
-              margin: 3px 0;
-            }
-          }
-
-          .stepInfo {
-            padding-bottom: 10px;
-            flex: 1;
-
-            .timeRow {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 2px;
-
-              .time {
-                font-size: 12px;
-                font-weight: 800;
-                color: $dark;
-              }
-
-              .distance {
-                font-size: 10px;
-                font-weight: 600;
-                color: $lightText;
-                background: #f7fafc;
-                padding: 1px 6px;
-                border-radius: 4px;
-              }
-            }
-
-            .activity {
+            .dayTheme {
               font-size: 13px;
-              color: $text;
-              line-height: 1.4;
-              font-weight: 500;
-              margin: 0;
+              font-weight: 700;
+              color: $dark;
             }
           }
+
+          .activitiesList {
+            padding-left: 4px;
+
+            .stepItem {
+              display: flex;
+              gap: 12px;
+
+              .visualLine {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 10px;
+
+                .dot {
+                  width: 8px;
+                  height: 8px;
+                  background: #fff;
+                  border: 2px solid $primary;
+                  border-radius: 50%;
+                  flex-shrink: 0;
+                }
+
+                .line {
+                  width: 2px;
+                  background: #edf2f7;
+                  flex: 1;
+                  margin: 3px 0;
+                }
+              }
+
+              .stepInfo {
+                padding-bottom: 10px;
+                flex: 1;
+
+                .timeRow {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 2px;
+
+                  .time {
+                    font-size: 12px;
+                    font-weight: 800;
+                    color: $dark;
+                  }
+
+                  .distance {
+                    font-size: 10px;
+                    font-weight: 600;
+                    color: $lightText;
+                    background: #f7fafc;
+                    padding: 1px 6px;
+                    border-radius: 4px;
+                  }
+                }
+
+                .activity {
+                  font-size: 13px;
+                  color: $text;
+                  line-height: 1.4;
+                  font-weight: 500;
+                  margin: 0;
+                }
+              }
+            }
+          }
+        }
+
+        .moreDays {
+          font-size: 12px;
+          color: $lightText;
+          font-style: italic;
+          margin-top: -10px;
+          padding-left: 10px;
         }
       }
     }
 
-    .selectBtn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 16px;
-      background: $dark;
-      color: #fff;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
+    .cardFooter {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       gap: 10px;
-      transition: all 0.3s ease;
+      margin-top: auto;
 
-      &:hover {
-        background: $primary;
-        box-shadow: 0 8px 20px rgba($primary, 0.3);
-        transform: translateY(-2px);
+      .detailBtn {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid $primary;
+        border-radius: 16px;
+        background: transparent;
+        color: $primary;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba($primary, 0.05);
+          transform: translateY(-2px);
+        }
+      }
+
+      .selectBtn {
+        flex: 2;
+        padding: 12px;
+        border: none;
+        border-radius: 16px;
+        background: $dark;
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: $primary;
+          box-shadow: 0 8px 20px rgba($primary, 0.3);
+          transform: translateY(-2px);
+        }
       }
     }
   }

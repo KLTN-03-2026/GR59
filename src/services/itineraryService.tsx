@@ -1,342 +1,210 @@
 import instance from "../utils/AxiosCustomize";
 import type { AxiosResponse } from "axios";
+import type { BackendResponse } from "../types/backend";
+
+export interface ItineraryActivity {
+  time: string;
+  location: string;
+  note: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface DayItinerary {
+  day: number;
+  date: string;
+  theme: string;
+  activities: ItineraryActivity[];
+}
 
 export interface ItineraryType {
   id: string | number;
-  title: string;
-  img: string; // Đồng bộ với places
+  trip_name: string;
+  img: string; 
   price: number;
   maxPeople: number;
   location: string;
   duration: string;
   rating: number;
   category: string;
-  type: string; // Thêm type
-  previewVideo?: string; // Thêm previewVideo
-  steps: {
-    time: string;
-    activity: string;
-    dist: string;
-  }[];
-}
-
-export interface BackendResponse<T = unknown> {
-  status: number;
-  message: string;
-  data?: T;
-  DT?: T;
+  type?: string; 
+  previewVideo?: string; 
+  itinerary: DayItinerary[];
 }
 
 const MOCK_ITINERARIES: ItineraryType[] = [
   {
-    "id": "19",
-    "title": "Hành trình Di sản miền Trung",
-    "img": "https://images.unsplash.com/photo-1555921015-5532091f6026?q=80&w=800",
-    "price": 1500000,
-    "maxPeople": 5,
-    "location": "Đà Nẵng",
-    "duration": "3 Ngày 2 Đêm",
+    "id": "31",
+    "trip_name": "Khám phá Đà Lạt mộng mơ",
+    "duration": "5 ngày 4 đêm",
+    "price": 3500000,
     "rating": 4.9,
-    "category": "culture",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "08:00",
-        "activity": "Đón khách tại sân bay Đà Nẵng",
-        "dist": "2km từ TT"
-      },
-      {
-        "time": "10:00",
-        "activity": "Check-in Bán đảo Sơn Trà",
-        "dist": "10km từ TT"
-      },
-      {
-        "time": "12:00",
-        "activity": "Thưởng thức Mì Quảng chính gốc",
-        "dist": "3km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "20",
-    "title": "Khám phá Phố Cổ Hội An",
-    "img": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=800",
-    "price": 850000,
-    "maxPeople": 2,
-    "location": "Hội An",
-    "duration": "1 Ngày",
-    "rating": 4.8,
-    "category": "culture",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "15:00",
-        "activity": "Di chuyển đi Hội An",
-        "dist": "30km từ TT"
-      },
-      {
-        "time": "17:00",
-        "activity": "Thăm Chùa Cầu & Nhà Cổ",
-        "dist": "30.5km từ TT"
-      },
-      {
-        "time": "19:00",
-        "activity": "Ăn tối & Thả đèn hoa đăng",
-        "dist": "30.5km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "21",
-    "title": "Nghỉ dưỡng biển Mỹ Khê",
-    "img": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800",
-    "price": 2500000,
-    "maxPeople": 4,
-    "location": "Đà Nẵng",
-    "duration": "2 Ngày 1 Đêm",
-    "rating": 4.9,
-    "category": "beach",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "09:00",
-        "activity": "Tắm biển & Chụp hình",
-        "dist": "1km từ TT"
-      },
-      {
-        "time": "14:00",
-        "activity": "Chơi các trò chơi nước",
-        "dist": "1.2km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "22",
-    "title": "Tour Tiết Kiệm Ngũ Hành Sơn",
-    "img": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=800",
-    "price": 450000,
-    "maxPeople": 10,
-    "location": "Đà Nẵng",
-    "duration": "1 Ngày",
-    "rating": 4.7,
+    "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
+    "location": "Đà Lạt",
     "category": "nature",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "08:30",
-        "activity": "Thăm làng đá Non Nước",
-        "dist": "12km từ TT"
-      },
-      {
-        "time": "10:00",
-        "activity": "Leo núi Ngũ Hành Sơn",
-        "dist": "12km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "23",
-    "title": "Chinh phục đỉnh Bàn Cờ",
-    "img": "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
-    "price": 600000,
-    "maxPeople": 2,
-    "location": "Đà Nẵng",
-    "duration": "Half day",
-    "rating": 4.6,
-    "category": "adventure",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "05:00",
-        "activity": "Đón bình minh đỉnh Bàn Cờ",
-        "dist": "15km từ TT"
-      },
-      {
-        "time": "07:30",
-        "activity": "Ăn sáng cafe view biển",
-        "dist": "5km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "24",
-    "title": "Lặn ngắm san hô Cù Lao Chàm",
-    "img": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800",
-    "price": 1200000,
-    "maxPeople": 8,
-    "location": "Hội An",
-    "duration": "1 Ngày",
-    "rating": 4.8,
-    "category": "beach",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "08:00",
-        "activity": "Cano đi Cù Lao Chàm",
-        "dist": "45km từ TT"
-      },
-      {
-        "time": "10:30",
-        "activity": "Lặn ngắm san hô bãi Bắc",
-        "dist": "46km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "25",
-    "title": "Camping Rừng Dừa Bảy Mẫu",
-    "img": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=800",
-    "price": 950000,
-    "maxPeople": 15,
-    "location": "Hội An",
-    "duration": "2 Ngày 1 Đêm",
-    "rating": 4.5,
-    "category": "nature",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "14:00",
-        "activity": "Check-in lều trại",
-        "dist": "35km từ TT"
-      },
-      {
-        "time": "19:00",
-        "activity": "Tiệc BBQ ngoài trời",
-        "dist": "35km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "26",
-    "title": "City Tour Đà Nẵng về đêm",
-    "img": "https://images.unsplash.com/photo-1599708153386-efdb71593ef0?q=80&w=800",
-    "price": 350000,
     "maxPeople": 4,
-    "location": "Đà Nẵng",
-    "duration": "4 Tiếng",
-    "rating": 4.7,
-    "category": "culture",
-    "type": "itinerary",
-    "steps": [
+    "itinerary": [
       {
-        "time": "19:00",
-        "activity": "Ngắm Cầu Rồng phun lửa",
-        "dist": "0km từ TT"
+        "day": 1,
+        "date": "2024-05-01",
+        "theme": "Sắc hoa thành phố",
+        "activities": [
+          { "time": "08:00", "location": "Sân bay Liên Khương", "note": "Xe đón về khách sạn", "lat": 11.7508, "lng": 108.3689 },
+          { "time": "12:00", "location": "Lẩu gà lá é Tao Ngộ", "note": "Ăn trưa đặc sản", "lat": 11.9360, "lng": 108.4485 },
+          { "time": "14:30", "location": "Vườn hoa Thành phố", "note": "Check-in hoa theo mùa", "lat": 11.9485, "lng": 108.4489 }
+        ]
       },
       {
-        "time": "21:00",
-        "activity": "Dạo Chợ đêm Sơn Trà",
-        "dist": "1km từ TT"
+        "day": 2,
+        "date": "2024-05-02",
+        "theme": "Săn mây & Cà phê",
+        "activities": [
+          { "time": "04:30", "location": "Thảm gỗ săn mây", "note": "Cần đi sớm để kịp bình minh", "lat": 11.9056, "lng": 108.5492 },
+          { "time": "09:00", "location": "Chùa Linh Phước", "note": "Tham quan chùa ve chai", "lat": 11.9427, "lng": 108.4981 },
+          { "time": "19:00", "location": "Chợ đêm Đà Lạt", "note": "Mua quà lưu niệm, ăn đồ nướng", "lat": 11.9425, "lng": 108.4368 }
+        ]
+      },
+      {
+        "day": 3,
+        "date": "2024-05-03",
+        "theme": "Rừng thông & Hồ nước",
+        "activities": [
+          { "time": "08:30", "location": "Hồ Tuyền Lâm", "note": "Chèo thuyền Kayak", "lat": 11.8885, "lng": 108.4235 },
+          { "time": "11:00", "location": "Đường hầm đất sét", "note": "Tham quan hồ Vô Cực", "lat": 11.8965, "lng": 108.4065 }
+        ]
+      },
+      {
+        "day": 4,
+        "date": "2024-05-04",
+        "theme": "Thử thách mạo hiểm",
+        "activities": [
+          { "time": "09:00", "location": "Thác Datanla", "note": "Đi máng trượt dài nhất Đông Nam Á", "lat": 11.9025, "lng": 108.4488 },
+          { "time": "15:00", "location": "Dinh Bảo Đại", "note": "Tìm hiểu lịch sử", "lat": 11.9304, "lng": 108.4304 }
+        ]
+      },
+      {
+        "day": 5,
+        "date": "2024-05-05",
+        "theme": "Tạm biệt Đà Lạt",
+        "activities": [
+          { "time": "08:00", "location": "Quảng trường Lâm Viên", "note": "Chụp ảnh nụ hoa Atiso", "lat": 11.9391, "lng": 108.4447 },
+          { "time": "11:00", "location": "Lên xe ra sân bay", "note": "Kết thúc hành trình", "lat": 11.7508, "lng": 108.3689 }
+        ]
       }
-    ],
-    "previewVideo": ""
+    ]
   },
   {
-    "id": "27",
-    "title": "Yoga thiền tại rừng Sơn Trà",
-    "img": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800",
-    "price": 700000,
+    "id": "32",
+    "trip_name": "Hà Giang - Vòng cung cực Bắc",
+    "duration": "5 ngày 4 đêm",
+    "price": 4200000,
+    "rating": 4.8,
+    "img": "https://images.unsplash.com/photo-1596701062351-df1f8d4543e1?q=80&w=800",
+    "location": "Hà Giang",
+    "category": "nature",
     "maxPeople": 6,
-    "location": "Đà Nẵng",
-    "duration": "1 Ngày",
-    "rating": 4.9,
-    "category": "nature",
-    "type": "itinerary",
-    "steps": [
+    "itinerary": [
       {
-        "time": "06:00",
-        "activity": "Yoga đón bình minh",
-        "dist": "12km từ TT"
+        "day": 1,
+        "date": "2024-06-01",
+        "theme": "Khởi hành từ Hà Nội",
+        "activities": [
+          { "time": "07:00", "location": "Bến xe Mỹ Đình", "note": "Lên xe limousine đi Hà Giang", "lat": 21.0285, "lng": 105.7821 },
+          { "time": "14:00", "location": "Cột mốc số 0", "note": "Check-in điểm đầu hành trình", "lat": 22.8219, "lng": 104.9818 },
+          { "time": "16:00", "location": "Cổng trời Quản Bạ", "note": "Ngắm núi đôi Cô Tiên", "lat": 23.0673, "lng": 104.9882 }
+        ]
       },
       {
-        "time": "09:00",
-        "activity": "Thiền trà thảo mộc",
-        "dist": "12km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "28",
-    "title": "Trekking Suối Mơ - Ba Na",
-    "img": "https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=800",
-    "price": 550000,
-    "maxPeople": 12,
-    "location": "Đà Nẵng",
-    "duration": "1 Ngày",
-    "rating": 4.6,
-    "category": "adventure",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "07:30",
-        "activity": "Leo núi lội suối",
-        "dist": "25km từ TT"
+        "day": 2,
+        "date": "2024-06-02",
+        "theme": "Cao nguyên đá Đồng Văn",
+        "activities": [
+          { "time": "08:00", "location": "Dốc Thẩm Mã", "note": "Con đường uốn lượn biểu tượng", "lat": 23.1666, "lng": 105.1009 },
+          { "time": "11:30", "location": "Nhà của Pao", "note": "Bối cảnh phim nổi tiếng", "lat": 23.2359, "lng": 105.2858 },
+          { "time": "14:00", "location": "Dinh thự họ Vương", "note": "Kiến trúc nghệ thuật độc đáo", "lat": 23.2625, "lng": 105.2475 }
+        ]
       },
       {
-        "time": "12:00",
-        "activity": "Ăn trưa picnic bên suối",
-        "dist": "26km từ TT"
-      }
-    ],
-    "previewVideo": ""
-  },
-  {
-    "id": "29",
-    "title": "Tham quan Thánh địa Mỹ Sơn",
-    "img": "https://images.unsplash.com/photo-1590424600010-84518429661c?q=80&w=800",
-    "price": 1100000,
-    "maxPeople": 4,
-    "location": "Hội An",
-    "duration": "1 Ngày",
-    "rating": 4.8,
-    "category": "culture",
-    "type": "itinerary",
-    "steps": [
-      {
-        "time": "08:30",
-        "activity": "Khám phá tháp cổ Chăm Pa",
-        "dist": "50km từ TT"
+        "day": 3,
+        "date": "2024-06-03",
+        "theme": "Đỉnh cao Mã Pì Lèng",
+        "activities": [
+          { "time": "05:30", "location": "Đèo Mã Pì Lèng", "note": "Đón bình minh trên đỉnh đèo", "lat": 23.2505, "lng": 105.4194 },
+          { "time": "10:00", "location": "Sông Nho Quế", "note": "Đi thuyền qua hẻm Tu Sản", "lat": 23.2685, "lng": 105.4285 },
+          { "time": "19:00", "location": "Phố cổ Đồng Văn", "note": "Thưởng thức thắng cố, rượu ngô", "lat": 23.2785, "lng": 105.3585 }
+        ]
       },
       {
-        "time": "11:30",
-        "activity": "Thưởng thức múa Apsara",
-        "dist": "50km từ TT"
+        "day": 4,
+        "date": "2024-06-04",
+        "theme": "Điểm cực Bắc Lũng Cú",
+        "activities": [
+          { "time": "08:30", "location": "Cột cờ Lũng Cú", "note": "Chinh phục điểm cực Bắc", "lat": 23.3815, "lng": 105.3155 },
+          { "time": "14:00", "location": "Làng văn hóa Lô Lô Chải", "note": "Trải nghiệm văn hóa bản địa", "lat": 23.3755, "lng": 105.3125 }
+        ]
+      },
+      {
+        "day": 5,
+        "date": "2024-06-05",
+        "theme": "Trở về Hà Nội",
+        "activities": [
+          { "time": "08:00", "location": "Thác số 6 Hà Giang", "note": "Tắm suối thư giãn", "lat": 22.8585, "lng": 104.9585 },
+          { "time": "12:00", "location": "Ăn trưa tại TP Hà Giang", "note": "Mua đặc sản về làm quà", "lat": 22.8219, "lng": 104.9818 }
+        ]
       }
-    ],
-    "previewVideo": ""
+    ]
   },
   {
-    "id": "30",
-    "title": "Tiệc tối lãng mạn ven biển",
-    "img": "https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=800",
-    "price": 3200000,
-    "maxPeople": 2,
-    "location": "Đà Nẵng",
-    "duration": "3 Tiếng",
-    "rating": 5,
+    "id": "33",
+    "trip_name": "Phú Quốc - Đảo Ngọc thiên đường",
+    "duration": "4 ngày 3 đêm",
+    "price": 5800000,
+    "rating": 5.0,
+    "img": "https://images.unsplash.com/photo-1589394815303-9993309a9096?q=80&w=800",
+    "location": "Phú Quốc",
     "category": "beach",
-    "type": "itinerary",
-    "steps": [
+    "maxPeople": 4,
+    "itinerary": [
       {
-        "time": "18:00",
-        "activity": "Đón hoàng hôn trên biển",
-        "dist": "2km từ TT"
+        "day": 1,
+        "date": "2024-07-10",
+        "theme": "Chào Đảo Ngọc",
+        "activities": [
+          { "time": "11:00", "location": "Sân bay Phú Quốc", "note": "Xe resort đón về check-in", "lat": 10.1691, "lng": 103.9930 },
+          { "time": "15:00", "location": "Bãi Sao", "note": "Tắm biển và chụp ảnh xích đu", "lat": 10.0573, "lng": 104.0375 },
+          { "time": "18:00", "location": "Chợ đêm Phú Quốc", "note": "Thưởng thức hải sản tươi", "lat": 10.2183, "lng": 103.9608 }
+        ]
       },
       {
-        "time": "19:30",
-        "activity": "Tiệc tối 5 sao private",
-        "dist": "2km từ TT"
+        "day": 2,
+        "date": "2024-07-11",
+        "theme": "Khám phá Nam Đảo",
+        "activities": [
+          { "time": "08:30", "location": "Cáp treo Hòn Thơm", "note": "Cáp treo vượt biển dài nhất thế giới", "lat": 10.0268, "lng": 104.0078 },
+          { "time": "10:00", "location": "Công viên Aquatopia", "note": "Vui chơi công viên nước", "lat": 10.0076, "lng": 104.0181 },
+          { "time": "15:30", "location": "Sunset Sanato", "note": "Ngắm hoàng hôn đẹp nhất đảo", "lat": 10.1625, "lng": 103.9675 }
+        ]
+      },
+      {
+        "day": 3,
+        "date": "2024-07-12",
+        "theme": "VinWonders & Safari",
+        "activities": [
+          { "time": "09:00", "location": "Vinpearl Safari", "note": "Tham quan vườn thú mở", "lat": 10.3345, "lng": 103.8835 },
+          { "time": "14:00", "location": "VinWonders", "note": "Thỏa sức vui chơi giải trí", "lat": 10.3365, "lng": 103.8565 },
+          { "time": "20:00", "location": "Grand World", "note": "Xem show Tinh hoa Việt Nam", "lat": 10.3285, "lng": 103.8585 }
+        ]
+      },
+      {
+        "day": 4,
+        "date": "2024-07-13",
+        "theme": "Tạm biệt Phú Quốc",
+        "activities": [
+          { "time": "08:00", "location": "Vườn tiêu Phú Quốc", "note": "Tham quan và mua sắm", "lat": 10.2485, "lng": 103.9785 },
+          { "time": "10:00", "location": "Nhà thùng nước mắm", "note": "Tìm hiểu quy trình sản xuất", "lat": 10.2225, "lng": 103.9625 }
+        ]
       }
-    ],
-    "previewVideo": ""
+    ]
   }
 ];
 
@@ -401,13 +269,44 @@ export const getSampleItineraries = async (): Promise<
 > => {
   try {
     return await instance.get<BackendResponse<ItineraryType[]>>(
-      "/places?type=itinerary"
+      "/sample_itineraries"
     );
   } catch (error) {
     console.warn("Fake API fallback cho Sample Itineraries");
     return {
-      data: { status: 200, message: "Mock data", data: MOCK_ITINERARIES, DT: MOCK_ITINERARIES },
-      status: 200, statusText: "OK", headers: {}, config: {} as any
+      data: {
+        status: 200,
+        message: "Lấy dữ liệu sample mock thành công",
+        data: MOCK_ITINERARIES,
+      },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config: {} as any,
+    };
+  }
+};
+
+export const getSampleItineraryById = async (
+  id: string | number
+): Promise<AxiosResponse<BackendResponse<ItineraryType>>> => {
+  try {
+    return await instance.get<BackendResponse<ItineraryType>>(
+      `/sample_itineraries/${id}`
+    );
+  } catch (error) {
+    console.warn(`Fake API fallback cho Sample Itinerary ID: ${id}`);
+    const found = MOCK_ITINERARIES.find((it) => it.id == id);
+    return {
+      data: {
+        status: 200,
+        message: "Lấy dữ liệu sample detail mock thành công",
+        data: found as ItineraryType,
+      },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config: {} as any,
     };
   }
 };

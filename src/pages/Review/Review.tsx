@@ -33,7 +33,8 @@ const Review: React.FC = () => {
         setIsLoading(true);
         const res = await getReviews();
         if (res.data && res.data.status === 200) {
-          setRecentReviews(res.data.data);
+          const fetchedData = res.data.data || res.data.DT;
+          setRecentReviews(Array.isArray(fetchedData) ? fetchedData : []);
         }
       } catch (err) {
         console.error("Lỗi khi tải đánh giá:", err);
@@ -191,7 +192,7 @@ const Review: React.FC = () => {
           Đánh giá gần đây
         </h2>
         <div className={styles.reviewsGrid}>
-          {recentReviews.map((review, index) => (
+          {(Array.isArray(recentReviews) ? recentReviews : []).map((review, index) => (
             <div
               key={review.id}
               className={styles.reviewUserCard}

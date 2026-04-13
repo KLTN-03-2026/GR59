@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import styles from './ItineraryDetail.module.scss';
 import ItinerarySidebar from './Components/ItinerarySidebar/ItinerarySidebar';
 import ItineraryMap from './Components/ItineraryMap/ItineraryMap';
@@ -7,7 +7,13 @@ import AddSpotModal from './Components/AddSpotModal/AddSpotModal';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { toast } from 'react-toastify';
-import { getAISuggestedRoute, getTravelMetrics, updateTravelPlan } from '../../services/itineraryService';
+import { 
+  getAISuggestedRoute, 
+  getTravelMetrics, 
+  updateTravelPlan,
+  getSampleItineraryById 
+} from '../../services/itineraryService';
+import PlaceDetailPanel from './Components/PlaceDetailPanel/PlaceDetailPanel';
 
 export interface RoutePoint {
   id: string;
@@ -80,9 +86,13 @@ const ItineraryDetail: React.FC = () => {
   const [previewPoint, setPreviewPoint] = useState<RoutePoint | null>(null);
   const [metrics, setMetrics] = useState<Record<string, { distance: string; duration: number }>>({});
   
+  const [activeDay, setActiveDay] = useState(1);
+  
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams();
   const planData = location.state?.planData;
+  const itineraryDataFromState = location.state?.itineraryData;
 
   // Calculate metrics between consecutive points for both Sidebar and Map
   useEffect(() => {
@@ -127,22 +137,62 @@ const ItineraryDetail: React.FC = () => {
     }
   }, [points]);
   
-  // Login Protection
+  // Login Protection (Bỏ qua nếu là xem lộ trình mẫu)
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
+    if (!token && !id) {
       toast.warning('Vui lòng đăng nhập để sử dụng tính năng này!');
       navigate('/auth');
     }
-  }, [navigate]);
+  }, [navigate, id]);
 
-  // Fetch AI Suggested Route or use Sample
+  // Fetch AI Suggested Route or Sample Itinerary
   useEffect(() => {
     const fetchData = async () => {
+      // 1. Trường hợp có id (Xem lộ trình mẫu)
+      if (id) {
+        setIsOptimizing(true);
+        try {
+          let sampleData = itineraryDataFromState;
+          if (!sampleData) {
+            const res = await getSampleItineraryById(id);
+            sampleData = res.data.DT || res.data.data;
+          }
+
+          if (sampleData && sampleData.itinerary) {
+            // Chuyển đổi cấu trúc lồng ngày sang RoutePoint phẳng
+            const flattenedPoints: RoutePoint[] = [];
+            sampleData.itinerary.forEach((dayPlan: any) => {
+              dayPlan.activities.forEach((act: any, idx: number) => {
+                flattenedPoints.push({
+                  id: `sample-${sampleData.id}-${dayPlan.day}-${idx}`,
+                  name: act.location,
+                  lat: act.lat || 11.94, // Real coordinate from data or fallback to central city
+                  lng: act.lng || 108.44,
+                  time: act.time,
+                  type: 'attraction',
+                  note: act.note,
+                  day: dayPlan.day,
+                  description: act.note,
+                  imageUrl: sampleData.img // Dùng ảnh bìa trip làm ảnh tạm cho activity
+                });
+              });
+            });
+            setPoints(flattenedPoints);
+          }
+          setIsOptimizing(false);
+        } catch (error) {
+          console.error("Lỗi lấy lộ trình mẫu:", error);
+          setPoints(INITIAL_POINTS);
+          setIsOptimizing(false);
+        }
+        return;
+      }
+
+      // 2. Trường hợp từ Planner (AI gợi ý)
       if (planData) {
         setIsOptimizing(true);
         try {
-          // Gửi dữ liệu Planner lên AI để lấy lộ trình
           const res = await getAISuggestedRoute(planData);
           if (res.data.status === 200 && res.data.data) {
             setPoints(res.data.data);
@@ -157,13 +207,12 @@ const ItineraryDetail: React.FC = () => {
           setIsOptimizing(false);
         }
       } else {
-        // Nếu vào trực tiếp không qua Planner, dùng dữ liệu mặc định
         setPoints(INITIAL_POINTS);
       }
     };
 
     fetchData();
-  }, [planData]);
+  }, [id, planData, itineraryDataFromState]);
 
   useEffect(() => {
     AOS.init({ duration: 1000 });
@@ -239,10 +288,12 @@ const ItineraryDetail: React.FC = () => {
           onOpenAddModal={() => setIsModalOpen(true)}
           planData={planData}
           metrics={metrics}
+          activeDay={activeDay}
+          setActiveDay={setActiveDay}
         />
         
         <ItineraryMap 
-          points={points} 
+          points={points.filter(p => (p.day || 1) === activeDay)} 
           activePointId={activePointId}
           onPointClick={(id) => setActivePointId(id)}
           isPreviewing={isPreviewing}
@@ -257,6 +308,12 @@ const ItineraryDetail: React.FC = () => {
             onPreviewSpot={(p) => setPreviewPoint(p as RoutePoint)}
           />
         )}
+
+        <PlaceDetailPanel 
+          pointId={activePointId} 
+          points={points} 
+          onClose={() => setActivePointId(null)} 
+        />
       </div>
     </div>
   );

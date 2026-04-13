@@ -2,7 +2,8 @@ import type { AxiosResponse } from "axios";
 import instance from "../utils/AxiosCustomize";
 
 export interface Destination {
-  title: string;
+  id: number | string;
+  name: string;
   location: string;
   heroImage: string;
   rating: string;
@@ -70,7 +71,8 @@ export interface BackendResponse<T = unknown> {
 
 const destinationsData: Record<string, Destination> = {
   "vinh-ha-long": {
-    title: "Vịnh Hạ Long",
+    id: "vinh-ha-long",
+    name: "Vịnh Hạ Long",
     location: "QUẢNG NINH, VIỆT NAM",
     heroImage: "https://images.unsplash.com/photo-1528127269322-539801943592?q=100&w=1920",
     rating: "4.8",
@@ -175,7 +177,6 @@ export const getDestinationDetail = async (id: string): Promise<AxiosResponse<Ba
       data: {
         status: 200,
         message: "Lấy dữ liệu destination mock thành công",
-        DT: fallbackData,
         data: fallbackData,
       },
       status: 200,

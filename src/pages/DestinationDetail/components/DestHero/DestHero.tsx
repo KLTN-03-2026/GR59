@@ -16,13 +16,13 @@ const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
 
   return (
     <div className={styles.destHero} data-aos="zoom-out">
-      <img src={data.heroImage} alt={data.title} className={styles.heroBgImg} />
+      <img src={data.heroImage} alt={data.name} className={styles.heroBgImg} />
       <div className={styles.heroOverlay} />
       <div className={styles.heroContent}>
         <div className={styles.locationTag}>
           <MapPin size={18} weight="fill" /> {data.location}
         </div>
-        <h1 className={styles.heroTitle}>{data.title}</h1>
+        <h1 className={styles.heroTitle}>{data.name}</h1>
         <div className={styles.heroMeta}>
           <div className={styles.heroRating}>
             <div className={styles.stars}>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
@@ -11,7 +12,13 @@ import FilterBar from "./components/FilterBar/FilterBar";
 import TravelCard from "./components/TravelCard/TravelCard";
 import AIRecommendations from "./components/AIRecommendations/AIRecommendations";
 
-import { getPlaces, type HighlightItem } from "../../services/highlightService";
+import { 
+  getAttractions, 
+  getHighlightRestaurants,
+  type HighlightItem 
+} from "../../services/highlightService";
+import { getHotels } from "../../services/hotelService";
+import { getRestaurants } from "../../services/restaurantService";
 import {
   getSavedTrips,
   addSavedTrip,
@@ -33,15 +40,55 @@ const Explore: React.FC = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [placesRes, savedTripsRes] = await Promise.all([
-          getPlaces(),
-          getSavedTrips(),
+        setError(null);
+
+        // Gọi đồng thời 3 API để tối ưu tốc độ
+        const [attractionsRes, hotelsRes, restaurantsRes] = await Promise.all([
+          getAttractions(0, 50),
+          getHotels(0, 50),
+          getRestaurants(0, 50)
         ]);
-        setPlaces(placesRes.data.DT || []);
-        setSavedTrips(savedTripsRes.data.DT || []);
-      } catch (err) {
-        console.error("Lỗi khi tải dữ liệu khám phá:", err);
-        setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+
+        let allItems: HighlightItem[] = [];
+
+        // 1. Xử lý Địa điểm (Atractions)
+        if (attractionsRes.data && attractionsRes.data.data && attractionsRes.data.data.content) {
+          allItems = [...allItems, ...attractionsRes.data.data.content];
+        }
+
+        // 2. Xử lý Khách sạn (Hotels)
+        if (hotelsRes.data && hotelsRes.data.data && hotelsRes.data.data.content) {
+          allItems = [...allItems, ...hotelsRes.data.data.content];
+        }
+
+        // 3. Xử lý Nhà hàng (Restaurants)
+        if (restaurantsRes.data && restaurantsRes.data.data && restaurantsRes.data.data.content) {
+          allItems = [...allItems, ...restaurantsRes.data.data.content];
+        }
+
+        // Sắp xếp theo Rating giảm dần để ưu tiên chỗ tốt lên đầu
+        allItems.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+
+        // Nếu không có dữ liệu thật nào trả về, mới báo lỗi hoặc dùng mock
+        if (allItems.length === 0) {
+          console.warn("Không có dữ liệu thực tế từ các API.");
+        }
+
+        setPlaces(allItems);
+
+        // 4. Lấy danh sách đã lưu
+        try {
+          const savedTripsRes = await getSavedTrips();
+          if (savedTripsRes.data && savedTripsRes.data.data) {
+            setSavedTrips(savedTripsRes.data.data);
+          }
+        } catch (err) {
+          console.warn("Lỗi API saved-trips:", err);
+        }
+
+      } catch (err: any) {
+        console.error("Lỗi tổng quát khi tải dữ liệu khám phá:", err);
+        setError("Không thể tải dữ liệu từ Backend. Vui lòng kiểm tra kết nối.");
       } finally {
         setIsLoading(false);
       }
@@ -69,9 +116,9 @@ const Explore: React.FC = () => {
   const filteredData = (places || []).filter((item) => {
     const matchesCategory =
       activeCategory === "all"
-        ? item.type !== "itinerary"
+        ? true
         : item.type === activeCategory;
-    const matchesSearch = item.title
+    const matchesSearch = item.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -106,8 +153,8 @@ const Explore: React.FC = () => {
     } else {
       const newTrip: SavedTrip = {
         id: location.id,
-        title: location.title,
-        image: location.img,
+        title: location.name,
+        image: location.image,
         timeAgo: "Vừa xong",
       };
       // Optimistically add
@@ -163,17 +210,21 @@ const Explore: React.FC = () => {
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
               >
-                <TravelCard
-                  image={location.img}
-                  title={location.title}
-                  rating={Number(location.rating)}
-                  distance="800km" // Giả định khoảng cách
-                  description={location.desc}
-                  isHot={location.isHot}
-                  previewVideo={location.previewVideo || VideoHome}
-                  isLiked={savedTrips.some((t) => t.id == location.id)}
-                  onToggleLike={() => handleToggleLike(location)}
-                />
+                <Link 
+                  to={location.type === 'bed' ? `/hotel/${location.id}` : `/destination/${location.slug}`}
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                >
+                  <TravelCard
+                    image={location.image}
+                    title={location.name}
+                    rating={Number(location.rating)}
+                    description={location.desc}
+                    isHot={location.isHot}
+                    previewVideo={location.previewVideo || VideoHome}
+                    isLiked={savedTrips.some((t) => t.id == location.id)}
+                    onToggleLike={() => handleToggleLike(location)}
+                  />
+                </Link>
               </div>
             ))
           ) : (

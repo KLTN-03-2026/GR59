@@ -1,5 +1,6 @@
 import type { AxiosResponse } from "axios";
 import instance from "../utils/AxiosCustomize";
+import type { BackendResponse } from "../types/backend";
 
 export interface ReviewItem {
   id: number;
@@ -20,8 +21,7 @@ export interface ReviewPayload {
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
-  data?: T;
-  DT?: T;
+  data: T;
 }
 
 const MOCK_REVIEWS: ReviewItem[] = [
@@ -64,7 +64,6 @@ export const getReviews = async (): Promise<AxiosResponse<BackendResponse<Review
       data: {
         status: 200,
         message: "Lấy dữ liệu review mock thành công",
-        DT: MOCK_REVIEWS,
         data: MOCK_REVIEWS,
       },
       status: 200,
@@ -85,7 +84,6 @@ export const postReview = async (payload: ReviewPayload): Promise<AxiosResponse<
       data: {
         status: 201,
         message: "Đã giả lập gửi đánh giá thành công",
-        DT: { success: true },
         data: { success: true },
       },
       status: 201,

@@ -52,11 +52,11 @@ const Sidebar: React.FC<{ data: Destination }> = ({ data }) => {
           </div>
           <p>
             AI sẽ giúp bạn tạo lịch trình chi tiết cho chuyến đi tại
-            <strong> {data.title} </strong> chỉ trong vài giây.
+            <strong> {data.name} </strong> chỉ trong vài giây.
           </p>
           <button
             className={styles.btnAddTrip}
-            onClick={() => alert(`Đã thêm ${data.title} vào lịch trình!`)}
+            onClick={() => alert(`Đã thêm ${data.name} vào lịch trình!`)}
           >
             <PlusCircle size={20} weight="bold" /> Thêm vào lịch trình
           </button>

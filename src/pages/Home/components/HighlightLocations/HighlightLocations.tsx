@@ -12,25 +12,29 @@ import {
 import styles from "./HighlightLocations.module.scss";
 import {
   getHighlightLocations,
-  getHighlightHotels,
   getHighlightRestaurants,
   type HighlightItem,
 } from "../../../../services/highlightService";
+import { getHotels } from "../../../../services/hotelService";
 
 // Thêm Interface cho Props
 interface HighlightLocationsProps {
   titlePrimary: string; // Ví dụ: "Gợi ý"
   titleHighlight: string; // Ví dụ: "nổi bật"
   description?: string; // Mô tả nhỏ bên dưới tiêu đề
+  locationFilter?: string; // Tên khu vực/tỉnh thành để lọc lân cận
+  currentId?: string | number; // ID của địa điểm đang xem để loại bỏ khỏi danh sách gợi ý
 }
 const HighlightLocations: React.FC<HighlightLocationsProps> = ({
   titlePrimary,
   titleHighlight,
   description,
+  locationFilter,
+  currentId
 }) => {
   const [activeTab, setActiveTab] = useState<
-    "locations" | "hotels" | "restaurants"
-  >("locations");
+    "all" | "locations" | "hotels" | "restaurants"
+  >("all");
   const [items, setItems] = useState<HighlightItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -40,18 +44,54 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
     const fetchData = async () => {
       setLoading(true);
       try {
-        let res;
-        if (activeTab === "locations") {
-          res = await getHighlightLocations();
+        let filteredItems: HighlightItem[] = [];
+        if (activeTab === "all") {
+          // Fetch tất cả dữ liệu đồng thời
+          const [locationsRes, hotelsRes, restaurantsRes] = await Promise.all([
+            getHighlightLocations(),
+            getHotels(0, 50),
+            getHighlightRestaurants()
+          ]);
+
+          if (locationsRes.data?.data) filteredItems = [...filteredItems, ...locationsRes.data.data];
+          if (hotelsRes.data?.data?.content) filteredItems = [...filteredItems, ...hotelsRes.data.data.content];
+          if (restaurantsRes.data?.data) filteredItems = [...filteredItems, ...restaurantsRes.data.data];
+        } else if (activeTab === "locations") {
+          const res = await getHighlightLocations();
+          if (res && res.data && res.data.data) {
+            filteredItems = res.data.data;
+          }
         } else if (activeTab === "hotels") {
-          res = await getHighlightHotels();
+          const res = await getHotels();
+          if (res && res.data && res.data.data && res.data.data.content) {
+            filteredItems = res.data.data.content;
+          }
         } else {
-          res = await getHighlightRestaurants();
+          const res = await getHighlightRestaurants();
+          if (res && res.data && res.data.data) {
+            filteredItems = res.data.data;
+          }
         }
 
-        if (res && res.data && (res.data.status === 200 || res.data.status === 201)) {
-          setItems(res.data.data || res.data.DT || []);
+        // Lọc theo rating (chỉ lấy từ 4.5 sao trở lên)
+        filteredItems = filteredItems.filter(item => Number(item.rating) >= 4.5);
+
+        // Sắp xếp theo rating giảm dần
+        filteredItems.sort((a, b) => Number(b.rating) - Number(a.rating));
+
+        // Thực hiện lọc "Lân cận" nếu có locationFilter
+        if (locationFilter) {
+          filteredItems = filteredItems.filter(item => 
+            item.location?.toLowerCase().includes(locationFilter.toLowerCase())
+          );
         }
+
+        // Loại bỏ chính địa điểm đang xem
+        if (currentId) {
+          filteredItems = filteredItems.filter(item => item.id.toString() !== currentId.toString());
+        }
+
+        setItems(filteredItems);
       } catch (error) {
         console.error("Error fetching highlight data:", error);
       } finally {
@@ -98,17 +138,19 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
 
           <div className={styles.controls}>
             <div className={styles.sliderTabs}>
-              {(["locations", "hotels", "restaurants"] as const).map((tab) => (
+              {(["all", "locations", "hotels", "restaurants"] as const).map((tab) => (
                 <button
                   key={tab}
                   className={`${styles.sliderTab} ${activeTab === tab ? styles.active : ""}`}
                   onClick={() => setActiveTab(tab)}
                 >
-                  {tab === "locations"
-                    ? "Địa điểm"
-                    : tab === "hotels"
-                      ? "Khách sạn"
-                      : "Quán ăn"}
+                  {tab === "all"
+                    ? "Tất cả"
+                    : tab === "locations"
+                      ? "Địa điểm"
+                      : tab === "hotels"
+                        ? "Khách sạn"
+                        : "Quán ăn"}
                 </button>
               ))}
             </div>
@@ -163,13 +205,13 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                   data-aos-delay={idx * 100}
                 >
                   <div className={styles.locationImage}>
-                    <img src={item.img} alt={item.title} />
+                    <img src={item.image} alt={item.name} />
                     <span className={styles.locationBadge}>
                       {renderIcon(item.type)} {item.location}
                     </span>
                   </div>
                   <div className={styles.locationContent}>
-                    <h3>{item.title}</h3>
+                    <h3>{item.name}</h3>
                     <div className={styles.locationRating}>
                       <div className={styles.stars}>
                         {[...Array(5)].map((_, i) => (
@@ -189,7 +231,10 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                       </span>
                     </div>
                     <p>{item.desc}</p>
-                    <Link to={`/destination/${item.slug}`} className={styles.moreLink}>
+                    <Link 
+                      to={item.type === 'bed' ? `/hotel/${item.id}` : `/destination/${item.slug}`} 
+                      className={styles.moreLink}
+                    >
                       Xem chi tiết <ArrowRight weight="bold" />
                     </Link>
                   </div>
@@ -213,11 +258,13 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
             ) : (
               <>
                 Xem Tất Cả{" "}
-                {activeTab === "locations"
-                  ? "Địa Điểm"
-                  : activeTab === "hotels"
-                    ? "Khách Sạn"
-                    : "Quán Ăn"}
+                {activeTab === "all" 
+                  ? "Tất Cả Gợi Ý"
+                  : activeTab === "locations"
+                    ? "Địa Điểm"
+                    : activeTab === "hotels"
+                      ? "Khách Sạn"
+                      : "Quán Ăn"}
               </>
             )}
             <ArrowRight

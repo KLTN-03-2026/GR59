@@ -6,7 +6,7 @@ interface Props {
   image: string;
   title: string;
   rating: number;
-  distance: string;
+  distance?: string;
   description: string;
   isHot?: boolean;
   previewVideo?: string;
@@ -123,9 +123,11 @@ const TravelCard: React.FC<Props> = ({
             <Star size={14} weight="fill" className={styles.starIcon} />{" "}
             {rating}
           </span>
-          <span className={styles.distanceTag}>
-            <MapPin size={16} weight="bold" /> {distance}
-          </span>
+          {distance && (
+            <span className={styles.distanceTag}>
+              <MapPin size={16} weight="bold" /> {distance}
+            </span>
+          )}
         </div>
 
         <h3 className={styles.title}>{title}</h3>

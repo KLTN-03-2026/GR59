@@ -1,12 +1,19 @@
-export interface TimelineStep {
+export interface ItineraryActivity {
   time: string;
-  activity: string;
-  dist: string;
+  location: string;
+  note: string;
+}
+
+export interface DayItinerary {
+  day: number;
+  date: string;
+  theme: string;
+  activities: ItineraryActivity[];
 }
 
 export interface ItineraryType {
   id: string | number;
-  title: string;
+  trip_name: string;
   img: string;
   price: number;
   maxPeople: number;
@@ -15,7 +22,7 @@ export interface ItineraryType {
   rating: number;
   category: string;
   type?: string;
-  steps: TimelineStep[];
+  itinerary: DayItinerary[];
 }
 
 export interface FilterState {

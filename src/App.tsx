@@ -16,6 +16,7 @@ import Profile from "./pages/Profile/Profile";
 import Admin from "./pages/Admin/AdminDashboard";
 import ForgotPassword from "./pages/Auth/ForgotPassword/ForgotPassword";
 import ItineraryDetail from "./pages/ItineraryDetail/ItineraryDetail";
+import AIChatBox from "./components/Ui/AIChatBox/AIChatBox";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/review" element={<Review />} />
             <Route path="/destination/:slug" element={<DestinationDetail />} />
+            <Route path="/hotel/:id" element={<DestinationDetail />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/sample" element={<SampleItinerary />} />
             <Route path="/news" element={<News />} />
@@ -41,7 +43,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/itinerary-detail" element={<ItineraryDetail />} />
+          <Route path="/itinerary-detail/:id?" element={<ItineraryDetail />} />
         </Routes>
       </BrowserRouter>
 
@@ -59,6 +61,7 @@ function App() {
         theme="light"
         transition={Bounce}
       />
+      <AIChatBox />
     </>
   );
 }

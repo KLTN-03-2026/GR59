@@ -35,7 +35,8 @@ const AIRecommendations: React.FC = () => {
           <div key={item.id} className={styles.miniCard}>
             <img src={item.image} alt="Suggest" />
             <div className={styles.miniInfo}>
-              <h4>{item.title}</h4>
+              <h4>{item.name}</h4>
+              <span>{item.matchPercentage}% tương thích</span>
             </div>
           </div>
         ))}
