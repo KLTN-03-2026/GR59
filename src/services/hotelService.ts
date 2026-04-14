@@ -7,15 +7,55 @@ import { type HighlightItem } from "./highlightService";
 export interface BackendHotel {
   id: number;
   name: string;
+  description: string | null;
   location: string | null;
   rating: number;
-  reviews: string | number | null;
-  image: string | null;
-  type: string;
-  status: string;
+  reviewCount: number | null; // Đổi từ reviews
+  imageUrl: string | null; // Đổi từ image
+  gallery?: string[] | null;
+  previewVideo?: string | null;
+  category: string | null; // Đổi từ type
+  status: string | null;
+  averagePrice: number | null;
+  estimatedDuration: number | null;
   provinceId: number;
-  description?: string; // Đôi khi có trong một số API
 }
+
+/**
+ * Danh sách mẹo du lịch cố định để đảm bảo nội dung luôn đầy đủ
+ */
+export const DEFAULT_TRAVEL_TIPS = [
+  { 
+    icon: "MapPin", 
+    title: "Vị trí & Di chuyển", 
+    content: "Nên sử dụng các ứng dụng đặt xe như Grab để có giá minh bạch. Giờ cao điểm thường từ 17:00 - 19:00, hãy sắp xếp lịch trình sớm hơn để tránh kẹt xe." 
+  },
+  { 
+    icon: "Wallet", 
+    title: "Giá và Thanh toán", 
+    content: "Phần lớn các cửa hàng và khách sạn đều chấp nhận chuyển khoản hoặc thẻ. Tuy nhiên, hãy mang theo một ít tiền mặt khi đi mua sắm tại các chợ truyền thống hoặc quán ăn nhỏ." 
+  },
+  { 
+    icon: "ShieldCheck", 
+    title: "An toàn & Quy định", 
+    content: "Luôn bảo quản tư trang cẩn thận ở nơi đông người. Hãy mặc trang phục kín đáo, lịch sự khi tham quan các khu vực đền chùa hoặc di tích lịch sử tâm linh." 
+  },
+  { 
+    icon: "Sun", 
+    title: "Thời tiết & Tiện ích", 
+    content: "Kiểm tra dự báo thời tiết trước khi khởi hành. Đừng quên mang theo ô/dù, kem chống nắng và sạc dự phòng để đảm bảo trải nghiệm không bị gián đoạn." 
+  },
+  { 
+    icon: "Coffee", 
+    title: "Ẩm thực bản địa", 
+    content: "Hãy thử các món ăn đặc sản tại những quán có đông người bản địa lui tới. Lưu ý sử dụng nước đóng chai thay vì nước máy trực tiếp để bảo vệ sức khỏe." 
+  },
+  { 
+    icon: "Camera", 
+    title: "Chụp ảnh & Kỷ niệm", 
+    content: "Thời điểm 'giờ vàng' để có những bức ảnh đẹp nhất là lúc bình minh (5:30) hoặc hoàng hôn (17:30). Hãy tôn trọng không gian riêng của người dân địa phương khi chụp ảnh." 
+  }
+];
 
 export interface PaginatedData<T> {
   content: T[];
@@ -32,115 +72,126 @@ export interface PaginatedData<T> {
  * Mapper chuyển đổi dữ liệu từ BackendHotel sang định dạng Destination đầy đủ (dùng cho DestinationDetail)
  * Các trường thiếu sẽ được điền giá trị mặc định "Đang cập nhật"
  */
-export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destination => ({
-  id: hotel.id,
-  title: hotel.name,
-  location: hotel.location || "BE đang thiếu location",
-  heroImage: hotel.image || "https://placehold.co/1920x1080?text=BE+dang+thieu+Hero+Image",
-  rating: (hotel.rating || 0).toString(),
-  reviews: hotel.reviews?.toString() || "0 (BE đang thiếu reviews)",
-  distance: (hotel as any).distance || "BE đang thiếu distance",
-  price: (hotel as any).price || (hotel as any).price_range || "BE đang thiếu price",
-  time: (hotel as any).time || (hotel as any).check_in_time || "BE đang thiếu time (open hours)",
-  category: hotel.type || "BE đang thiếu type",
-  description: hotel.description || `BE đang thiếu trường description cho khách sạn ${hotel.name || hotel.id}.`,
-  gallery: [
-    hotel.image || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800",
-    "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800", // Sample interior 1
-    "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=800"
-  ],
-  services: [
-    {
-      id: 1,
-      type: "Khách sạn",
-      name: hotel.name,
-      location: hotel.location || "Việt Nam",
-      price: "Liên hệ",
-      unit: "đêm",
-      rating: hotel.rating,
-      image: hotel.image || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=400",
-      buttonText: "Đặt phòng",
-    }
-  ],
-  reviewsData: {
-    average: hotel.rating,
-    total: parseInt(hotel.reviews?.toString() || "0"),
-    breakdown: [
-      { stars: 5, percentage: 80 },
-      { stars: 4, percentage: 15 },
-      { stars: 3, percentage: 5 },
-      { stars: 2, percentage: 0 },
-      { stars: 1, percentage: 0 },
-    ],
-    list: [
+export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destination => {
+  if (!hotel) {
+    return {
+      id: "error",
+      name: "BE trả về dữ liệu null/undefined",
+      location: "BE đang thiếu location",
+      heroImage: "https://placehold.co/1920x1080?text=Dữ+liệu+trống",
+      rating: "0",
+      reviews: "0",
+      distance: "N/A",
+      price: "N/A",
+      time: "N/A",
+      category: "N/A",
+      description: "Không có mô tả từ Backend.",
+      gallery: [],
+      services: [],
+      reviewsData: { average: 0, total: 0, breakdown: [], list: [] },
+      travelTips: [],
+      weatherCurrent: { temp: 0, description: "N/A", icon: "Cloud" },
+      travelTimeFromHanoi: "N/A",
+      coordinates: { lat: 0, lng: 0 },
+      mapScreenshot: "",
+      quickInfo: []
+    };
+  }
+
+  return {
+    id: hotel.id.toString(),
+    name: hotel.name || "BE đang thiếu name",
+    location: hotel.location || "BE đang thiếu location",
+    heroImage: hotel.imageUrl || "https://placehold.co/1920x1080?text=BE+dang+thieu+heroImage",
+    rating: (hotel.rating || 0).toString(),
+    reviews: hotel.reviewCount?.toString() || "0",
+    distance: "Chưa xác định",
+    price: hotel.averagePrice ? `${hotel.averagePrice.toLocaleString()}đ` : "BE đang thiếu averagePrice",
+    time: hotel.estimatedDuration ? `${hotel.estimatedDuration} phút` : "Đang cập nhật",
+    category: hotel.category || "Khách sạn",
+    description: hotel.description || `BE đang thiếu trường description cho khách sạn ${hotel.name || hotel.id}.`,
+    gallery: hotel.gallery && hotel.gallery.length > 0 
+      ? hotel.gallery 
+      : [
+          hotel.imageUrl || "https://placehold.co/800x600?text=BE+dang+thieu+imageUrl",
+          "https://placehold.co/800x600?text=BE+dang+thieu+gallery+2",
+          "https://placehold.co/800x600?text=BE+dang+thieu+gallery+3"
+        ],
+    services: (hotel as any).services || [
       {
-        user: "Người dùng TravelAi",
-        avatar: "https://i.pravatar.cc/150",
-        rating: 5,
-        date: "Vừa xong",
-        tag: "Khách du lịch",
-        content: "Khách sạn tuyệt vời, tôi sẽ quay lại!",
+        id: 1,
+        type: "Khách sạn",
+        name: hotel.name,
+        location: hotel.location || "BE đang thiếu address",
+        price: hotel.averagePrice ? `${hotel.averagePrice.toLocaleString()}đ` : "Liên hệ",
+        unit: "đêm",
+        rating: hotel.rating,
+        image: hotel.imageUrl || "https://placehold.co/400x300?text=BE+dang+thieu+service+image",
+        buttonText: "Xem chi tiết",
       }
     ],
-  },
-  travelTips: [
-    { 
-      icon: "MapPin", 
-      title: "Di chuyển", 
-      content: "Khu vực này có mật độ taxi và xe công nghệ cao. Nếu muốn tự khám phá, bạn có thể thuê xe máy tại quầy lễ tân với giá khoảng 150.000đ/ngày." 
+    reviewsData: (hotel as any).reviewsData || {
+      average: hotel.rating,
+      total: (hotel.reviewCount || 0),
+      breakdown: [
+        { stars: 5, percentage: 0 },
+        { stars: 4, percentage: 0 },
+        { stars: 3, percentage: 0 },
+        { stars: 2, percentage: 0 },
+        { stars: 1, percentage: 0 },
+      ],
+      list: [
+        {
+          user: "TravelAi User",
+          avatar: "https://i.pravatar.cc/150?u=missing",
+          rating: 5,
+          date: "Vừa xong",
+          tag: "Khách hàng",
+          content: "BE đang thiếu dữ liệu đánh giá chi tiết (reviews list).",
+        }
+      ],
     },
-    { 
-      icon: "Wallet", 
-      title: "Thanh toán", 
-      content: "Khách sạn chấp nhận các loại thẻ quốc tế (Visa, Mastercard). Tuy nhiên, bạn nên mang theo một ít tiền mặt khi tham quan các khu chợ địa phương xung quanh." 
+    travelTips: DEFAULT_TRAVEL_TIPS,
+
+    weatherCurrent: (hotel as any).weatherCurrent || {
+      temp: 0,
+      description: "BE đang thiếu weather data",
+      icon: "Cloud"
     },
-    { 
-      icon: "Sun", 
-      title: "Thời tiết", 
-      content: "Nên mang theo kem chống nắng và ô/dù nếu tham quan vào buổi chiều. Thời điểm đẹp nhất để khám phá khu vực này là từ tháng 3 đến tháng 9." 
+    travelTimeFromHanoi: (hotel as any).travelTimeFromHanoi || "BE đang thiếu travelTime",
+    coordinates: (hotel as any).coordinates || {
+      lat: 0,
+      lng: 0
     },
-    { 
-      icon: "ShieldCheck", 
-      title: "An ninh", 
-      content: "Khu vực này rất an toàn cho khách du lịch. Tuy nhiên, hãy luôn bảo quản tài sản cá nhân cẩn thận khi ghé thăm những nơi đông người." 
-    }
-  ],
-  weatherCurrent: {
-    temp: 28,
-    description: "Nắng nhẹ",
-    icon: "Sun"
-  },
-  travelTimeFromHanoi: "Đang tính toán...",
-  coordinates: {
-    lat: 16.0471, // Tọa độ giả định nếu thiếu
-    lng: 108.2062
-  },
-  mapScreenshot: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=600",
-  quickInfo: [
-    { id: 1, label: "Tình trạng", value: hotel.status || "BE đang thiếu status" },
-    { id: 2, label: "Loại phòng", value: hotel.type || "BE đang thiếu type" },
-    { id: 3, label: "Dịch vụ", value: (hotel as any).services ? "Có dịch vụ" : "BE đang thiếu service list" },
-  ],
-});
+    mapScreenshot: (hotel as any).mapScreenshot || "https://placehold.co/600x400?text=BE+dang+thieu+mapScreenshot",
+    quickInfo: [
+      { id: 1, label: "Tình trạng", value: hotel.status || "BE đang thiếu status" },
+      { id: 2, label: "Hạng sao", value: hotel.rating ? `${hotel.rating} sao` : "BE đang thiếu rating" },
+      { id: 3, label: "Tỉnh thành", value: hotel.provinceId ? `Province ID: ${hotel.provinceId}` : "BE đang thiếu provinceId" },
+    ],
+  };
+};
 
 /**
  * Lấy danh sách khách sạn từ API thật và thực hiện mapping sang HighlightItem
  */
 export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
   const response = await instance.get<BackendResponse<PaginatedData<BackendHotel>>>(`/hotels?page=${page}&size=${size}`);
-  
+  const data = response.data.data || (response.data as any).DT;
+
   // Thực hiện mapping dữ liệu ngay tại service để FE dễ sử dụng
-  const mappedContent: HighlightItem[] = (response.data.data.content || []).map(hotel => ({
+  const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
     id: hotel.id.toString(),
-    slug: `hotel-${hotel.id}`, // Tạo slug giả định từ ID
     name: hotel.name || "BE đang thiếu name",
     location: hotel.location || "BE đang thiếu location",
     rating: hotel.rating || 0,
-    reviews: hotel.reviews?.toString() || "0 (BE đang thiếu reviews)",
-    image: hotel.image || "https://placehold.co/600x400?text=BE+dang+thieu+anh",
+    reviews: hotel.reviewCount?.toString() || "0",
+    image: hotel.imageUrl || "https://placehold.co/600x400?text=BE+dang+thieu+anh",
     desc: hotel.description || `BE đang thiếu trường description cho khách sạn ${hotel.name || hotel.id}`,
     type: "bed", // Fix loại là khách sạn
-    category: hotel.type?.toLowerCase() || "khách sạn",
+    category: hotel.category?.toLowerCase() || "khách sạn",
+    price: hotel.averagePrice || 0,
+    provinceId: hotel.provinceId || 0
   }));
 
   return {
@@ -160,9 +211,10 @@ export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<Back
  */
 export const getHotelDetail = async (id: string | number): Promise<AxiosResponse<BackendResponse<Destination>>> => {
   const response = await instance.get<BackendResponse<BackendHotel>>(`/hotels/${id}`);
+  const hotelData = response.data.data || (response.data as any).DT;
   
   // Chuyển đổi dữ liệu đơn giản từ BE thành dữ liệu phức tạp cho UI DestinationDetail
-  const fullData = mapBackendHotelToFullDestination(response.data.data);
+  const fullData = mapBackendHotelToFullDestination(hotelData);
   
   return {
     ...response,

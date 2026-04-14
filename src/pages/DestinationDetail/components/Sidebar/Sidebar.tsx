@@ -29,16 +29,15 @@ const Sidebar: React.FC<{ data: Destination }> = ({ data }) => {
             <ul className={styles.widgetList}>
               <li>
                 <Cloud weight="fill" color="#33d7d1" />
-                <span>28°C, Trời nắng đẹp</span>
+                <span>{data.weatherCurrent.temp}°C, {data.weatherCurrent.description}</span>
               </li>
               <li>
                 <Car weight="fill" color="#33d7d1" />
-                {/* Dùng data.distance nếu có, hoặc để mặc định */}
-                <span>{data.distance} di chuyển</span>
+                <span>{data.distance}</span>
               </li>
               <li>
                 <Compass weight="fill" color="#33d7d1" />
-                <span>Tọa độ: 20.91° N</span>
+                <span>Tọa độ: {data.coordinates.lat}° N, {data.coordinates.lng}° E</span>
               </li>
             </ul>
           </div>

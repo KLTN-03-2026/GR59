@@ -160,17 +160,29 @@
     }
 
     .locationCard {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .cardWrapperLink {
       flex: none;
       width: 100%;
       min-width: 0;
+      text-decoration: none;
     }
   }
 }
 
-.locationCard {
+.cardWrapperLink {
   flex: 0 0 calc(33.333% - 20px);
-  text-align: left;
   min-width: 250px;
+  text-decoration: none;
+  display: block; // Đảm bảo chiếm đúng không gian
+}
+
+.locationCard {
+  width: 100%;
+  text-align: left;
   background: white;
   border-radius: 26px;
   overflow: hidden;

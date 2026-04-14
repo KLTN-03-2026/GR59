@@ -1,5 +1,6 @@
 import type { AxiosResponse } from "axios";
 import instance from "../utils/AxiosCustomize";
+import { DEFAULT_TRAVEL_TIPS } from "./hotelService";
 
 export interface Destination {
   id: number | string;
@@ -69,120 +70,124 @@ export interface BackendResponse<T = unknown> {
   DT?: T;
 }
 
-const destinationsData: Record<string, Destination> = {
-  "vinh-ha-long": {
-    id: "vinh-ha-long",
-    name: "Vịnh Hạ Long",
-    location: "QUẢNG NINH, VIỆT NAM",
-    heroImage: "https://images.unsplash.com/photo-1528127269322-539801943592?q=100&w=1920",
-    rating: "4.8",
-    reviews: "2.3k",
-    distance: "165 km",
-    price: "1.5tr - 5tr VNĐ",
-    time: "2-3 ngày",
-    category: "Di sản thiên nhiên thế giới",
-    description: "Hội An nổi tiếng với vẻ đẹp lãng mạn, cổ kính, yên bình với những ngôi nhà cổ, phố đèn lồng và dòng sông Hoài thơ mộng. Đây là điểm đến không thể bỏ qua cho những ai yêu thích văn hóa và lịch sử Việt Nam.\n\nNơi đây không chỉ có cảnh quan sơn thủy hữu tình mà còn chứa đựng những giá trị văn hóa, lịch sử lâu đời. Du khách có thể tham gia các hoạt động như chèo thuyền kayak, tham quan hang động (Hang Sửng Sốt, Động Thiên Cung), hay đơn giản là ngắm hoàng hôn trên boong tàu.",
-    gallery: [
-      "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
-      "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=800",
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800",
-      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800",
-    ],
+export interface BackendAttraction {
+  id: number;
+  name: string;
+  description: string | null;
+  location: string | null; // Thêm trường location cho đồng bộ
+  rating: number;
+  reviewCount: number | null;
+  category: string | null;
+  status: string | null;
+  averagePrice: number | null;
+  estimatedDuration: number | null;
+  imageUrl: string | null;
+  previewVideo: string | null;
+  provinceId: number;
+  gallery?: string[];
+}
+
+/**
+ * Mapper chuyển đổi dữ liệu từ BackendAttraction sang định dạng Destination hiển thị
+ */
+export const mapBackendAttractionToFullDestination = (att: BackendAttraction): Destination => {
+  if (!att) {
+    return {
+      id: "error",
+      name: "Dữ liệu địa điểm trống",
+      location: "Đang cập nhật",
+      heroImage: "https://placehold.co/1920x1080?text=Dữ+liệu+trống",
+      rating: "0",
+      reviews: "0",
+      distance: "N/A",
+      price: "N/A",
+      time: "N/A",
+      category: "N/A",
+      description: "Không có mô tả.",
+      gallery: [],
+      services: [],
+      reviewsData: { average: 0, total: 0, breakdown: [], list: [] },
+      travelTips: DEFAULT_TRAVEL_TIPS,
+      weatherCurrent: { temp: 28, description: "Nắng nhẹ", icon: "CloudSun" },
+      travelTimeFromHanoi: "N/A",
+      coordinates: { lat: 0, lng: 0 },
+      mapScreenshot: "",
+      quickInfo: []
+    };
+  }
+
+  return {
+    id: att.id,
+    name: att.name || "BE đang thiếu name",
+    location: att.provinceId === 1 ? "Thành phố Huế" : att.provinceId === 2 ? "Đà Nẵng" : `Khu vực ${att.provinceId} (BE đang thiếu tên thành phố)`,
+    heroImage: att.imageUrl || "https://placehold.co/1920x1080?text=BE+dang+thieu+heroImage",
+    rating: (att.rating || 0).toString(),
+    reviews: att.reviewCount?.toString() || "0",
+    distance: "Chưa xác định",
+    price: att.averagePrice ? `${att.averagePrice.toLocaleString()}đ` : "Miễn phí",
+    time: att.estimatedDuration ? `${att.estimatedDuration} phút` : "Đang cập nhật",
+    category: att.category || "Địa điểm tham quan",
+    description: att.description || `BE đang thiếu mô tả cho địa điểm ${att.name}.`,
+    gallery: att.gallery && att.gallery.length > 0 
+      ? att.gallery 
+      : [
+          att.imageUrl || "https://placehold.co/800x600?text=BE+dang+thieu+imageUrl",
+          "https://placehold.co/800x600?text=BE+dang+thieu+gallery+2",
+          "https://placehold.co/800x600?text=BE+dang+thieu+gallery+3",
+        ],
+    services: [], // Sẽ được FE tự động lọc trong DestinationDetail
+    reviewsData: {
+      average: att.rating,
+      total: att.reviewCount || 0,
+      breakdown: [
+        { stars: 5, percentage: 80 },
+        { stars: 4, percentage: 15 },
+        { stars: 3, percentage: 5 },
+        { stars: 2, percentage: 0 },
+        { stars: 1, percentage: 0 },
+      ],
+      list: [
+        {
+          user: "TravelAi User",
+          avatar: "https://i.pravatar.cc/150?u=attraction",
+          rating: 5,
+          date: "Vừa xong",
+          tag: "Khách tham quan",
+          content: "BE đang thiếu dữ liệu đánh giá chi tiết cho địa điểm tham quan.",
+        }
+      ],
+    },
+    travelTips: DEFAULT_TRAVEL_TIPS,
     weatherCurrent: {
       temp: 28,
       description: "Trời nắng đẹp",
       icon: "CloudSun"
     },
-    travelTimeFromHanoi: "2h 30m",
-    coordinates: { lat: 20.9101, lng: 107.1839 },
-    mapScreenshot: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=600",
+    travelTimeFromHanoi: "Đang cập nhật",
+    coordinates: { lat: 0, lng: 0 },
+    mapScreenshot: "",
     quickInfo: [
-      { id: 1, label: "Giờ mở cửa", value: "24/7" },
-      { id: 2, label: "Phí vào cửa", value: "40.000đ/người" },
-      { id: 3, label: "Di chuyển", value: "Xe bus, tàu thủy" },
-      { id: 4, label: "Ngôn ngữ", value: "Tiếng Việt, Tiếng Anh" },
+      { id: 1, label: "Trạng thái", value: att.status === 'ACTIVE' ? 'Đang hoạt động' : 'Tạm đóng cửa' },
+      { id: 2, label: "Thời lượng", value: att.estimatedDuration ? `${att.estimatedDuration} phút` : "Chưa cập nhật" },
+      { id: 3, label: "Giá tham khảo", value: att.averagePrice ? `${att.averagePrice.toLocaleString()}đ` : "Miễn phí" },
     ],
-    services: [
-      {
-        id: 1,
-        type: "Khách sạn",
-        name: "Vinpearl Resort & Spa",
-        location: "Đảo Rều, Phường Bãi Cháy, Hạ Long",
-        price: "2.500.000đ",
-        unit: "đêm",
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=400",
-        buttonText: "Đặt ngay",
-      },
-      {
-        id: 2,
-        type: "Nhà hàng",
-        name: "Nhà hàng Hồng Hạnh 3",
-        location: "Đường bao biển Cột 5, Hạ Long",
-        price: "500.000đ",
-        unit: "người",
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=400",
-        buttonText: "Xem thực đơn",
-      },
-      {
-        id: 3,
-        type: "Tour",
-        name: "Tour Du Thuyền 2 Ngày",
-        location: "Bến tàu Tuần Châu, Hạ Long",
-        price: "3.200.000đ",
-        unit: "khách",
-        rating: 4.8,
-        image: "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=400",
-        buttonText: "Khám phá",
-      },
-    ],
-    reviewsData: {
-      average: 4.8,
-      total: 2341,
-      breakdown: [
-        { stars: 5, percentage: 75 },
-        { stars: 4, percentage: 20 },
-        { stars: 3, percentage: 4 },
-        { stars: 2, percentage: 1 },
-        { stars: 1, percentage: 0 },
-      ],
-      list: [
-        {
-          user: "Nguyễn Thu Hà",
-          avatar: "https://i.pravatar.cc/150?u=ha",
-          rating: 5,
-          date: "2 ngày trước",
-          tag: "Du lịch cùng gia đình",
-          content: "Chuyến đi tuyệt vời! Cảnh đẹp mê hồn, đặc biệt là lúc hoàng hôn. Dịch vụ du thuyền 5 sao rất đáng tiền.",
-          images: ["https://images.unsplash.com/photo-1528127269322-539801943592?w=100"],
-        },
-      ],
-    },
-    travelTips: [
-      { icon: "Camera", title: "Máy ảnh & Ống kính", content: "Mang theo máy ảnh chuyên nghiệp hoặc điện thoại tốt." },
-      { icon: "Sun", title: "Kem chống nắng", content: "Dù là mùa nào, hãy luôn thoa kem chống nắng khi ra ngoài." },
-    ],
-  },
+  };
 };
 
-export const getDestinationDetail = async (id: string): Promise<AxiosResponse<BackendResponse<Destination>>> => {
-  try {
-    const response = await instance.get<BackendResponse<Destination>>(`/places/${id}`);
-    return response;
-  } catch (error) {
-    console.warn(`Fake API fallback cho DestinationDetail: ${id}`);
-    const fallbackData = destinationsData[id] || destinationsData["vinh-ha-long"];
-    return {
-      data: {
-        status: 200,
-        message: "Lấy dữ liệu destination mock thành công",
-        data: fallbackData,
-      },
-      status: 200,
-      statusText: "OK",
-      headers: {},
-      config: {} as any,
-    };
-  }
+/**
+ * Lấy chi tiết địa điểm tham quan theo ID
+ */
+export const getAttractionDetail = async (id: string | number): Promise<AxiosResponse<BackendResponse<Destination>>> => {
+  const response = await instance.get<BackendResponse<BackendAttraction>>(`/attractions/${id}`);
+  const attData = response.data.data || (response.data as any).DT;
+  
+  const fullData = mapBackendAttractionToFullDestination(attData);
+  
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      data: fullData
+    }
+  } as any;
 };

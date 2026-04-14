@@ -5,6 +5,9 @@ import { CaretDown } from "@phosphor-icons/react";
 interface FilterBarProps {
   searchTerm: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onProvinceChange: (value: string) => void;
+  onPriceRangeChange: (value: string) => void;
+  onSortChange: (value: string) => void;
 }
 
 interface Option {
@@ -13,7 +16,11 @@ interface Option {
 }
 
 // Custom Select Component for a premium look
-const CustomSelect: React.FC<{ options: Option[], defaultValue: string }> = ({ options, defaultValue }) => {
+const CustomSelect: React.FC<{ 
+  options: Option[], 
+  defaultValue: string,
+  onChange?: (value: string) => void 
+}> = ({ options, defaultValue, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(options.find(o => o.value === defaultValue) || options[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -27,6 +34,14 @@ const CustomSelect: React.FC<{ options: Option[], defaultValue: string }> = ({ o
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleSelect = (option: Option) => {
+    setSelected(option);
+    setIsOpen(false);
+    if (onChange) {
+      onChange(option.value);
+    }
+  };
 
   return (
     <div className={styles.customSelect} ref={dropdownRef}>
@@ -48,10 +63,7 @@ const CustomSelect: React.FC<{ options: Option[], defaultValue: string }> = ({ o
             <div 
               key={option.value}
               className={`${styles.dropdownItem} ${selected.value === option.value ? styles.selectedItem : ''}`}
-              onClick={() => {
-                setSelected(option);
-                setIsOpen(false);
-              }}
+              onClick={() => handleSelect(option)}
             >
               {option.label}
             </div>
@@ -62,16 +74,30 @@ const CustomSelect: React.FC<{ options: Option[], defaultValue: string }> = ({ o
   );
 };
 
-const FilterBar: React.FC<FilterBarProps> = ({ searchTerm, onSearchChange }) => {
+const FilterBar: React.FC<FilterBarProps> = ({ 
+  searchTerm, 
+  onSearchChange,
+  onProvinceChange,
+  onPriceRangeChange,
+  onSortChange
+}) => {
   const sortOptions = [
-    { value: "price", label: "💰 Giá tốt nhất" },
-    { value: "near", label: "📍 Gần tôi nhất" },
-    { value: "rating", label: "⭐️ Xếp hạng cao" },
+    { value: "rating", label: "⭐️ Đánh giá cao" },
+    { value: "priceAsc", label: "💰 Giá: Thấp - Cao" },
+    { value: "priceDesc", label: "💰 Giá: Cao - Thấp" },
   ];
 
-  const timeOptions = [
-    { value: "all", label: "🕒 Mọi lúc" },
-    { value: "open", label: "🟢 Đang mở cửa" },
+  const provinceOptions = [
+    { value: "all", label: "📍 Toàn quốc" },
+    { value: "1", label: "🏮 Thừa Thiên Huế" },
+    { value: "2", label: "🌉 Đà Nẵng" },
+  ];
+
+  const priceOptions = [
+    { value: "all", label: "💵 Tất cả mức giá" },
+    { value: "budget", label: "🌱 Dưới 500k" },
+    { value: "mid", label: "🌤 500k - 2tr" },
+    { value: "luxury", label: "✨ Trên 2tr" },
   ];
 
   return (
@@ -81,7 +107,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ searchTerm, onSearchChange }) => 
           <span className={styles.searchIcon}>🔍</span>
           <input 
             type="text" 
-            placeholder="Bạn muốn đi đâu hôm nay?..." 
+            placeholder="Tìm kiếm địa điểm, món ăn..." 
             value={searchTerm}
             onChange={onSearchChange}
           />
@@ -89,14 +115,12 @@ const FilterBar: React.FC<FilterBarProps> = ({ searchTerm, onSearchChange }) => 
       </div>
       
       <div className={styles.selectSide}>
-        <CustomSelect options={sortOptions} defaultValue="price" />
-        <CustomSelect options={timeOptions} defaultValue="all" />
+        <CustomSelect options={provinceOptions} defaultValue="all" onChange={onProvinceChange} />
+        <CustomSelect options={priceOptions} defaultValue="all" onChange={onPriceRangeChange} />
+        <CustomSelect options={sortOptions} defaultValue="rating" onChange={onSortChange} />
         
         <button className={styles.btnAdvance}>
           <span>🛠</span> Lọc
-        </button>
-        <button className={styles.btnSort}>
-          <span>⇅</span> Sắp xếp
         </button>
       </div>
     </div>

@@ -12,6 +12,33 @@ export interface TestimonialItem {
   delay: string;
 }
 
+export interface BackendReview {
+  id: number;
+  userId: number;
+  hotelId: number | null;
+  restaurantId: number | null;
+  attractionId: number | null;
+  type: "HOTEL" | "RESTAURANT" | "ATTRACTION";
+  rating: number;
+  comment: string;
+  isVerified: boolean;
+  createdAt: string;
+  user?: {
+    fullName: string;
+    avatar: string | null;
+  } | null;
+}
+
+export interface PaginatedData<T> {
+  content: T[];
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+}
+
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
@@ -19,45 +46,55 @@ export interface BackendResponse<T = unknown> {
   DT?: T;
 }
 
-const MOCK_TESTIMONIALS: TestimonialItem[] = [
-  {
-    "id": "1",
-    "name": "Hoàng Linh",
-    "role": "Travel Blogger",
-    "initial": "HL",
-    "color": "bgBlue",
-    "text": "Ứng dụng thực sự kì diệu! Chỉ mất 2 phút để lên xong toàn bộ lịch trình 5 ngày.",
-    "delay": "100"
-  },
-  {
-    "id": "2",
-    "name": "Minh Anh",
-    "role": "Doanh nhân",
-    "initial": "MA",
-    "color": "bgGreen",
-    "text": "Lộ trình được sắp xếp rất logic. Quán ăn AI gợi ý rất ngon và rẻ.",
-    "delay": "300"
-  },
-  {
-    "id": "3",
-    "name": "Tuấn Việt",
-    "role": "Sinh viên",
-    "initial": "TV",
-    "color": "bgPurple",
-    "text": "Tính năng bản đồ kéo thả hoạt động cực mượt. Có thêm cảnh báo thời tiết là điểm cộng!",
-    "delay": "500"
-  }
-];
+const COLORS = ["bgBlue", "bgGreen", "bgPurple", "bgOrange", "bgRed"];
 
-// Lấy danh sách đánh giá khách hàng
-export const getTestimonials = async (): Promise<AxiosResponse<BackendResponse<TestimonialItem[]>>> => {
-  try {
-    return await instance.get<BackendResponse<TestimonialItem[]>>("/testimonials");
-  } catch (error) {
-    console.warn("Fake API fallback cho Testimonials");
-    return {
-      data: { status: 200, message: "Mock data", DT: MOCK_TESTIMONIALS, data: MOCK_TESTIMONIALS },
-      status: 200, statusText: "OK", headers: {}, config: {} as any
-    };
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+const mapBackendToTestimonial = (review: BackendReview, index: number): TestimonialItem => {
+  const hasUser = !!review.user;
+  const name = review.user?.fullName || (hasUser ? "BE đang thiếu fullName" : "BE đang thiếu thông tin User");
+  const role = review.type === "HOTEL" ? "Khách lưu trú" : review.type === "RESTAURANT" ? "Thực khách" : "Khách tham quan";
+  
+  return {
+    id: review.id.toString(),
+    name: name,
+    role: role,
+    initial: review.user?.fullName ? getInitials(review.user.fullName) : "BE",
+    color: COLORS[index % COLORS.length],
+    text: review.comment || "BE đang thiếu nội dung comment",
+    delay: ((index % 3) * 200 + 100).toString()
+  };
+};
+
+/**
+ * Lấy danh sách đánh giá khách hàng từ API thật
+ */
+export const getTestimonials = async (page = 0, size = 6): Promise<AxiosResponse<BackendResponse<PaginatedData<TestimonialItem>>>> => {
+  const response = await instance.get<BackendResponse<PaginatedData<BackendReview>>>(`/reviews?page=${page}&size=${size}`);
+  
+  // Chúng ta ánh xạ sang TestimonialItem ngay tại đây để UI sử dụng luôn
+  const rawData = response.data.data;
+  let mappedContent: TestimonialItem[] = [];
+  
+  if (rawData?.content) {
+    mappedContent = rawData.content.map((rev, index) => mapBackendToTestimonial(rev, index));
   }
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      data: {
+        ...rawData,
+        content: mappedContent
+      }
+    }
+  } as any;
 };

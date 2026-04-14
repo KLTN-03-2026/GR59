@@ -147,7 +147,7 @@ const TravelCard: React.FC<Props> = ({
               </button>
             )}
           </div>
-          <button className={styles.btnExplore}>Xem thêm</button>
+          <button className={styles.btnExplore}>Xem chi tiết</button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -14,13 +14,14 @@ import ServicesTab from "./components/ServicesTab/ServicesTab";
 import ReviewsTab from "./components/ReviewsTab/ReviewsTab";
 import TipsTab from "./components/TipsTab/TipsTab";
 import HighlightLocations from "../Home/components/HighlightLocations/HighlightLocations";
-import { getDestinationDetail, type Destination } from "../../services/destinationService";
-import { getHotelDetail } from "../../services/hotelService";
+import { getHotels, getHotelDetail } from "../../services/hotelService";
 import { getPlaces, getHighlightRestaurants } from "../../services/highlightService";
-import { getHotels } from "../../services/hotelService";
+import { getRestaurantDetail } from "../../services/restaurantService";
+import { getAttractionDetail, type Destination } from "../../services/destinationService";
 
 const DestinationDetail: React.FC = () => {
-  const { slug, id } = useParams<{ slug?: string, id?: string }>();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [data, setData] = useState<Destination | null>(null);
   const [nearbyServices, setNearbyServices] = useState<any[]>([]); // Danh sách dịch vụ lân cận đã lọc
   const [isLoading, setIsLoading] = useState(true);
@@ -30,21 +31,36 @@ const DestinationDetail: React.FC = () => {
     const fetchDetail = async () => {
       try {
         setIsLoading(true);
-        let res;
-        
+
+        // Kiểm tra Token cho trường hợp Khách sạn (yêu cầu từ BE)
         if (id) {
-          // Trường hợp xem chi tiết Khách sạn theo ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.warn("Truy cập trang khách sạn yêu cầu đăng nhập.");
+            navigate("/auth?mode=login");
+            return;
+          }
+        }
+        
+        let res;
+        const isHotel = window.location.pathname.includes('/hotel/');
+        const isRestaurant = window.location.pathname.includes('/restaurant/');
+        const isAttraction = window.location.pathname.includes('/attraction/');
+        
+        if (isHotel && id) {
           res = await getHotelDetail(id);
-        } else if (slug) {
-          // Trường hợp xem chi tiết Địa điểm theo Slug
-          res = await getDestinationDetail(slug);
+        } else if (isRestaurant && id) {
+          res = await getRestaurantDetail(id);
+        } else if (isAttraction && id) {
+          res = await getAttractionDetail(id);
         } else {
           return;
         }
 
-        if (res.data && res.data.status === 200 && res.data.data) {
-          setData(res.data.data);
-          document.title = `${res.data.data.name} - TravelAi`;
+        if (res.data && res.data.status === 200 && (res.data.data || (res.data as any).DT)) {
+          const detailData = res.data.data || (res.data as any).DT;
+          setData(detailData);
+          document.title = `${detailData.name} - TravelAi`;
         }
       } catch (err) {
         console.error("Lỗi khi tải thông tin chi tiết:", err);
@@ -56,7 +72,7 @@ const DestinationDetail: React.FC = () => {
     fetchDetail();
     AOS.init({ duration: 800, once: true });
     window.scrollTo(0, 0);
-  }, [slug, id]);
+  }, [id]);
 
   // Effect lấy và lọc dịch vụ lân cận khi đã có dữ liệu địa điểm hiện tại
   useEffect(() => {
@@ -64,15 +80,24 @@ const DestinationDetail: React.FC = () => {
 
     const fetchNearby = async () => {
       try {
-        const provinceName = data.location?.split(',').pop()?.trim() || "";
-        if (!provinceName) return;
+        // Hàm chuẩn hóa chuỗi để so sánh chính xác hơn
+        const normalize = (str: string) => 
+          str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+        // 1. Trích xuất tên tỉnh thành từ location của địa điểm hiện tại
+        // Thường là phần cuối sau dấu phẩy, hoặc chính là chuỗi đó nếu không có dấu phấy
+        const locationParts = data.location?.split(',') || [];
+        const rawProvince = locationParts.length > 0 ? locationParts[locationParts.length - 1].trim() : "";
+        const targetProvinceNorm = normalize(rawProvince);
+
+        if (!targetProvinceNorm) return;
 
         let allItems: any[] = [];
         
-        // Fetch đồng thời từ 3 nguồn
+        // 2. Fetch đồng thời với số lượng lớn hơn để đảm bảo tập dữ liệu lọc
         const [placesRes, hotelsRes, restaurantsRes] = await Promise.all([
           getPlaces(),
-          getHotels(0, 50),
+          getHotels(0, 100), // Tăng size lên 100
           getHighlightRestaurants()
         ]);
 
@@ -80,23 +105,32 @@ const DestinationDetail: React.FC = () => {
         if (hotelsRes.data?.data?.content) allItems = [...allItems, ...hotelsRes.data.data.content];
         if (restaurantsRes.data?.data) allItems = [...allItems, ...restaurantsRes.data.data];
 
-        // Lọc theo tỉnh thành và loại bỏ bản ghi hiện tại
-        const filtered = allItems.filter(item => 
-          (item.location?.toLowerCase().includes(provinceName.toLowerCase())) &&
-          (item.id.toString() !== (id?.toString() || data.id.toString()))
-        );
+        // 3. Lọc theo tỉnh thành và loại bỏ bản ghi hiện tại
+        // Kết hợp kiểm tra provinceId (nếu có) và so sánh chuỗi chuẩn hóa
+        const filtered = allItems.filter(item => {
+          const isSameItem = item.id.toString() === (id?.toString() || data.id.toString());
+          if (isSameItem) return false;
 
-        // Map sang định dạng Service để hiển thị trong Tab
+          // Ưu tiên so sánh qua provinceId nếu trùng khớp (giả định provinceId của data cũng có thể lấy được)
+          const currentProvinceId = (data as any).provinceId;
+          if (currentProvinceId && item.provinceId && currentProvinceId === item.provinceId) return true;
+
+          // Fallback: So sánh chuỗi location đã chuẩn hóa
+          const itemLocationNorm = normalize(item.location || "");
+          return itemLocationNorm.includes(targetProvinceNorm) || targetProvinceNorm.includes(itemLocationNorm);
+        });
+
+        // 4. Map sang định dạng Service để hiển thị trong Tab
         const mappedServices = filtered.slice(0, 8).map(item => ({
           id: item.id,
           name: item.name || item.title,
-          location: item.location || provinceName,
+          location: item.location || rawProvince,
           rating: Number(item.rating) || 4.5,
           image: item.image || item.img,
           type: item.type === 'bed' ? 'Khách sạn' : item.type === 'food' ? 'Nhà hàng' : 'Điểm đến',
-          price: item.type === 'bed' ? 'Liên hệ' : item.type === 'food' ? '50.000đ+' : 'Miễn phí',
+          price: item.type === 'bed' ? 'Liên hệ' : item.type === 'food' ? 'Giá từ 50k' : 'Miễn phí',
           unit: item.type === 'bed' ? 'đêm' : 'món',
-          buttonText: item.type === 'bed' ? 'Đặt phòng' : 'Khám phá'
+          buttonText: "Khám phá" // Đổi tất cả thành Khám phá/Xem chi tiết theo yêu cầu
         }));
 
         setNearbyServices(mappedServices);

@@ -34,6 +34,9 @@ const Explore: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterProvince, setFilterProvince] = useState("all");
+  const [filterPriceRange, setFilterPriceRange] = useState("all");
+  const [sortBy, setSortBy] = useState("rating");
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
@@ -44,9 +47,9 @@ const Explore: React.FC = () => {
 
         // Gọi đồng thời 3 API để tối ưu tốc độ
         const [attractionsRes, hotelsRes, restaurantsRes] = await Promise.all([
-          getAttractions(0, 50),
-          getHotels(0, 50),
-          getRestaurants(0, 50)
+          getAttractions(0, 100), // Tăng số lượng để lọc mượt hơn
+          getHotels(0, 100),
+          getRestaurants(0, 100)
         ]);
 
         let allItems: HighlightItem[] = [];
@@ -64,14 +67,6 @@ const Explore: React.FC = () => {
         // 3. Xử lý Nhà hàng (Restaurants)
         if (restaurantsRes.data && restaurantsRes.data.data && restaurantsRes.data.data.content) {
           allItems = [...allItems, ...restaurantsRes.data.data.content];
-        }
-
-        // Sắp xếp theo Rating giảm dần để ưu tiên chỗ tốt lên đầu
-        allItems.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
-
-        // Nếu không có dữ liệu thật nào trả về, mới báo lỗi hoặc dùng mock
-        if (allItems.length === 0) {
-          console.warn("Không có dữ liệu thực tế từ các API.");
         }
 
         setPlaces(allItems);
@@ -105,24 +100,48 @@ const Explore: React.FC = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    setCurrentPage(1); // Reset to first page when changing category
+    setCurrentPage(1);
   };
 
-  const filteredData = (places || []).filter((item) => {
-    const matchesCategory =
-      activeCategory === "all"
-        ? true
-        : item.type === activeCategory;
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredData = (places || [])
+    .filter((item) => {
+      // 1. Lọc theo danh mục chính (Tab)
+      const matchesCategory =
+        activeCategory === "all"
+          ? true
+          : item.type === activeCategory;
+
+      // 2. Lọc theo từ khóa tìm kiếm
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      // 3. Lọc theo khu vực (Province)
+      const matchesProvince = 
+        filterProvince === "all" 
+          ? true 
+          : item.provinceId.toString() === filterProvince;
+
+      // 4. Lọc theo khoảng giá
+      let matchesPrice = true;
+      if (filterPriceRange === "budget") matchesPrice = item.price < 500000;
+      else if (filterPriceRange === "mid") matchesPrice = item.price >= 500000 && item.price <= 2000000;
+      else if (filterPriceRange === "luxury") matchesPrice = item.price > 2000000;
+
+      return matchesCategory && matchesSearch && matchesProvince && matchesPrice;
+    })
+    .sort((a, b) => {
+      // Sắp xếp dữ liệu
+      if (sortBy === "rating") return Number(b.rating) - Number(a.rating);
+      if (sortBy === "priceAsc") return a.price - b.price;
+      if (sortBy === "priceDesc") return b.price - a.price;
+      return 0;
+    });
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -184,6 +203,9 @@ const Explore: React.FC = () => {
           <FilterBar
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}
+            onProvinceChange={(val) => { setFilterProvince(val); setCurrentPage(1); }}
+            onPriceRangeChange={(val) => { setFilterPriceRange(val); setCurrentPage(1); }}
+            onSortChange={(val) => { setSortBy(val); setCurrentPage(1); }}
           />
         </div>
 
@@ -211,7 +233,13 @@ const Explore: React.FC = () => {
                 data-aos-delay={index * 100}
               >
                 <Link 
-                  to={location.type === 'bed' ? `/hotel/${location.id}` : `/destination/${location.slug}`}
+                  to={
+                    location.type === 'bed' 
+                      ? `/hotel/${location.id}` 
+                      : location.type === 'food' 
+                        ? `/restaurant/${location.id}` 
+                        : `/attraction/${location.id}`
+                  }
                   style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
                 >
                   <TravelCard

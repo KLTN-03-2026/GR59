@@ -27,8 +27,9 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/review" element={<Review />} />
-            <Route path="/destination/:slug" element={<DestinationDetail />} />
+            <Route path="/attraction/:id" element={<DestinationDetail />} />
             <Route path="/hotel/:id" element={<DestinationDetail />} />
+            <Route path="/restaurant/:id" element={<DestinationDetail />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/sample" element={<SampleItinerary />} />
             <Route path="/news" element={<News />} />

@@ -17,8 +17,18 @@ instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     NProgress.start();
     const token = localStorage.getItem("token");
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    
+    // Debug log để kiểm tra token (Bạn có thể xóa sau khi xác nhận)
+    // console.log(">>> Axios Intrecept Token:", token ? "Found" : "Not Found");
+    
+    if (token) {
+      if (config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        (config as any).headers = {
+          Authorization: `Bearer ${token}`,
+        };
+      }
     }
     return config;
   },

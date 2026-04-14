@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Star } from "phosphor-react";
+import { Star, CaretLeft, CaretRight } from "phosphor-react";
 import styles from "./Testimonials.module.scss";
 import {
   getTestimonials,
@@ -9,30 +9,50 @@ import {
 const Testimonials: React.FC = () => {
   const [reviews, setReviews] = useState<TestimonialItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
+
+  const fetchData = async (pageNum: number) => {
+    setLoading(true);
+    try {
+      const res = await getTestimonials(pageNum, 6);
+      if (res && res.data && res.data.status === 200) {
+        const paginatedData = res.data.data;
+        if (paginatedData) {
+          setReviews(paginatedData.content || []);
+          if (paginatedData.page) {
+            setTotalPages(paginatedData.page.totalPages);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await getTestimonials();
-        if (res && res.data && (res.data.status === 200 || res.data.status === 201)) {
-          setReviews(res.data.data || res.data.DT || []);
-        }
-      } catch (error) {
-        console.error("Error fetching testimonials:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchData(page);
+    // Scroll lên đầu vùng testimonials khi đổi trang cho đẹp
+    const element = document.getElementById("testimonials-section");
+    if (element && page > 0) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [page]);
 
-    fetchData();
-  }, []);
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setPage(newPage);
+    }
+  };
 
-  if (loading) {
+  if (loading && reviews.length === 0) {
     return (
-      <section className={styles.testimonials}>
+      <section className={styles.testimonials} id="testimonials-section">
         <div className={styles.container}>
           <div style={{ padding: "40px", color: "#33d7d1" }}>
+            <div className={styles.loadingSpinner} style={{ margin: "0 auto 10px" }}></div>
             Đang tải đánh giá...
           </div>
         </div>
@@ -41,7 +61,7 @@ const Testimonials: React.FC = () => {
   }
 
   return (
-    <section className={styles.testimonials}>
+    <section className={styles.testimonials} id="testimonials-section">
       <div className={styles.container}>
         <div data-aos="fade-up">
           <h2 className={styles.sectionTitle}>
@@ -53,7 +73,7 @@ const Testimonials: React.FC = () => {
           </p>
         </div>
 
-        <div className={styles.testimonialsGrid}>
+        <div className={styles.testimonialsGrid} style={{ opacity: loading ? 0.6 : 1, transition: "opacity 0.3s" }}>
           {reviews.length > 0 ? (
             reviews.map((rev, idx) => (
               <div
@@ -85,10 +105,43 @@ const Testimonials: React.FC = () => {
             ))
           ) : (
             <div style={{ gridColumn: "span 3", padding: "20px" }}>
-              Chưa có đánh giá nào.
+              Chưa có đánh giá nào từ hệ thống.
             </div>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button 
+              className={`${styles.pageBtn} ${styles.navBtn}`}
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 0 || loading}
+            >
+              <CaretLeft size={18} weight="bold" />
+              Trước
+            </button>
+            
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                className={`${styles.pageBtn} ${page === index ? styles.active : ""}`}
+                onClick={() => handlePageChange(index)}
+                disabled={loading}
+              >
+                {index + 1}
+              </button>
+            ))}
+
+            <button 
+              className={`${styles.pageBtn} ${styles.navBtn}`}
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages - 1 || loading}
+            >
+              Sau
+              <CaretRight size={18} weight="bold" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
