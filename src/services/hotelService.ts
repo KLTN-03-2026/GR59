@@ -100,16 +100,16 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destinati
 
   return {
     id: hotel.id.toString(),
-    name: hotel.name || "BE đang thiếu name",
-    location: hotel.location || "BE đang thiếu location",
-    heroImage: hotel.imageUrl || "https://placehold.co/1920x1080?text=BE+dang+thieu+heroImage",
+    name: hotel.name || "Khách sạn chưa cập nhật tên",
+    location: hotel.location || "Đang cập nhật vị trí",
+    heroImage: hotel.imageUrl || "https://placehold.co/1920x1080?text=Hình+ảnh+đang+cập+nhật",
     rating: (hotel.rating || 0).toString(),
     reviews: hotel.reviewCount?.toString() || "0",
-    distance: "Chưa xác định",
-    price: hotel.averagePrice ? `${hotel.averagePrice.toLocaleString()}đ` : "BE đang thiếu averagePrice",
+    distance: "Thông tin đang cập nhật",
+    price: hotel.averagePrice ? `${hotel.averagePrice.toLocaleString()}đ` : "Liên hệ",
     time: hotel.estimatedDuration ? `${hotel.estimatedDuration} phút` : "Đang cập nhật",
     category: hotel.category || "Khách sạn",
-    description: hotel.description || `BE đang thiếu trường description cho khách sạn ${hotel.name || hotel.id}.`,
+    description: hotel.description || `Thông tin chi tiết về khách sạn ${hotel.name || hotel.id} đang được cập nhật.`,
     gallery: hotel.gallery && hotel.gallery.length > 0 
       ? hotel.gallery 
       : [
@@ -165,9 +165,16 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destinati
     },
     mapScreenshot: (hotel as any).mapScreenshot || "https://placehold.co/600x400?text=BE+dang+thieu+mapScreenshot",
     quickInfo: [
-      { id: 1, label: "Tình trạng", value: hotel.status || "BE đang thiếu status" },
-      { id: 2, label: "Hạng sao", value: hotel.rating ? `${hotel.rating} sao` : "BE đang thiếu rating" },
-      { id: 3, label: "Tỉnh thành", value: hotel.provinceId ? `Province ID: ${hotel.provinceId}` : "BE đang thiếu provinceId" },
+      { id: 1, label: "Tình trạng", value: hotel.status === "MAINTENANCE" ? "Đang bảo trì" : "Đang hoạt động" },
+      { id: 2, label: "Hạng sao", value: hotel.rating ? `${hotel.rating} sao` : "Đang cập nhật" },
+      { id: 3, label: "Khu vực", value: 
+          hotel.provinceId === 1 ? "Thừa Thiên Huế" : 
+          hotel.provinceId === 2 ? "Đà Nẵng" : 
+          hotel.provinceId === 3 ? "Quảng Nam" :
+          hotel.provinceId === 4 ? "Hà Nội" : 
+          hotel.provinceId === 5 ? "TP. Hồ Chí Minh" : "Toàn quốc" 
+      },
+      { id: 4, label: "Thời lượng", value: hotel.estimatedDuration ? `${hotel.estimatedDuration} phút` : "Đang cập nhật" },
     ],
   };
 };
@@ -182,16 +189,18 @@ export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<Back
   // Thực hiện mapping dữ liệu ngay tại service để FE dễ sử dụng
   const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
     id: hotel.id.toString(),
-    name: hotel.name || "BE đang thiếu name",
-    location: hotel.location || "BE đang thiếu location",
+    name: hotel.name || "Đang cập nhật",
+    location: hotel.location || "Đang cập nhật",
     rating: hotel.rating || 0,
     reviews: hotel.reviewCount?.toString() || "0",
-    image: hotel.imageUrl || "https://placehold.co/600x400?text=BE+dang+thieu+anh",
-    desc: hotel.description || `BE đang thiếu trường description cho khách sạn ${hotel.name || hotel.id}`,
-    type: "bed", // Fix loại là khách sạn
+    image: hotel.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",
+    desc: hotel.description || `Mô tả về ${hotel.name} đang được cập nhật.`,
+    type: "bed",
     category: hotel.category?.toLowerCase() || "khách sạn",
     price: hotel.averagePrice || 0,
-    provinceId: hotel.provinceId || 0
+    provinceId: hotel.provinceId || 0,
+    previewVideo: hotel.previewVideo || undefined,
+    status: hotel.status || "ACTIVE"
   }));
 
   return {

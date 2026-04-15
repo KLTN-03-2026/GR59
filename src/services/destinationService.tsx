@@ -74,7 +74,7 @@ export interface BackendAttraction {
   id: number;
   name: string;
   description: string | null;
-  location: string | null; // Thêm trường location cho đồng bộ
+  location: string | null;
   rating: number;
   reviewCount: number | null;
   category: string | null;
@@ -118,16 +118,23 @@ export const mapBackendAttractionToFullDestination = (att: BackendAttraction): D
 
   return {
     id: att.id,
-    name: att.name || "BE đang thiếu name",
-    location: att.provinceId === 1 ? "Thành phố Huế" : att.provinceId === 2 ? "Đà Nẵng" : `Khu vực ${att.provinceId} (BE đang thiếu tên thành phố)`,
-    heroImage: att.imageUrl || "https://placehold.co/1920x1080?text=BE+dang+thieu+heroImage",
+    name: att.name || "Địa điểm chưa cập nhật tên",
+    location: 
+      att.location || (
+        att.provinceId === 1 ? "Thừa Thiên Huế" : 
+        att.provinceId === 2 ? "Đà Nẵng" : 
+        att.provinceId === 3 ? "Quảng Nam" :
+        att.provinceId === 4 ? "Hà Nội" : 
+        att.provinceId === 5 ? "TP. Hồ Chí Minh" : "Toàn quốc"
+      ),
+    heroImage: att.imageUrl || "https://placehold.co/1920x1080?text=Hình+ảnh+đang+cập+nhật",
     rating: (att.rating || 0).toString(),
     reviews: att.reviewCount?.toString() || "0",
     distance: "Chưa xác định",
     price: att.averagePrice ? `${att.averagePrice.toLocaleString()}đ` : "Miễn phí",
     time: att.estimatedDuration ? `${att.estimatedDuration} phút` : "Đang cập nhật",
     category: att.category || "Địa điểm tham quan",
-    description: att.description || `BE đang thiếu mô tả cho địa điểm ${att.name}.`,
+    description: att.description || `Mô tả về địa điểm ${att.name} đang được cập nhật.`,
     gallery: att.gallery && att.gallery.length > 0 
       ? att.gallery 
       : [

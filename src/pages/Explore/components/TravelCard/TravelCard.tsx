@@ -12,6 +12,7 @@ interface Props {
   previewVideo?: string;
   isLiked?: boolean;
   onToggleLike?: () => void;
+  status?: string;
 }
 
 const TravelCard: React.FC<Props> = ({
@@ -112,6 +113,13 @@ const TravelCard: React.FC<Props> = ({
           <div className={styles.hotBadge}>
             <span className={styles.dot} />
             HẤP DẪN
+          </div>
+        )}
+
+        {status === "MAINTENANCE" && !isPlaying && (
+          <div className={`${styles.hotBadge} ${styles.maintenanceBadge}`}>
+            <span className={`${styles.dot} ${styles.maintenanceDot}`} />
+            BẢO TRÌ
           </div>
         )}
       </div>

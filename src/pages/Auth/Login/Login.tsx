@@ -5,11 +5,12 @@ import {
   Eye,
   EyeSlash,
   FacebookLogo,
+  GoogleLogo,
 } from "phosphor-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./Login.module.scss";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import FacebookLoginExport from "@greatsumini/react-facebook-login";
 const FacebookLogin =
   (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
@@ -31,6 +32,17 @@ const Login: React.FC<Props> = ({ onToggle }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const loginGoogle = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      if (tokenResponse.access_token) {
+        handleGoogleSuccess(tokenResponse.access_token);
+      }
+    },
+    onError: () => {
+      toast.error("Đăng nhập Google thất bại!");
+    },
+  });
 
   // Logic xử lý khi đăng nhập Google thành công
   const handleGoogleSuccess = async (credential: string) => {
@@ -122,21 +134,14 @@ const Login: React.FC<Props> = ({ onToggle }) => {
 
       <div className={styles.socialButtons}>
         <div className={styles.googleButtonWrap}>
-          <GoogleLogin
-            onSuccess={(credentialResponse) => {
-              if (credentialResponse.credential) {
-                handleGoogleSuccess(credentialResponse.credential);
-              }
-            }}
-            onError={() => {
-              toast.error("Đăng nhập Google thất bại!");
-            }}
-            theme="outline"
-            size="large"
-            shape="pill"
-            width="100%"
-            text="continue_with"
-          />
+          <button
+            type="button"
+            className={styles.socialBtn}
+            onClick={() => loginGoogle()}
+            disabled={isLoading}
+          >
+            <GoogleLogo weight="bold" size={20} /> Google
+          </button>
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin

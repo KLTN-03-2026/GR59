@@ -19,6 +19,7 @@ export interface HighlightItem {
   isHot?: boolean;
   price: number; // Thêm trường giá số để lọc/sắp xếp
   provinceId: number; // Thêm ID tỉnh thành để lọc
+  status?: string; // Trạng thái (ACTIVE, MAINTENANCE, etc.)
 }
 
 export interface PaginatedData<T> {
@@ -35,7 +36,12 @@ export interface PaginatedData<T> {
 const mapBackendToHighlightItem = (item: any, type: "pin" | "food"): HighlightItem => ({
   id: item.id.toString(),
   name: item.name || "BE đang thiếu name",
-  location: item.provinceId === 1 ? "Thành phố Huế" : item.provinceId === 2 ? "Đà Nẵng" : `Khu vực ${item.provinceId} (BE đang thiếu tên city)`,
+  location: 
+    item.provinceId === 1 ? "Thừa Thiên Huế" : 
+    item.provinceId === 2 ? "Đà Nẵng" : 
+    item.provinceId === 3 ? "Quảng Nam" :
+    item.provinceId === 4 ? "Hà Nội" : 
+    item.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${item.provinceId} (Đang cập nhật)`,
   rating: item.rating || 0,
   reviews: item.reviewCount?.toString() || (item as any).reviews?.toString() || "0 (BE đang thiếu reviews)",
   image: item.imageUrl || item.image || "https://placehold.co/600x400?text=BE+dang+thieu+imageUrl",

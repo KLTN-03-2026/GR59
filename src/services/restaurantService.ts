@@ -9,6 +9,7 @@ export interface BackendRestaurant {
   id: number;
   name: string;
   description: string | null;
+  location?: string | null;
   rating: number;
   reviewCount: number | null;
   category: string | null; // Đổi từ cuisine
@@ -47,15 +48,21 @@ export const getRestaurants = async (page = 0, size = 10): Promise<AxiosResponse
   
   const mappedContent: HighlightItem[] = (response.data.data?.content || []).map(rest => ({
     id: rest.id.toString(),
-    name: rest.name || "BE đang thiếu name",
-    location: rest.provinceId === 1 ? "Thành phố Huế" : rest.provinceId === 2 ? "Đà Nẵng" : `Khu vực ${rest.provinceId} (BE đang thiếu tên city)`,
+    name: rest.name || "Đang cập nhật",
+    location: 
+      rest.provinceId === 1 ? "Thừa Thiên Huế" : 
+      rest.provinceId === 2 ? "Đà Nẵng" : 
+      rest.provinceId === 3 ? "Quảng Nam" :
+      rest.provinceId === 4 ? "Hà Nội" : 
+      rest.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${rest.provinceId} (Đang cập nhật)`,
     rating: rest.rating || 0,
-    reviews: rest.reviewCount?.toString() || "0 (BE đang thiếu reviews)",
-    image: rest.imageUrl || "https://placehold.co/600x400?text=BE+dang+thieu+imageUrl",
-    desc: rest.description || `BE đang thiếu trường description cho nhà hàng ${rest.name}`,
+    reviews: rest.reviewCount?.toString() || "0",
+    image: rest.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",
+    desc: rest.description || `Thông tin về ${rest.name} đang được cập nhật.`,
     type: "food",
     category: CUISINE_MAP[rest.category || ""] || rest.category || "Ẩm thực",
     previewVideo: rest.previewVideo || undefined,
+    status: rest.status || "OPENING",
     price: rest.averagePrice || 0,
     provinceId: rest.provinceId || 0
   }));
@@ -105,16 +112,23 @@ export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant): 
 
   return {
     id: rest.id,
-    name: rest.name || "BE đang thiếu name",
-    location: rest.provinceId === 1 ? "Thành phố Huế" : rest.provinceId === 2 ? "Đà Nẵng" : `Khu vực ${rest.provinceId} (BE đang thiếu tên city)`,
-    heroImage: rest.imageUrl || "https://placehold.co/1920x1080?text=BE+dang+thieu+heroImage",
+    name: rest.name || "Nhà hàng chưa cập nhật tên",
+    location: 
+      rest.location || (
+        rest.provinceId === 1 ? "Thừa Thiên Huế" : 
+        rest.provinceId === 2 ? "Đà Nẵng" : 
+        rest.provinceId === 3 ? "Quảng Nam" :
+        rest.provinceId === 4 ? "Hà Nội" : 
+        rest.provinceId === 5 ? "TP. Hồ Chí Minh" : "Toàn quốc"
+      ),
+    heroImage: rest.imageUrl || "https://placehold.co/1920x1080?text=Hình+ảnh+đang+cập+nhật",
     rating: (rest.rating || 0).toString(),
     reviews: rest.reviewCount?.toString() || "0",
     distance: "N/A",
     price: rest.averagePrice ? `${rest.averagePrice.toLocaleString()}đ` : "Giá từ 50k",
     time: rest.estimatedDuration ? `${rest.estimatedDuration} phút` : "Đang cập nhật",
     category: category,
-    description: rest.description || `BE đang thiếu mô tả cho nhà hàng ${rest.name}.`,
+    description: rest.description || `Mô tả về nhà hàng ${rest.name} đang được cập nhật.`,
     gallery: rest.gallery && rest.gallery.length > 0 
       ? rest.gallery 
       : [

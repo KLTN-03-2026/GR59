@@ -250,6 +250,7 @@ const Explore: React.FC = () => {
                     isHot={location.isHot}
                     previewVideo={location.previewVideo || VideoHome}
                     isLiked={savedTrips.some((t) => t.id == location.id)}
+                    status={location.status}
                     onToggleLike={() => handleToggleLike(location)}
                   />
                 </Link>

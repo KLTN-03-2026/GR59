@@ -193,6 +193,18 @@ $dark: #1a1a1a;
         animation: pulse 1.5s infinite;
       }
     }
+
+    .maintenanceBadge {
+      background: #ff4d4d !important;
+      box-shadow: 0 4px 15px rgba(255, 77, 77, 0.4) !important;
+      left: auto !important;
+      right: 70px !important; // Cạnh nút heart
+
+      .maintenanceDot {
+        background: #fff !important;
+        animation: pulse 1s infinite !important;
+      }
+    }
   }
 
   .floatingContent {
