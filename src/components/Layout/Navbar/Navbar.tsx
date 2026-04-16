@@ -50,7 +50,8 @@ const Navbar: React.FC = () => {
 
     try {
       // 1. Gọi API đăng xuất để BE xóa Session/Cookie/RefreshToken
-      await postLogout();
+      const refreshToken = localStorage.getItem("refreshToken") || "";
+      await postLogout(refreshToken);
     } catch (error) {
       console.error("Lỗi khi gọi API đăng xuất:", error);
       // Vẫn tiếp tục xóa LocalStorage ở dưới để đảm bảo người dùng thoát được giao diện

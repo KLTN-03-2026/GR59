@@ -17,7 +17,8 @@ import {
   type AuthResponseData,
 } from "../../../services/userService";
 import styles from "./Register.module.scss";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
+import type { CredentialResponse } from "@react-oauth/google";
 import FacebookLoginExport from "@greatsumini/react-facebook-login";
 const FacebookLogin =
   (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
@@ -55,22 +56,16 @@ const Register: React.FC<Props> = ({ onToggle }) => {
     if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
   };
 
-  const loginGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      if (tokenResponse.access_token) {
-        handleGoogleSuccess(tokenResponse.access_token);
-      }
-    },
-    onError: () => {
-      toast.error("Đăng ký Google thất bại!");
-    },
-  });
-
   // Logic xử lý khi đăng ký/đăng nhập Google thành công
-  const handleGoogleSuccess = async (credential: string) => {
+  const handleGoogleSuccess = async (googleResponse: CredentialResponse) => {
+    if (!googleResponse.credential) {
+      toast.error("Đăng ký Google thất bại (Không có credential)!");
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const response = await postLoginGoogle(credential);
+      const response = await postLoginGoogle(googleResponse.credential);
 
       if (response.data && response.data.status === 200 && response.data.data) {
         saveAuthData(response.data.data);
@@ -155,14 +150,17 @@ const Register: React.FC<Props> = ({ onToggle }) => {
 
       <div className={styles.socialButtons}>
         <div className={styles.googleButtonWrap}>
-          <button
-            type="button"
-            className={styles.socialBtn}
-            onClick={() => loginGoogle()}
-            disabled={isLoading}
-          >
-            <GoogleLogo weight="bold" size={20} /> Google
-          </button>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => toast.error("Đăng ký Google thất bại!")}
+            useOneTap
+            theme="outline"
+            shape="pill"
+            text="signin"
+            locale="vi"
+            width="100%"
+            logo_alignment="center"
+          />
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin

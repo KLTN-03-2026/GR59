@@ -112,10 +112,12 @@ export const updatePasswordByEmail = async (
 };
 
 // 5. Đăng xuất
-export const postLogout = (): Promise<
-  AxiosResponse<BackendResponse<unknown>>
-> => {
-  return instance.post<BackendResponse<unknown>>("/auth/logout");
+export const postLogout = (
+  refreshToken: string,
+): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  return instance.post<BackendResponse<unknown>>("/auth/logout", {
+    refreshToken: refreshToken,
+  });
 };
 
 // 6. Refresh Token

@@ -56,6 +56,13 @@ instance.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      // Nếu đang ở trang Đăng xuất thì không cần refresh token
+      if (originalRequest.url?.includes("/auth/logout")) {
+        localStorage.clear();
+        window.location.href = "/auth?mode=login";
+        return Promise.reject(error);
+      }
+
       const refreshToken = localStorage.getItem("refreshToken");
 
       if (refreshToken) {
