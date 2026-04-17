@@ -1,3 +1,4 @@
+@use "./UsersView.mobile.scss";
 $accent-sky: #38bdf8;
 $accent-deep: #0ea5e9;
 $text-main: #1e293b;
@@ -465,4 +466,5 @@ $slate-400: #94a3b8;
   }
 }
 
-@import './UsersView.mobile.scss';
+@include UsersView.mobile-styles();
+

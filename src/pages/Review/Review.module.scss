@@ -1,3 +1,4 @@
+@use "./Review.mobile.scss";
 // Biến màu sắc (Tùy chỉnh theo theme của bạn)
 $primary: #00ffffbc;
 $primary-hover: #2563eb;
@@ -37,10 +38,6 @@ $white: #ffffff;
   grid-template-columns: 350px 1fr;
   gap: 32px;
   margin-bottom: 80px;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* --- Left Panel: Stats Card --- */
@@ -305,10 +302,6 @@ $white: #ffffff;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
-
-    @media (max-width: 1024px) {
-      grid-template-columns: 1fr;
-    }
   }
 }
 
@@ -366,3 +359,5 @@ $white: #ffffff;
     transition: all 0.2s;
   }
 }
+
+@include Review.mobile-styles();

@@ -1,3 +1,4 @@
+@use "./DashboardView.mobile.scss";
 @import "../../../../components/styles/variables.scss";
 
 $accent-sky: #38BDF8;    // Sky Blue
@@ -419,4 +420,5 @@ $slate-400: #94a3b8;
   color: #DC2626;
 }
 
-@import './DashboardView.mobile.scss';
+@include DashboardView.mobile-styles();
+

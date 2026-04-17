@@ -1,15 +1,11 @@
+@use "./ProfileTabs.mobile.scss";
+
 .tabsContainer {
   margin-bottom: 24px;
   background: #f8fafc;
   padding: 6px;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
-
-  @media (max-width: 768px) {
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 20px;
-  }
 }
 
 .tabsList {
@@ -19,10 +15,6 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
-
-  @media (max-width: 640px) {
-    gap: 4px;
-  }
 }
 
 .tabItem {
@@ -39,12 +31,6 @@
   white-space: nowrap;
   transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   border-radius: 12px;
-
-  @media (max-width: 640px) {
-    padding: 10px 14px;
-    font-size: 13px;
-    border-radius: 10px;
-  }
 
   i {
     font-size: 18px;
@@ -64,3 +50,5 @@
     i { opacity: 1; color: #33d7d1; }
   }
 }
+
+@include ProfileTabs.mobile-styles();

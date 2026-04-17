@@ -1,3 +1,5 @@
+@use "./Dashboard.mobile.scss";
+
 $primary: #ff7a00;
 $navy: #1a365d;
 $bg-light: #f8fafc;
@@ -30,10 +32,6 @@ $bg-light: #f8fafc;
   > div {
     min-width: 0; // Prevent content from pushing grid column width
   }
-
-  @media (max-width: 1300px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .sectionHeader {
@@ -41,12 +39,6 @@ $bg-light: #f8fafc;
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 30px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
 
   .headerTitle {
     h2 {
@@ -97,3 +89,5 @@ $bg-light: #f8fafc;
   gap: 32px;
   margin-bottom: 40px;
 }
+
+@include Dashboard.mobile-styles();

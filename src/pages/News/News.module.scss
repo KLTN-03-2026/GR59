@@ -1,3 +1,4 @@
+@use "./News.mobile.scss";
 $primary: #00a8a2;
 $navy: #1a365d;
 $dark: #1a1a1a;
@@ -62,10 +63,6 @@ $bg: #f0f7f9;
   display: flex;
   gap: 40px;
   align-items: flex-start;
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-  }
 }
 
 .mainGrid {
@@ -76,14 +73,6 @@ $bg: #f0f7f9;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 30px;
-
-    @media (max-width: 1100px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 700px) {
-      grid-template-columns: 1fr;
-    }
   }
 }
 
@@ -166,11 +155,4 @@ $bg: #f0f7f9;
   }
 }
 
-@media (max-width: 768px) {
-  .pageHeader {
-    padding: 60px 0;
-    h1 {
-      font-size: 40px;
-    }
-  }
-}
+@include News.mobile-styles();

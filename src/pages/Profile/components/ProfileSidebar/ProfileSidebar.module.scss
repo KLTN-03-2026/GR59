@@ -1,3 +1,5 @@
+@use "./ProfileSidebar.mobile.scss";
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -10,10 +12,6 @@
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
   border: 1px solid #e2e8f0; // Thinner, cleaner border
-
-  @media (max-width: 992px) {
-    padding: 20px;
-  }
 }
 
 .cardHeader {
@@ -51,12 +49,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-
-  @media (max-width: 992px) {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
 }
 
 .tripItem {
@@ -192,3 +184,5 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 }
+
+@include ProfileSidebar.mobile-styles();

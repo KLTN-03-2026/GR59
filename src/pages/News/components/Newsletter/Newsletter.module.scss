@@ -1,3 +1,4 @@
+@use "./Newsletter.mobile.scss";
 $primary: #00a8a2;
 $navy: #1a365d;
 $darkNavy: #0f172a;
@@ -54,10 +55,6 @@ $darkNavy: #0f172a;
       span {
         color: $primary;
       }
-
-      @media (max-width: 768px) {
-        font-size: 32px;
-      }
     }
 
     p {
@@ -73,10 +70,6 @@ $darkNavy: #0f172a;
     gap: 15px;
     max-width: 600px;
     margin: 0 auto;
-
-    @media (max-width: 600px) {
-      flex-direction: column;
-    }
 
     .inputWrapper {
       flex: 1;
@@ -122,10 +115,6 @@ $darkNavy: #0f172a;
         transform: translateY(-3px);
         box-shadow: 0 10px 20px rgba($primary, 0.3);
       }
-
-      @media (max-width: 600px) {
-        padding: 18px;
-      }
     }
   }
 
@@ -136,3 +125,5 @@ $darkNavy: #0f172a;
     opacity: 0.4;
   }
 }
+
+@include Newsletter.mobile-styles();

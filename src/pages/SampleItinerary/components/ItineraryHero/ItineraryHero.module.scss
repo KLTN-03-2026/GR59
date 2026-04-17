@@ -1,3 +1,5 @@
+@use "./ItineraryHero.mobile.scss";
+
 .hero {
   position: relative;
   height: 550px;
@@ -30,10 +32,6 @@
         background-clip: text;
         -webkit-text-fill-color: transparent;
         display: block;
-      }
-
-      @media (max-width: 768px) {
-        font-size: 50px;
       }
     }
 
@@ -102,3 +100,5 @@
     transform: translateY(0);
   }
 }
+
+@include ItineraryHero.mobile-styles();

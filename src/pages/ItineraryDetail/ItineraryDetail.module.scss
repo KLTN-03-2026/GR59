@@ -1,3 +1,4 @@
+@use "./ItineraryDetail.mobile.scss";
 @import "../../components/styles/variables.scss";
 
 .detailPageContainer {
@@ -15,10 +16,6 @@
   margin-top: 72px;
   overflow: hidden;
   position: relative;
-
-  @media screen and (max-width: 900px) {
-    flex-direction: column;
-  }
 }
 
 .optimizingOverlay {
@@ -129,3 +126,5 @@
   from { width: 0; }
   to { width: 100%; }
 }
+
+@include ItineraryDetail.mobile-styles();

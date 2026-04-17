@@ -1,3 +1,4 @@
+@use "./SampleItinerary.mobile.scss";
 $primary: #00a8a2;
 $navy: #1a365d;
 $dark: #1a1a1a;
@@ -25,14 +26,6 @@ $lightText: #718096;
   gap: 24px;
   margin-top: 40px;
   justify-items: center;
-
-  @media (max-width: 1100px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .noResults {
@@ -130,3 +123,5 @@ $lightText: #718096;
     }
   }
 }
+
+@include SampleItinerary.mobile-styles();
