@@ -1,3 +1,5 @@
+@use "./TravelCard.mobile.scss";
+
 $primary: #33d7d1;
 $secondary: #a5f3f1; // Xanh nhạt
 $accent: #008b8b; // Xanh đậm để nhấn
@@ -345,12 +347,4 @@ $dark: #1a1a1a;
   100% { transform: scale(1); opacity: 1; }
 }
 
-@media (max-width: 480px) {
-  .card {
-    height: 420px;
-    .floatingContent {
-      padding: 16px;
-      .title { font-size: 18px; }
-    }
-  }
-}
+@include TravelCard.mobile-styles();

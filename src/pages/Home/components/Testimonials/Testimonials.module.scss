@@ -1,3 +1,4 @@
+@use "./Testimonials.mobile.scss";
 @use "../../../../components/styles/variables.scss" as vars;
 
 .testimonials {
@@ -39,10 +40,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .testimonialCard {
@@ -171,3 +168,5 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@include Testimonials.mobile-styles();

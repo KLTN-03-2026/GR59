@@ -1,0 +1,75 @@
+@mixin mobile-styles {
+  .locations {
+    @media (max-width: 992px) {
+      margin-top: 40px;
+    }
+  }
+
+  .headerWrapper {
+    @media (max-width: 992px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+  }
+
+  .header {
+    .sectionTitle {
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
+    .sectionDescription {
+      @media (max-width: 768px) {
+        text-align: center;
+        margin: 0 auto;
+      }
+    }
+  }
+
+  .controls {
+    @media (max-width: 768px) {
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+  }
+
+  .sliderTabs {
+    @media (max-width: 480px) {
+      flex-wrap: wrap;
+      justify-content: center;
+      border-radius: 24px;
+      width: 100%;
+    }
+  }
+
+  .sliderContent {
+    &.gridContent {
+      @media (max-width: 992px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @media (max-width: 576px) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  .cardWrapperLink {
+    @media (max-width: 576px) {
+      flex: 0 0 100%;
+      min-width: 0;
+    }
+  }
+
+  .locationContent {
+    @media (max-width: 576px) {
+      padding: 20px;
+    }
+  }
+}

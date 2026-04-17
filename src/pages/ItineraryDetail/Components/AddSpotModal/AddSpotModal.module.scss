@@ -1,3 +1,4 @@
+@use "./AddSpotModal.mobile.scss";
 @import "../../../../components/styles/variables.scss";
 
 .modalOverlay {
@@ -82,11 +83,6 @@
   display: flex;
   gap: 32px;
   margin-bottom: 20px;
-
-  @media screen and (max-width: 850px) {
-    flex-direction: column;
-    gap: 20px;
-  }
 }
 
 .formColumn {
@@ -307,3 +303,5 @@
     transform: rotate(360deg);
   }
 }
+
+@include AddSpotModal.mobile-styles();

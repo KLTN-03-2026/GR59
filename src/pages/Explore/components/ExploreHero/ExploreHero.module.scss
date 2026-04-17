@@ -1,3 +1,5 @@
+@use "./ExploreHero.mobile.scss";
+
 // ===== Biến thiết kế =====
 $hero-gradient-start: #00a8a2; // Xanh ngọc
 $hero-gradient-mid: #00ced1;
@@ -22,10 +24,6 @@ $accent-light-alpha: rgba(255, 255, 255, 0.8);
   background-position: center;
   text-align: center;
   margin: 0; // Removed 70px margin as it's now handled by page padding
-
-  @media (max-width: 992px) {
-    padding: 100px 20px 40px;
-  }
 
   // Subtle noise texture overlay
   &::before {
@@ -172,15 +170,6 @@ $accent-light-alpha: rgba(255, 255, 255, 0.8);
   line-height: 1.15;
   margin-bottom: 20px;
   letter-spacing: -1px;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-    br { display: none; }
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.8rem;
-  }
 }
 
 .highlight {
@@ -197,11 +186,6 @@ $accent-light-alpha: rgba(255, 255, 255, 0.8);
   line-height: 1.7;
   max-width: 560px;
   margin: 0 auto 40px;
-
-  @media (max-width: 768px) {
-    font-size: 15px;
-    margin-bottom: 30px;
-  }
 }
 
 // ===== Stats bar =====
@@ -242,41 +226,4 @@ $accent-light-alpha: rgba(255, 255, 255, 0.8);
   background: rgba(255, 255, 255, 0.12);
 }
 
-// ===== Responsive =====
-@media (max-width: 992px) {
-  .hero {
-    padding: 100px 20px 40px;
-    
-    .bgShapes {
-      display: none; // Reduce noise on mobile
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .hero {
-    padding: 60px 20px 40px;
-  }
-
-  .stats {
-    gap: 20px;
-    padding: 16px 24px;
-  }
-
-  .statNumber {
-    font-size: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats {
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px;
-  }
-
-  .statDivider {
-    width: 40px;
-    height: 1px;
-  }
-}
+@include ExploreHero.mobile-styles();

@@ -1,0 +1,11 @@
+@mixin mobile-styles {
+  @media (max-width: 480px) {
+    .card {
+      height: 420px;
+      .floatingContent {
+        padding: 16px;
+        .title { font-size: 18px; }
+      }
+    }
+  }
+}

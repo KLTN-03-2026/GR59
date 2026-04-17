@@ -1,3 +1,5 @@
+@use "./TipsTab.mobile.scss";
+
 .tipsContainer {
   padding: 20px 0;
   .tabTitle {
@@ -55,8 +57,4 @@
   }
 }
 
-@media (max-width: 640px) {
-  .tipsGrid {
-    grid-template-columns: 1fr;
-  }
-}
+@include TipsTab.mobile-styles();

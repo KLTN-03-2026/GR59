@@ -1,3 +1,5 @@
+@use "./OverviewTab.mobile.scss";
+
 .destSection {
   margin-bottom: 50px;
   text-align: left;
@@ -110,12 +112,4 @@
   }
 }
 
-@media (max-width: 768px) {
-  .galleryMain {
-    height: 350px;
-  }
-  .galleryThumbs img {
-    width: 100px;
-    height: 70px;
-  }
-}
+@include OverviewTab.mobile-styles();

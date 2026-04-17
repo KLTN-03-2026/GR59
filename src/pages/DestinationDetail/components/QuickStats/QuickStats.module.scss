@@ -1,3 +1,5 @@
+@use "./QuickStats.mobile.scss";
+
 .quickStats {
   display: flex;
   gap: 10px;
@@ -51,16 +53,4 @@
   color: #1e293b;
 }
 
-@media (max-width: 1024px) {
-  .quickStats {
-    flex-wrap: wrap;
-  }
-  .statBox {
-    min-width: 250px;
-  }
-}
-@media (max-width: 768px) {
-  .statBox {
-    min-width: 100%;
-  }
-}
+@include QuickStats.mobile-styles();

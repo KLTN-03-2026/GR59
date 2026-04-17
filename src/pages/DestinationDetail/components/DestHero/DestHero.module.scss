@@ -1,3 +1,5 @@
+@use "./DestHero.mobile.scss";
+
 .destHero {
   position: relative;
   width: 100%;
@@ -105,12 +107,4 @@
   color: #ef4444;
 }
 
-@media (max-width: 768px) {
-  .heroTitle {
-    font-size: 2.5rem;
-  }
-  .heroContent {
-    left: 20px;
-    bottom: 20px;
-  }
-}
+@include DestHero.mobile-styles();

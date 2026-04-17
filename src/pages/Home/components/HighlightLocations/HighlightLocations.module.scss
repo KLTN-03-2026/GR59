@@ -1,3 +1,4 @@
+@use "./HighlightLocations.mobile.scss";
 @use "../../../../components/styles/variables.scss" as vars;
 
 .locations {
@@ -6,10 +7,6 @@
   z-index: 2;
   margin-top: 140px;
   margin-bottom: 40px;
-
-  @media (max-width: 992px) {
-    margin-top: 40px; // Significantly reduced from 140px
-  }
 }
 
 .headerWrapper {
@@ -17,12 +14,6 @@
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 40px;
-
-  @media (max-width: 992px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
 }
 
 .header {
@@ -36,12 +27,6 @@
     margin-bottom: 12px;
     display: flex;
     gap: 3px;
-
-    @media (max-width: 768px) {
-      font-size: 1.5rem;
-      justify-content: center;
-      text-align: center;
-    }
   }
   .highlightUnderline {
     margin-left: 2px;
@@ -52,11 +37,6 @@
     font-size: 0.9rem;
     text-align: left;
     max-width: 450px;
-
-    @media (max-width: 768px) {
-      text-align: center;
-      margin: 0 auto;
-    }
   }
 }
 
@@ -64,13 +44,6 @@
   display: flex;
   align-items: center;
   gap: 20px;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
 }
 
 .sliderTabs {
@@ -80,13 +53,6 @@
   padding: 5px;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.05);
-
-  @media (max-width: 480px) {
-    flex-wrap: wrap;
-    justify-content: center;
-    border-radius: 24px;
-    width: 100%;
-  }
 }
 
 .sliderTab {
@@ -180,14 +146,6 @@
     height: auto;
     overflow: visible;
 
-    @media (max-width: 992px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 576px) {
-      grid-template-columns: 1fr;
-    }
-
     .locationCard {
       width: 100%;
       min-width: 0;
@@ -206,11 +164,6 @@
   min-width: 250px;
   text-decoration: none;
   display: block; // Đảm bảo chiếm đúng không gian
-
-  @media (max-width: 576px) {
-    flex: 0 0 100%;
-    min-width: 0;
-  }
 }
 
 .locationCard {
@@ -319,10 +272,6 @@
   padding: 24px;
   background: white;
 
-  @media (max-width: 576px) {
-    padding: 20px;
-  }
-
   h3 {
     font-size: 1.1rem;
     font-weight: 800;
@@ -422,3 +371,5 @@
     box-shadow: 0 10px 20px rgba(51, 215, 209, 0.3);
   }
 }
+
+@include HighlightLocations.mobile-styles();

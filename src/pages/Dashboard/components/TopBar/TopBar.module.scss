@@ -1,3 +1,5 @@
+@use "./TopBar.mobile.scss";
+
 $primary: #ff7a00;
 $navy: #1a365d;
 $bg-light: #f8fafc;
@@ -26,10 +28,6 @@ $bg-light: #f8fafc;
     border: none;
     color: $navy;
     cursor: pointer;
-
-    @media (max-width: 1024px) {
-      display: block;
-    }
   }
 
   .searchBox {
@@ -120,3 +118,5 @@ $bg-light: #f8fafc;
     }
   }
 }
+
+@include TopBar.mobile-styles();

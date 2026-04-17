@@ -1,3 +1,5 @@
+@use "./ClockStation.mobile.scss";
+
 $primary: #ff7a00;
 $navy: #1a365d;
 $blue-accent: #0ea5e9;
@@ -13,11 +15,6 @@ $purple-accent: #8b5cf6;
   border: 1px solid #f1f5f9;
   align-items: center;
   width: 100%;
-
-  @media (max-width: 1200px) {
-    flex-direction: column;
-    padding: 30px;
-  }
 }
 
 .stationLeft {
@@ -179,3 +176,5 @@ $purple-accent: #8b5cf6;
     border-radius: 100px;
   }
 }
+
+@include ClockStation.mobile-styles();

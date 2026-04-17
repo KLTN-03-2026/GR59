@@ -713,13 +713,6 @@ vars.$bg-main */
     font-size: 0.9rem;
     color: vars.$text-gray;
   }
-
-  @media (max-width: 992px) {
-    text-align: center;
-    .subHeading { margin-bottom: 15px; }
-    .featureList { align-items: center; }
-    .sectionDescription { text-align: center; }
-  }
 }
 
 .featureList {

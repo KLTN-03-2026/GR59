@@ -1,3 +1,5 @@
+@use "./ProfileHeader.mobile.scss";
+
 .profileHeaderWrapper {
   background: white;
   border-radius: 24px;
@@ -237,4 +239,4 @@
   }
 }
 
-@import "./ProfileHeader.mobile.scss";
+@include ProfileHeader.mobile-styles();

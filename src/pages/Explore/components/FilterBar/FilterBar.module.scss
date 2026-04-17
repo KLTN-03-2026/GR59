@@ -1,3 +1,5 @@
+@use "./FilterBar.mobile.scss";
+
 .filterBar {
   display: flex;
   justify-content: space-between;
@@ -15,11 +17,6 @@
   text-align: left;
   z-index: 10;
   margin-bottom: 40px; // Fixed extreme 180px margin
-
-  @media (max-width: 768px) {
-    padding: 18px;
-    gap: 15px;
-  }
 
   &:hover {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
@@ -80,10 +77,6 @@
     .customSelect {
       position: relative;
       min-width: 160px;
-
-      @media (max-width: 768px) {
-        min-width: calc(50% - 7px);
-      }
     }
 
     .selectBox {
@@ -186,37 +179,6 @@
       }
     }
   }
-
-  @media (max-width: 768px) {
-    padding: 15px;
-
-    .searchSide {
-      width: 100%;
-      min-width: 0;
-      .inputGroup {
-        max-width: 100%;
-        padding: 10px 14px;
-      }
-    }
-
-    .selectSide {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-
-      .customSelect,
-      .btnAdvance {
-        width: 100%;
-        min-width: 0;
-      }
-
-      .btnAdvance {
-        grid-column: span 1;
-        justify-content: center;
-      }
-    }
-  }
 }
 
 @keyframes fadeInDown {
@@ -229,3 +191,5 @@
     transform: translateY(0);
   }
 }
+
+@include FilterBar.mobile-styles();

@@ -1,12 +1,12 @@
 @use "./ItineraryDetail.mobile.scss";
-@import "../../components/styles/variables.scss";
+@use "../../components/styles/variables.scss" as vars;
 
 .detailPageContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background-color: $bg-main;
+  background-color: vars.$bg-main;
 }
 
 .splitViewContainer {
@@ -41,16 +41,16 @@
   h2 {
     font-size: 1.8rem;
     font-weight: 800;
-    color: $bg-dark-card;
+    color: vars.$bg-dark-card;
     margin: 24px 0 12px;
-    background: $premium-gradient;
+    background: vars.$premium-gradient;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   p {
-    color: $text-gray;
+    color: vars.$text-gray;
     font-size: 1.1rem;
     line-height: 1.6;
     margin-bottom: 32px;
@@ -101,7 +101,7 @@
   left: 0;
   height: 100%;
   width: 0;
-  background: $premium-gradient;
+  background: vars.$premium-gradient;
   border-radius: 10px;
   animation: progressLoad 3s linear forwards;
 }

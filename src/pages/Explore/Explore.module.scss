@@ -33,26 +33,8 @@ $max-width: 1200px;
     will-change: flex; // Tối ưu hóa hiệu năng render
   }
 
-  // Hiệu ứng mở rộng chuyên nghiệp
-  @media (min-width: 701px) {
-    &:has(> div:hover), 
-    &:has(> div:has([data-is-playing="true"])) {
-      > div {
-        flex: 0 0 calc(25% - 20px) !important;
-        opacity: 0.6;
-        filter: grayscale(0.5) blur(1px);
-      }
-
-      > div:hover,
-      > div:has([data-is-playing="true"]) {
-        flex: 0 0 calc(50% - 10px) !important;
-        opacity: 1;
-        filter: grayscale(0) blur(0);
-        z-index: 10;
-      }
-    }
   }
-}
+
 
 // Style cho phần phân trang số
 .paginationContainer {

@@ -1,3 +1,4 @@
+@use "./Register.mobile.scss";
 @use "../../../components/styles/variables" as vars;
 
 .registerContainer {
@@ -16,10 +17,6 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
       color: transparent;
-
-      @media (max-width: 576px) {
-        font-size: 1.5rem;
-      }
     }
 
     p {
@@ -36,11 +33,6 @@
     gap: 16px;
     margin-bottom: 24px;
     width: 100%;
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
 
     .googleButtonWrap,
     .facebookButtonWrap {
@@ -123,10 +115,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-
-  @media (max-width: 576px) {
-    gap: 10px;
-  }
 
   .group {
     display: flex;
@@ -299,3 +287,5 @@
     opacity: 0.7;
   }
 }
+
+@include Register.mobile-styles();

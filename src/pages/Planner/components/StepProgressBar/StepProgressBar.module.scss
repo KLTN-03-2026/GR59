@@ -1,3 +1,4 @@
+@use "./StepProgressBar.mobile.scss";
 $orange: #ff7e00;
 $gray-light: #f1f5f9;
 $gray-text: #94a3b8;
@@ -69,6 +70,4 @@ $gray-text: #94a3b8;
   margin-top: -24px; 
 }
 
-@media (max-width: 640px) {
-  .line { flex: 0 0 30px; }
-}
+@include StepProgressBar.mobile-styles();

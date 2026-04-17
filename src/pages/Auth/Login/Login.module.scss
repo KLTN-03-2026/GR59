@@ -1,3 +1,4 @@
+@use "./Login.mobile.scss";
 @use "../../../components/styles/variables" as vars;
 
 .loginContainer {
@@ -18,10 +19,6 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
       color: transparent;
-
-      @media (max-width: 576px) {
-        font-size: 1.75rem;
-      }
     }
 
     p {
@@ -37,11 +34,6 @@
     gap: 16px;
     margin-bottom: 24px;
     width: 100%;
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
 
     .googleButtonWrap,
     .facebookButtonWrap {
@@ -132,10 +124,6 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-
-    @media (max-width: 576px) {
-      gap: 16px;
-    }
 
     .group {
       display: flex;
@@ -282,3 +270,5 @@
     }
   }
 }
+
+@include Login.mobile-styles();

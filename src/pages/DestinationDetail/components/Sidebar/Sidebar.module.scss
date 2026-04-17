@@ -1,3 +1,5 @@
+@use "./Sidebar.mobile.scss";
+
 .destRight {
   position: relative;
 }
@@ -114,8 +116,4 @@
   }
 }
 
-@media (max-width: 1024px) {
-  .stickySidebar {
-    position: static;
-  }
-}
+@include Sidebar.mobile-styles();
