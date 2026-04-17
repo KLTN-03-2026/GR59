@@ -167,6 +167,32 @@
   overflow: hidden;
 }
 
+.popupNavBtn {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  background: #0ea5e9;
+  color: white !important;
+  text-decoration: none !important;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 10px;
+  transition: all 0.2s;
+  justify-content: center;
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &:hover {
+    background: #0284c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  }
+}
+
 /* Global Leaflet Overrides */
 :global(.iti-custom-popup) {
   :global(.leaflet-popup-content-wrapper) {

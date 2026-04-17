@@ -188,6 +188,14 @@
     margin-bottom: 20px;
     color: #1e293b;
 
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
     .gradientText {
       background: vars.$primary-gradient;
       -webkit-background-clip: text;
@@ -204,6 +212,10 @@
     line-height: 1.4;
     margin-bottom: 20px;
     text-align: justify;
+
+    @media (max-width: 768px) {
+      text-align: center;
+    }
   }
 }
 
@@ -220,6 +232,10 @@
     gap: 12px;
     font-weight: 600;
     color: #1e293b;
+
+    @media (max-width: 768px) {
+      justify-content: center;
+    }
 
     .checkIcon {
       width: 24px;

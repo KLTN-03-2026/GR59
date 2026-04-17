@@ -6,6 +6,16 @@ import {
   UserCircle,
   MapTrifold,
   SignOut,
+  List,
+  X,
+  House,
+  Compass,
+  BookOpen,
+  Newspaper,
+  Star,
+  FacebookLogo,
+  InstagramLogo,
+  YoutubeLogo,
 } from "phosphor-react";
 import { toast } from "react-toastify"; // Đảm bảo đã import toast
 import styles from "./Navbar.module.scss";
@@ -20,6 +30,7 @@ const Navbar: React.FC = () => {
   const [username, setUsername] = useState(() => {
     return localStorage.getItem("username") || "";
   });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -39,9 +50,9 @@ const Navbar: React.FC = () => {
     if (storedUsername !== username) {
       setUsername(storedUsername);
     }
-
-    // Lưu ý: Không đưa 'isLoggedIn' và 'username' vào mảng dependencies
-    // để tránh tình trạng "cascading renders" (render thác đổ).
+    
+    // Close mobile menu on route change
+    setIsMenuOpen(false);
   }, [location]);
   const isActive = (path: string) => location.pathname === path;
 
@@ -155,6 +166,95 @@ const Navbar: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Hamburger Menu Button */}
+        {!isMenuOpen && (
+          <button 
+            className={styles.mobileMenuBtn} 
+            onClick={() => setIsMenuOpen(true)}
+            aria-label="Mở menu"
+          >
+            <List size={28} weight="bold" />
+          </button>
+        )}
+
+        {/* Mobile Menu Drawer */}
+        <div className={`${styles.mobileDrawer} ${isMenuOpen ? styles.open : ""}`}>
+          <div className={styles.mobileDrawerContent}>
+            {/* Drawer Header */}
+            <div className={styles.drawerHeader}>
+              <button className={styles.drawerCloseBtn} onClick={() => setIsMenuOpen(false)}>
+                <X size={24} weight="bold" />
+              </button>
+            </div>
+
+            <nav className={styles.mobileNavLinks}>
+              <Link to="/" className={isActive("/") ? styles.active : ""} onClick={() => setIsMenuOpen(false)}>
+                <House size={22} weight={isActive("/") ? "fill" : "bold"} />
+                <span>Trang chủ</span>
+              </Link>
+              <Link to="/explore" className={isActive("/explore") ? styles.active : ""} onClick={() => setIsMenuOpen(false)}>
+                <Compass size={22} weight={isActive("/explore") ? "fill" : "bold"} />
+                <span>Khám phá</span>
+              </Link>
+              <Link to="/sample" className={isActive("/sample") ? styles.active : ""} onClick={() => setIsMenuOpen(false)}>
+                <BookOpen size={22} weight={isActive("/sample") ? "fill" : "bold"} />
+                <span>Lịch trình mẫu</span>
+              </Link>
+              <Link to="/news" className={isActive("/news") ? styles.active : ""} onClick={() => setIsMenuOpen(false)}>
+                <Newspaper size={22} weight={isActive("/news") ? "fill" : "bold"} />
+                <span>Tin tức</span>
+              </Link>
+              <Link to="/review" className={isActive("/review") ? styles.active : ""} onClick={() => setIsMenuOpen(false)}>
+                <Star size={22} weight={isActive("/review") ? "fill" : "bold"} />
+                <span>Đánh giá</span>
+              </Link>
+            </nav>
+
+            <div className={styles.mobileAuthActions}>
+              {isLoggedIn ? (
+                <div className={styles.mobileAccountBox}>
+                  <div className={styles.accountLabel}>TÀI KHOẢN</div>
+                  <Link to="/profile" className={styles.mobileMenuItem} onClick={() => setIsMenuOpen(false)}>
+                    <UserCircle size={22} weight="bold" /> 
+                    <span>Trang cá nhân</span>
+                  </Link>
+                  <Link to="/dashboard" className={styles.mobileMenuItem} onClick={() => setIsMenuOpen(false)}>
+                    <MapTrifold size={22} weight="bold" /> 
+                    <span>Lịch trình của tôi</span>
+                  </Link>
+                  <a href="/" onClick={(e) => { handleLogOut(e); setIsMenuOpen(false); }} className={`${styles.mobileMenuItem} ${styles.logout}`}>
+                    <SignOut size={22} weight="bold" /> 
+                    <span>Đăng xuất</span>
+                  </a>
+                </div>
+              ) : (
+                <div className={styles.mobileAuthBtns}>
+                  <Link to="/auth" className={styles.mobileLoginBtn} onClick={() => setIsMenuOpen(false)}>
+                    Đăng nhập
+                  </Link>
+                  <Link to="/auth" className={styles.mobileJoinBtn} onClick={() => setIsMenuOpen(false)}>
+                    Bắt đầu ngay
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Drawer Footer */}
+            <div className={styles.drawerFooter}>
+              <p className={styles.footerLabel}>THEO DÕI CHÚNG TÔI</p>
+              <div className={styles.socialGrid}>
+                <a href="#"><FacebookLogo size={24} weight="fill" /></a>
+                <a href="#"><InstagramLogo size={24} weight="fill" /></a>
+                <a href="#"><YoutubeLogo size={24} weight="fill" /></a>
+              </div>
+              <div className={styles.footerCopy}>© 2024 TravelAi. All rights reserved.</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Overlay when menu is open */}
+        {isMenuOpen && <div className={styles.menuOverlay} onClick={() => setIsMenuOpen(false)} />}
       </div>
     </header>
   );

@@ -8,7 +8,7 @@ import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
 import { toast } from 'react-toastify';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,22 +20,31 @@ const rowVariants = {
 } as const;
 
 const HotelsView: React.FC = () => {
-  const { data: hotels, loading, error, refetch } = useHotels();
+  const [page, setPage] = useState(1);
+  const { data: hotels, pagination, loading, error, refetch } = useHotels();
+
+  // Gọi lại API khi trang thay đổi
+  React.useEffect(() => {
+    refetch(page - 1, PAGE_SIZE);
+  }, [page]);
 
   const [activeTab, setActiveTab] = useState<'all' | 'HOẠT ĐỘNG' | 'BẢO TRÌ'>('all');
   const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // ─── derived stats ───────────────────────────────────────────────────────────
-  const totalActive = hotels.filter(h => h.status === 'HOẠT ĐỘNG').length;
-  const totalMaintain = hotels.filter(h => h.status === 'BẢO TRÌ').length;
+  // Lưu ý: stats này hiện tại chỉ tính trên trang hiện tại. 
+  // Để chính xác tuyệt đối cần API summary từ BE.
+  const totalActive = hotels.filter(h => h.status === 'ACTIVE' || h.status === 'HOẠT ĐỘNG').length;
+  const totalMaintain = hotels.filter(h => h.status === 'MAINTENANCE' || h.status === 'BẢO TRÌ').length;
 
-  // ─── filtered & paginated ────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let list = [...hotels];
-    if (activeTab !== 'all') list = list.filter(h => h.status === activeTab);
+    if (activeTab !== 'all') {
+      const matchStatus = activeTab === 'HOẠT ĐỘNG' ? 'ACTIVE' : 'MAINTENANCE';
+      list = list.filter(h => h.status === activeTab || h.status === matchStatus);
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(h => h.name.toLowerCase().includes(q) || h.location.toLowerCase().includes(q));
@@ -43,8 +52,8 @@ const HotelsView: React.FC = () => {
     return list;
   }, [hotels, activeTab, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = pagination.totalPages || 1;
+  const paged = filtered; // Vì đã phân trang ở Server, ta hiển thị toàn bộ list lọc được trên trang đó
 
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc muốn xóa khách sạn này không?')) return;
@@ -64,9 +73,9 @@ const HotelsView: React.FC = () => {
       `"${h.name}"`,
       `"${h.location}"`,
       h.rating,
-      `"${h.reviews}"`,
-      `"${h.type}"`,
-      `"${h.price}/${h.unit}"`,
+      h.reviewCount,
+      `"${h.category || 'N/A'}"`,
+      `"${h.averagePrice?.toLocaleString()}đ"`,
       h.status
     ]);
     
@@ -119,7 +128,7 @@ const HotelsView: React.FC = () => {
       {error && <ErrorBanner message={error} onRetry={refetch} />}
 
       <motion.div variants={rowVariants} className={styles.statsGrid}>
-        <StatCard label="TỔNG KHÁCH SẠN" value={loading ? '...' : String(hotels.length)} trend="+12% tháng này" trendUp={true} icon="Bed" colorClass="bgBlue" />
+        <StatCard label="TỔNG KHÁCH SẠN" value={loading ? '...' : String(pagination.totalElements || hotels.length)} trend="+12% tháng này" trendUp={true} icon="Bed" colorClass="bgBlue" />
         <StatCard label="HOẠT ĐỘNG" value={loading ? '...' : String(totalActive)} footerText="Đang vận hành" icon="CheckCircle" colorClass="bgEmerald" />
         <StatCard label="BẢO TRÌ" value={loading ? '...' : String(totalMaintain)} trend="Theo lịch trình" trendUp={true} icon="Wrench" colorClass="bgAmber" />
         <StatCard label="YÊU CẦU MỚI" value="92" trend="Chờ phê duyệt" trendUp={true} icon="Storefront" colorClass="bgPurple" />
@@ -130,15 +139,15 @@ const HotelsView: React.FC = () => {
           <div className={styles.tabGroup}>
             <button
               className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('all'); setPage(1); }}
-            >Tất cả ({hotels.length})</button>
+              onClick={() => { setActiveTab('all'); }}
+            >Tất cả ({pagination.totalElements || hotels.length})</button>
             <button
               className={`${styles.tab} ${activeTab === 'HOẠT ĐỘNG' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('HOẠT ĐỘNG'); setPage(1); }}
+              onClick={() => { setActiveTab('HOẠT ĐỘNG'); }}
             >Đang hoạt động</button>
             <button
               className={`${styles.tab} ${activeTab === 'BẢO TRÌ' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('BẢO TRÌ'); setPage(1); }}
+              onClick={() => { setActiveTab('BẢO TRÌ'); }}
             >Bảo trì</button>
           </div>
         </div>
@@ -183,10 +192,10 @@ const HotelsView: React.FC = () => {
                   <td>
                     <div className={styles.infoCol}>
                       <div className={styles.imgWrapper}>
-                        <img src={hotel.image} alt="" />
+                        <img src={hotel.imageUrl} alt="" />
                         <span 
                           className={styles.statusIndicator} 
-                          style={{ backgroundColor: hotel.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}
+                          style={{ backgroundColor: (hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}
                         ></span>
                       </div>
                       <div className={styles.textInfo}>
@@ -205,16 +214,16 @@ const HotelsView: React.FC = () => {
                     <div className={styles.ratingCol}>
                       <Star size={16} weight="fill" color="#f59e0b" />
                       <span>{hotel.rating}</span>
-                      <span>({hotel.reviews})</span>
+                      <span>({hotel.reviewCount})</span>
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${hotel.type === 'RESORT' ? styles.bgBlue : hotel.type === 'CỔ ĐIỂN' ? styles.bgAmber : styles.bgPurple}`}>{hotel.type}</span>
+                    <span className={`${styles.badge} ${styles.bgPurple}`}>{hotel.category || 'PHỔ THÔNG'}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${hotel.status === 'HOẠT ĐỘNG' ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: hotel.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}></span>
-                      {hotel.status}
+                    <span className={`${styles.badge} ${(hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: (hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}></span>
+                      {hotel.status === 'ACTIVE' ? 'HOẠT ĐỘNG' : hotel.status === 'MAINTENANCE' ? 'BẢO TRÌ' : hotel.status}
                     </span>
                   </td>
                   <td>
@@ -236,15 +245,15 @@ const HotelsView: React.FC = () => {
         {/* Pagination */}
         <div className={styles.pagination}>
           <p className={styles.paginationInfo}>
-            Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)}</span> của <span>{filtered.length}</span> kết quả
+            Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, pagination.totalElements)}–{Math.min(page * PAGE_SIZE, pagination.totalElements)}</span> của <span>{pagination.totalElements}</span> kết quả
           </p>
           <div className={styles.paginationBtns}>
             <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}>
-              <CaretLeft size={16} />
+              <CaretLeft size={20} weight="bold" />
             </button>
             <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</button>
             <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
-              <CaretRight size={16} />
+              <CaretRight size={20} weight="bold" />
             </button>
           </div>
         </div>

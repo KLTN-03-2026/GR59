@@ -1,3 +1,4 @@
+@use "./RestaurantsView.mobile.scss";
 @import "../../../../components/styles/variables.scss";
 
 $blue-start: #2563eb;
@@ -361,3 +362,6 @@ $red: #ef4444;
 
   &:disabled { opacity: 0.3; cursor: not-allowed; }
 }
+
+@include RestaurantsView.mobile-styles();
+

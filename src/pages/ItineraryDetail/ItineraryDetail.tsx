@@ -14,6 +14,7 @@ import {
   getSampleItineraryById 
 } from '../../services/itineraryService';
 import PlaceDetailPanel from './Components/PlaceDetailPanel/PlaceDetailPanel';
+import NavigationModal from './Components/NavigationModal/NavigationModal';
 
 export interface RoutePoint {
   id: string;
@@ -86,6 +87,11 @@ const ItineraryDetail: React.FC = () => {
   const [previewPoint, setPreviewPoint] = useState<RoutePoint | null>(null);
   const [metrics, setMetrics] = useState<Record<string, { distance: string; duration: number }>>({});
   
+  // Navigation Modal State
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [navDestination, setNavDestination] = useState<{lat: number, lng: number, name: string} | null>(null);
+  const [userLocation, setUserLocation] = useState<string | null>(null);
+  
   const [activeDay, setActiveDay] = useState(1);
   
   const navigate = useNavigate();
@@ -145,6 +151,20 @@ const ItineraryDetail: React.FC = () => {
       navigate('/auth');
     }
   }, [navigate, id]);
+
+  // Lấy vị trí hiện tại để làm điểm bắt đầu chỉ đường
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation(`${position.coords.latitude},${position.coords.longitude}`);
+        },
+        (error) => {
+          console.error("Error getting location for navigation:", error);
+        }
+      );
+    }
+  }, []);
 
   // Fetch AI Suggested Route or Sample Itinerary
   useEffect(() => {
@@ -290,6 +310,10 @@ const ItineraryDetail: React.FC = () => {
           metrics={metrics}
           activeDay={activeDay}
           setActiveDay={setActiveDay}
+          onOpenNavigation={(lat, lng, name) => {
+            setNavDestination({ lat, lng, name });
+            setIsNavOpen(true);
+          }}
         />
         
         <ItineraryMap 
@@ -299,6 +323,10 @@ const ItineraryDetail: React.FC = () => {
           isPreviewing={isPreviewing}
           previewPoint={previewPoint}
           metrics={metrics}
+          onOpenNavigation={(lat, lng, name) => {
+            setNavDestination({ lat, lng, name });
+            setIsNavOpen(true);
+          }}
         />
 
         {isModalOpen && (
@@ -313,7 +341,19 @@ const ItineraryDetail: React.FC = () => {
           pointId={activePointId} 
           points={points} 
           onClose={() => setActivePointId(null)} 
+          onOpenNavigation={(lat, lng, name) => {
+            setNavDestination({ lat, lng, name });
+            setIsNavOpen(true);
+          }}
         />
+
+        {isNavOpen && navDestination && (
+          <NavigationModal 
+            onClose={() => setIsNavOpen(false)}
+            destination={navDestination}
+            userLocation={userLocation}
+          />
+        )}
       </div>
     </div>
   );

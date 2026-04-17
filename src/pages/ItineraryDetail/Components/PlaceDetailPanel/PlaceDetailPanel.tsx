@@ -18,9 +18,10 @@ interface Props {
   pointId: string | null;
   points: RoutePoint[];
   onClose: () => void;
+  onOpenNavigation: (lat: number, lng: number, name: string) => void;
 }
 
-const PlaceDetailPanel: React.FC<Props> = ({ pointId, points, onClose }) => {
+const PlaceDetailPanel: React.FC<Props> = ({ pointId, points, onClose, onOpenNavigation }) => {
   const [point, setPoint] = useState<RoutePoint | null>(null);
   const [wikiData, setWikiData] = useState<{ title: string; desc: string; image: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -86,6 +87,11 @@ const PlaceDetailPanel: React.FC<Props> = ({ pointId, points, onClose }) => {
     }
   };
 
+  const handleOpenNavigation = () => {
+    if (!point) return;
+    onOpenNavigation(point.lat, point.lng, point.name);
+  };
+
   if (!pointId || !point) return null;
 
   return (
@@ -134,7 +140,7 @@ const PlaceDetailPanel: React.FC<Props> = ({ pointId, points, onClose }) => {
           </div>
 
           <div className={styles.actionGrid}>
-             <button className={styles.primaryAction}>
+             <button className={styles.primaryAction} onClick={handleOpenNavigation}>
                 <ArrowRight size={20} weight="bold" />
                 Chỉ đường
              </button>

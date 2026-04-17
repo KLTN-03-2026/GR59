@@ -12,9 +12,15 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
   margin-bottom: 45px;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-text-align: left;
- z-index: 10;
-  margin-bottom: 180px;
+  text-align: left;
+  z-index: 10;
+  margin-bottom: 40px; // Fixed extreme 180px margin
+
+  @media (max-width: 768px) {
+    padding: 18px;
+    gap: 15px;
+  }
+
   &:hover {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
     background: rgba(255, 255, 255, 0.85);
@@ -74,6 +80,10 @@ text-align: left;
     .customSelect {
       position: relative;
       min-width: 160px;
+
+      @media (max-width: 768px) {
+        min-width: calc(50% - 7px);
+      }
     }
 
     .selectBox {
@@ -178,27 +188,31 @@ text-align: left;
   }
 
   @media (max-width: 768px) {
-    padding: 15px 20px;
+    padding: 15px;
 
     .searchSide {
       width: 100%;
+      min-width: 0;
       .inputGroup {
         max-width: 100%;
+        padding: 10px 14px;
       }
     }
 
     .selectSide {
       width: 100%;
-      justify-content: flex-start;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
 
-      .selectBox,
-      .btnAdvance,
-      .btnSort {
-        flex: 1;
-        min-width: auto;
-        padding: 10px;
-        font-size: 13px;
+      .customSelect,
+      .btnAdvance {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .btnAdvance {
+        grid-column: span 1;
         justify-content: center;
       }
     }

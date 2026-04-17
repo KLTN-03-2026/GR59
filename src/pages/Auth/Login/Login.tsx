@@ -69,7 +69,6 @@ const Login: React.FC<Props> = ({ onToggle }) => {
     }
   };
 
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim();
@@ -99,8 +98,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
         navigate("/");
       } else {
         toast.error(
-          response.data?.message ||
-            "Email hoặc mật khẩu không chính xác!",
+          response.data?.message || "Email hoặc mật khẩu không chính xác!",
         );
       }
     } catch (error: unknown) {
@@ -145,16 +143,14 @@ const Login: React.FC<Props> = ({ onToggle }) => {
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin
-            appId={import.meta.env.VITE_FACEBOOK_APP_ID || "3832704913701035"}
+            appId={import.meta.env.VITE_FACEBOOK_APP_ID || "1493682952374744"}
+            fields="name,email,picture"
+            scope="public_profile email"
             onSuccess={async (response: { accessToken: string }) => {
               try {
                 setIsLoading(true);
                 const res = await postLoginFacebook(response.accessToken);
-                if (
-                  res.data &&
-                  res.data.status === 200 &&
-                  res.data.data
-                ) {
+                if (res.data && res.data.status === 200 && res.data.data) {
                   const data = res.data.data;
                   const user = data.user;
                   if (data.accessToken)
@@ -171,8 +167,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
                   navigate("/");
                 } else {
                   toast.error(
-                    res.data?.message ||
-                      "Đăng nhập Facebook thất bại!",
+                    res.data?.message || "Đăng nhập Facebook thất bại!",
                   );
                 }
               } catch (error: unknown) {
@@ -184,7 +179,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
             }}
             onFail={(error: unknown) => {
               console.error("Facebook Login Failed:", error);
-              toast.error("Đăng nhập Facebook bị hủy bỏ hoặc thất bại!");
+              toast.error("Đăng nhập Facebook không thành công. Vui lòng thử lại!");
             }}
             render={({ onClick }: { onClick?: () => void }) => (
               <button

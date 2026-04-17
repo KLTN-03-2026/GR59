@@ -12,6 +12,7 @@ interface Props {
   isPreviewing: boolean;
   previewPoint?: RoutePoint | null;
   metrics?: Record<string, { distance: string; duration: number }>;
+  onOpenNavigation: (lat: number, lng: number, name: string) => void;
 }
 
 // Custom hook to handle map side-effects
@@ -78,7 +79,8 @@ const ItineraryMarker: React.FC<{
   index: number;
   isActive: boolean;
   onClick: () => void;
-}> = ({ point, index, isActive, onClick }) => {
+  onOpenNavigation: (lat: number, lng: number, name: string) => void;
+}> = ({ point, index, isActive, onClick, onOpenNavigation }) => {
   const markerRef = useRef<L.Marker>(null);
 
   useEffect(() => {
@@ -106,6 +108,16 @@ const ItineraryMarker: React.FC<{
              </div>
              <h4 className={styles.popupTitle}>{point.name}</h4>
              <p className={styles.popupDesc}>{point.description}</p>
+             <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenNavigation(point.lat, point.lng, point.name);
+                }}
+                className={styles.popupNavBtn}
+              >
+                <i className="ph-fill ph-navigation-arrow"></i>
+                Dẫn đường
+              </button>
           </div>
         </div>
       </Popup>
@@ -156,7 +168,7 @@ const MapControls: React.FC = () => {
   );
 };
 
-const ItineraryMap: React.FC<Props> = ({ points, activePointId, onPointClick, isPreviewing, previewPoint, metrics = {} }) => {
+const ItineraryMap: React.FC<Props> = ({ points, activePointId, onPointClick, isPreviewing, previewPoint, metrics = {}, onOpenNavigation }) => {
   const renderPolylines = () => {
     if (points.length < 2) return null;
     const pathPositions = points.map(p => [p.lat, p.lng] as [number, number]);
@@ -214,6 +226,7 @@ const ItineraryMap: React.FC<Props> = ({ points, activePointId, onPointClick, is
             index={idx + 1} 
             isActive={activePointId === point.id} 
             onClick={() => onPointClick(point.id)} 
+            onOpenNavigation={onOpenNavigation}
           />
         ))}
 

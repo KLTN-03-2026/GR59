@@ -26,6 +26,7 @@ interface Props {
   metrics?: Record<string, TravelMetric>;
   activeDay: number;
   setActiveDay: (day: number) => void;
+  onOpenNavigation: (lat: number, lng: number, name: string) => void;
 }
 
 const ItinerarySidebar: React.FC<Props> = ({
@@ -38,7 +39,8 @@ const ItinerarySidebar: React.FC<Props> = ({
   planData,
   metrics = {},
   activeDay,
-  setActiveDay
+  setActiveDay,
+  onOpenNavigation
 }) => {
   const [showStats, setShowStats] = useState(false);
 
@@ -83,6 +85,7 @@ const ItinerarySidebar: React.FC<Props> = ({
                   index={globalIdx} 
                   isActive={activePointId === point.id}
                   onClick={() => onPointClick(point.id)}
+                  onOpenNavigation={onOpenNavigation}
                 />
                 
                 {idx < groupPoints.length - 1 && (

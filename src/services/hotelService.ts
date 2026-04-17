@@ -107,8 +107,12 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destinati
     reviews: hotel.reviewCount?.toString() || "0",
     distance: "Thông tin đang cập nhật",
     price: hotel.averagePrice ? `${hotel.averagePrice.toLocaleString()}đ` : "Liên hệ",
-    time: hotel.estimatedDuration ? `${hotel.estimatedDuration} phút` : "Đang cập nhật",
-    category: hotel.category || "Khách sạn",
+    time: hotel.estimatedDuration 
+      ? (hotel.estimatedDuration >= 60 
+          ? `${Math.round(hotel.estimatedDuration / 60)} giờ` 
+          : `${hotel.estimatedDuration} phút`)
+      : "Đang cập nhật",
+    category: hotel.category || "LUXURY",
     description: hotel.description || `Thông tin chi tiết về khách sạn ${hotel.name || hotel.id} đang được cập nhật.`,
     gallery: hotel.gallery && hotel.gallery.length > 0 
       ? hotel.gallery 

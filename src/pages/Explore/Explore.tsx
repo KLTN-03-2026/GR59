@@ -155,6 +155,30 @@ const Explore: React.FC = () => {
     window.scrollTo({ top: 400, behavior: "smooth" });
   };
 
+  const getPageNumbers = () => {
+    const delta = 1;
+    const range = [];
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage > 1 + delta + 1) {
+      range.unshift("...");
+    }
+    if (currentPage < totalPages - delta - 1) {
+      range.push("...");
+    }
+
+    range.unshift(1);
+    if (totalPages > 1) range.push(totalPages);
+
+    return range;
+  };
+
   const handleToggleLike = async (location: HighlightItem) => {
     const savedTrip = savedTrips.find((trip) => trip.id == location.id);
     const originalSavedTrips = [...savedTrips];
@@ -275,14 +299,18 @@ const Explore: React.FC = () => {
               <CaretLeft size={20} />
             </button>
             <div className={styles.pageNumbers}>
-              {Array.from({ length: totalPages }).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handlePageChange(idx + 1)}
-                  className={`${styles.pageBtn} ${currentPage === idx + 1 ? styles.activePage : ""}`}
-                >
-                  {idx + 1}
-                </button>
+              {getPageNumbers().map((pageNum, idx) => (
+                pageNum === "..." ? (
+                  <span key={`dots-${idx}`} className={styles.paginationDots}>...</span>
+                ) : (
+                  <button
+                    key={idx}
+                    onClick={() => handlePageChange(pageNum as number)}
+                    className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}
+                  >
+                    {pageNum}
+                  </button>
+                )
               ))}
             </div>
             <button

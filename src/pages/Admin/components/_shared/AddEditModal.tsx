@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './AddEditModal.module.scss';
-import { X, Plus, Trash, Image as ImageIcon, Info, MapTrifold, Cloud, Lightbulb, ListChecks, Airplane, Video } from "@phosphor-icons/react";
+import { X, Plus, Trash, Image as ImageIcon, Info, MapTrifold, Cloud, Lightbulb, ListChecks, Airplane, Video, UploadSimple, CircleNotch } from "@phosphor-icons/react";
+import { uploadAdminImage } from '../../../../services/adminService';
+import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AddEditModalProps {
@@ -14,6 +16,9 @@ interface AddEditModalProps {
 
 const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, title, type, initialData }) => {
   const [formData, setFormData] = useState<any>({});
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -55,11 +60,15 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
           ...baseData,
           name: '',
           location: '',
-          image: '',
-          type: 'RESORT',
-          price: '',
-          unit: 'đêm',
-          amenities: []
+          imageUrl: '',
+          category: 'LUXURY',
+          averagePrice: 0,
+          estimatedDuration: 1200,
+          provinceId: 1,
+          status: 'ACTIVE',
+          rating: 4.5,
+          reviewCount: 100,
+          gallery: []
         });
       } else {
         setFormData({
@@ -102,9 +111,54 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
     setFormData((prev: any) => ({ ...prev, [field]: newArray }));
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, field: 'main' | 'gallery') => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      setIsUploading(true);
+      
+      const uploadPromises = Array.from(files).map(file => uploadAdminImage(file));
+      const results = await Promise.all(uploadPromises);
+      
+      const newUrls = results
+        .filter(res => res.data && res.data.status === 200 && res.data.data?.imageUrl)
+        .map(res => res.data.data!.imageUrl);
+
+      if (newUrls.length > 0) {
+        if (field === 'main') {
+          const mainField = type === 'destination' ? 'img' : (type === 'hotel' ? 'imageUrl' : 'image');
+          setFormData((prev: any) => ({ ...prev, [mainField]: newUrls[0] }));
+          toast.success('Đã tải ảnh chính lên!');
+        } else {
+          setFormData((prev: any) => ({ ...prev, gallery: [...(prev.gallery || []), ...newUrls] }));
+          toast.success(`Đã tải ${newUrls.length} ảnh vào thư viện!`);
+        }
+      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error('Tải ảnh lên thất bại!');
+    } finally {
+      setIsUploading(false);
+      if (event.target) event.target.value = '';
+    }
+  };
+
   const handleSaveInternal = () => {
     const finalData = { ...formData };
     
+    if (type === 'hotel') {
+      // Ép kiểu số cho Hotel để khớp Backend API
+      finalData.rating = parseFloat(finalData.rating) || 0;
+      finalData.reviewCount = parseInt(finalData.reviewCount) || 0;
+      finalData.averagePrice = parseInt(finalData.averagePrice) || 0;
+      finalData.estimatedDuration = parseInt(finalData.estimatedDuration) || 0;
+      finalData.provinceId = parseInt(finalData.provinceId) || 1;
+      
+      // Xóa trường redundant nếu có
+      delete finalData.reviews;
+    }
+
     if (type === 'destination') {
       if (!finalData.img && finalData.heroImage) finalData.img = finalData.heroImage;
       delete finalData.heroImage;
@@ -170,16 +224,28 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
 
               <div className={styles.inputGroup}>
                 <label>Lượt đánh giá</label>
-                <input type="text" name="reviews" value={formData.reviews || ''} onChange={handleChange} placeholder="Ví dụ: 850" />
+                <input 
+                  type="number" 
+                  name={type === 'hotel' ? 'reviewCount' : 'reviews'} 
+                  value={(type === 'hotel' ? formData.reviewCount : formData.reviews) || ''} 
+                  onChange={handleChange} 
+                  placeholder="Ví dụ: 850" 
+                />
               </div>
 
               <div className={styles.inputGroup}>
                 <label>Trạng thái</label>
-                <select name="status" value={formData.status} onChange={handleChange}>
+                <select name="status" value={formData.status || ''} onChange={handleChange}>
                   {type === 'restaurant' ? (
                     <>
                       <option value="ĐANG MỞ">Đang mở</option>
                       <option value="TẠM ĐÓNG">Tạm đóng</option>
+                    </>
+                  ) : type === 'hotel' ? (
+                    <>
+                      <option value="ACTIVE">Hoạt động (Active)</option>
+                      <option value="MAINTENANCE">Bảo trì (Maintenance)</option>
+                      <option value="CLOSED">Đóng cửa (Closed)</option>
                     </>
                   ) : (
                     <>
@@ -212,17 +278,34 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
               {type === 'hotel' && (
                 <>
                   <div className={styles.inputGroup}>
-                    <label>Loại hình</label>
-                    <select name="type" value={formData.type} onChange={handleChange}>
-                      <option value="RESORT">Resort</option>
-                      <option value="CỔ ĐIỂN">Cổ điển</option>
-                      <option value="HIỆN ĐẠI">Hiện đại</option>
+                    <label>Hạng mục (Category)</label>
+                    <select name="category" value={formData.category || ''} onChange={handleChange}>
+                      <option value="LUXURY">Luxury (Hạng sang)</option>
+                      <option value="RESORT">Resort (Nghỉ dưỡng)</option>
+                      <option value="BOUTIQUE">Boutique (Độc đáo)</option>
+                      <option value="BUDGET">Budget (Bình dân)</option>
+                      <option value="BUSINESS">Business (Công tác)</option>
                       <option value="HOMESTAY">Homestay</option>
+                      <option value="VILLA">Villa (Biệt thự)</option>
                     </select>
                   </div>
                   <div className={styles.inputGroup}>
-                    <label>Giá phòng</label>
-                    <input type="text" name="price" value={formData.price || ''} onChange={handleChange} placeholder="Ví dụ: 1.200.000đ" />
+                    <label>Giá trung bình (VNĐ)</label>
+                    <input type="number" name="averagePrice" value={formData.averagePrice || 0} onChange={handleChange} placeholder="Ví dụ: 5500000" />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label>Thời gian ước tính (phút)</label>
+                    <input type="number" name="estimatedDuration" value={formData.estimatedDuration || 1200} onChange={handleChange} />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label>Mã tỉnh thành (Province ID)</label>
+                    <select name="provinceId" value={String(formData.provinceId || 1)} onChange={handleChange}>
+                      <option value="1">1 - Huế</option>
+                      <option value="2">2 - Đà Nẵng</option>
+                      <option value="3">3 - Quảng Nam</option>
+                      <option value="4">4 - Hà Nội</option>
+                      <option value="5">5 - TP.HCM</option>
+                    </select>
                   </div>
                 </>
               )}
@@ -253,13 +336,31 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
               <div className={styles.sectionTitle}><ImageIcon size={18} weight="fill" /> Hình ảnh & Media</div>
               
               <div className={styles.inputGroup}>
-                <label>Hình ảnh chính (URL)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={{ margin: 0 }}>Hình ảnh chính (URL hoặc Tải lên)</label>
+                  <button 
+                    type="button" 
+                    className={styles.uploadBtnSmall} 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? <CircleNotch size={14} className="ph-spin" /> : <UploadSimple size={14} />}
+                    <span>Tải ảnh</span>
+                  </button>
+                </div>
                 <input 
                   type="text" 
-                  name={type === 'destination' ? 'img' : 'image'} 
-                  value={(type === 'destination' ? formData.img : formData.image) || ''} 
+                  name={type === 'destination' ? 'img' : (type === 'hotel' ? 'imageUrl' : 'image')} 
+                  value={(type === 'destination' ? formData.img : (type === 'hotel' ? formData.imageUrl : formData.image)) || ''} 
                   onChange={handleChange}
                   placeholder="https://images.unsplash.com/..."
+                />
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  hidden 
+                  accept="image/*" 
+                  onChange={(e) => handleFileUpload(e, 'main')} 
                 />
                 <div className={styles.imagePreview}>
                   {mainImageUrl ? (
@@ -291,36 +392,60 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
               </div>
 
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <label>Thư viện ảnh (Gallery)</label>
-                  <button type="button" className={styles.addBtn} onClick={() => addArrayItem('gallery')}>
-                    <Plus size={14} weight="bold" /> Thêm ảnh
-                  </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label style={{ margin: 0 }}>Thư viện ảnh khách sạn (Gallery)</label>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>({formData.gallery?.length || 0} ảnh)</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      className={styles.addBtn} 
+                      onClick={() => galleryInputRef.current?.click()}
+                      style={{ padding: '8px 16px', background: '#f0f9ff', color: '#0ea5e9' }}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? <CircleNotch size={14} className="ph-spin" /> : <UploadSimple size={14} weight="bold" />} Tải từ máy tính
+                    </button>
+                    <button type="button" className={styles.addBtn} onClick={() => addArrayItem('gallery')} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', color: '#64748b' }}>
+                      <Plus size={14} weight="bold" /> Thêm đường dẫn
+                    </button>
+                  </div>
                 </div>
-                <div className={styles.arrayGrid}>
+                <input 
+                  type="file" 
+                  ref={galleryInputRef} 
+                  hidden 
+                  multiple 
+                  accept="image/*" 
+                  onChange={(e) => handleFileUpload(e, 'gallery')} 
+                />
+                
+                <div className={styles.galleryManageList}>
                   {formData.gallery?.map((url: string, index: number) => (
-                    <div key={index} className={styles.arrayItem} style={{ display: 'flex', gap: '8px' }}>
+                    <div key={index} className={styles.galleryInputRow} style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
+                      <div className={styles.miniPreview} style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
+                        {url ? <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ImageIcon size={20} weight="thin" style={{ margin: '14px' }} />}
+                      </div>
                       <input 
                         type="text" 
                         value={url} 
                         onChange={(e) => handleArrayChange('gallery', index, e.target.value)}
-                        placeholder="URL..."
+                        placeholder="Dán URL hình ảnh từ Unsplash hoặc link web..."
+                        style={{ flex: 1 }}
                       />
-                      <button type="button" className={styles.removeBtn} onClick={() => removeArrayItem('gallery', index)}>
+                      <button type="button" className={styles.removeBtn} onClick={() => removeArrayItem('gallery', index)} style={{ padding: '8px' }}>
                         <Trash size={18} />
                       </button>
                     </div>
                   ))}
+                  
+                  {(!formData.gallery || formData.gallery.length === 0) && (
+                    <div style={{ textAlign: 'center', padding: '24px', border: '2px dashed #e2e8f0', borderRadius: '16px', color: '#94a3b8', fontSize: '0.875rem' }}>
+                      Chưa có ảnh nào trong bộ sưu tập. Nhấn "Thêm đường dẫn ảnh" để bắt đầu.
+                    </div>
+                  )}
                 </div>
-                {formData.gallery?.length > 0 && (
-                  <div className={styles.galleryPreviewGrid}>
-                    {formData.gallery.map((url: string, index: number) => url && (
-                      <div key={index} className={styles.galleryThumb}>
-                        <img src={url} alt={`Thumb ${index}`} />
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Details & Extras Section */}

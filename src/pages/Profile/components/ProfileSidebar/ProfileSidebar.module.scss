@@ -9,7 +9,11 @@
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-  border: 2px solid #b4bac0;
+  border: 1px solid #e2e8f0; // Thinner, cleaner border
+
+  @media (max-width: 992px) {
+    padding: 20px;
+  }
 }
 
 .cardHeader {
@@ -27,7 +31,7 @@
     gap: 8px;
 
     i {
-      color: #ff7e00;
+      color: #33d7d1;
       font-size: 18px;
     }
   }
@@ -35,7 +39,7 @@
   a {
     font-size: 13px;
     font-weight: 600;
-    color: #ff7e00;
+    color: #33d7d1;
     text-decoration: none;
     &:hover {
       text-decoration: underline;
@@ -47,6 +51,12 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  @media (max-width: 992px) {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .tripItem {
@@ -61,7 +71,7 @@
   cursor: pointer;
 
   &:hover {
-    background: #fffaf5;
+    background: #f0fbfb;
     transform: translateX(4px);
 
     .imageWrapper img {
@@ -110,7 +120,7 @@
 }
 
 .referral {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #0f3443 0%, #33d7d1 100%);
   padding: 24px;
   border-radius: 20px;
   color: white;
@@ -125,21 +135,21 @@
     right: -20px;
     width: 80px;
     height: 80px;
-    background: rgba(255, 126, 0, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
   }
 
   .referralIcon {
     width: 48px;
     height: 48px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
     margin: 0 auto 16px;
-    color: #ff7e00;
+    color: #ffffff;
   }
 
   h4 {
@@ -155,7 +165,7 @@
     margin: 0 0 20px;
 
     strong {
-      color: #ff7e00;
+      color: #ffffff;
     }
   }
 }

@@ -8,6 +8,8 @@ import {
   ArrowRight,
   Bed,
   ForkKnife,
+  House,
+  Fire,
 } from "phosphor-react";
 import styles from "./HighlightLocations.module.scss";
 import {
@@ -155,13 +157,19 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                   className={`${styles.sliderTab} ${activeTab === tab ? styles.active : ""}`}
                   onClick={() => setActiveTab(tab)}
                 >
-                  {tab === "all"
-                    ? "Tất cả"
-                    : tab === "locations"
-                      ? "Địa điểm"
-                      : tab === "hotels"
-                        ? "Khách sạn"
-                        : "Quán ăn"}
+                  {tab === "all" && <House size={18} weight={activeTab === "all" ? "fill" : "bold"} />}
+                  {tab === "locations" && <MapPin size={18} weight={activeTab === "locations" ? "fill" : "bold"} />}
+                  {tab === "hotels" && <Bed size={18} weight={activeTab === "hotels" ? "fill" : "bold"} />}
+                  {tab === "restaurants" && <ForkKnife size={18} weight={activeTab === "restaurants" ? "fill" : "bold"} />}
+                  <span>
+                    {tab === "all"
+                      ? "Khám phá"
+                      : tab === "locations"
+                        ? "Địa điểm"
+                        : tab === "hotels"
+                          ? "Khách sạn"
+                          : "Quán ăn"}
+                  </span>
                 </button>
               ))}
             </div>
@@ -222,12 +230,25 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                   data-aos="fade-up"
                   data-aos-delay={idx * 100}
                 >
-                  <div className={styles.locationCard}>
+                   <div className={styles.locationCard}>
                     <div className={styles.locationImage}>
                       <img src={item.image} alt={item.name} />
-                      <span className={styles.locationBadge}>
-                        {renderIcon(item.type)} {item.location}
-                      </span>
+                      <div className={styles.imageOverlay}></div>
+                      <div className={styles.cardBadges}>
+                        {item.isHot && (
+                          <span className={styles.hotBadge}>
+                            <Fire size={14} weight="fill" /> HOT
+                          </span>
+                        )}
+                        <span className={styles.locationBadge}>
+                          {renderIcon(item.type)} {item.location}
+                        </span>
+                      </div>
+                      {item.price > 0 && (
+                        <div className={styles.priceTag}>
+                          Chỉ từ <span>{item.price.toLocaleString("vi-VN")}đ</span>
+                        </div>
+                      )}
                     </div>
                     <div className={styles.locationContent}>
                       <h3>{item.name}</h3>

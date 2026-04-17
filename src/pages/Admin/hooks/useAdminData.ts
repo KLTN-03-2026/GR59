@@ -14,19 +14,33 @@ export type {
 
 // ─── Generic hook ─────────────────────────────────────────────────────────────
 
-function useCollection<T>(fetchFn: () => Promise<any>) {
+function useCollection<T>(fetchFn: (...args: any[]) => Promise<any>) {
   const [data, setData] = useState<T[]>([]);
+  const [pagination, setPagination] = useState({ totalPages: 1, totalElements: 0, currentPage: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (...args: any[]) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetchFn();
-      // Trích xuất dữ liệu từ DT hoặc data của BackendResponse
-      const actualData = response.data?.DT || response.data?.data || response.data || [];
-      setData(actualData);
+      const response = await fetchFn(...args);
+      
+      const resData = response.data?.DT || response.data?.data || response.data;
+      
+      // Kiểm tra nếu là dữ liệu phân trang (có content) hay mảng đơn thuần
+      if (resData && typeof resData === 'object' && 'content' in resData) {
+        setData(resData.content || []);
+        if (resData.page) {
+          setPagination({
+            totalPages: resData.page.totalPages || 1,
+            totalElements: resData.page.totalElements || 0,
+            currentPage: resData.page.number || 0
+          });
+        }
+      } else {
+        setData(Array.isArray(resData) ? resData : []);
+      }
     } catch (err) {
       setError('Không thể kết nối tới máy chủ.');
       console.error(`[useAdminData] Fetch failed:`, err);
@@ -37,9 +51,9 @@ function useCollection<T>(fetchFn: () => Promise<any>) {
 
   useEffect(() => {
     fetchData();
-  }, [fetchFn]);
+  }, []); // Chỉ gọi lần đầu, việc fetch phân trang sẽ do View gọi refetch với args
 
-  return { data, loading, error, refetch: fetchData };
+  return { data, pagination, loading, error, refetch: fetchData };
 }
 
 // ─── Specific hooks ───────────────────────────────────────────────────────────
@@ -70,6 +84,11 @@ export const updateRecord = async <T>(endpoint: string, id: string, data: Partia
 };
 
 export const createRecord = async <T>(endpoint: string, data: Omit<T, 'id'>): Promise<T> => {
-  const response = await adminService.createAdminRecord<T>(endpoint, data);
+  let response;
+  if (endpoint === 'hotels') {
+    response = await adminService.createHotel(data as any);
+  } else {
+    response = await adminService.createAdminRecord<T>(endpoint, data);
+  }
   return (response.data.DT || response.data.data) as T;
 };

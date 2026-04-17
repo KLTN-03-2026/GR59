@@ -41,8 +41,8 @@ const Profile: React.FC = () => {
             profileData = {
               fullName: dt.fullName || "Thành viên",
               email: dt.email || "",
-              phone: dt.phone || "Chưa cập nhật",
-              address: dt.address || "Chưa cập nhật",
+              phone: dt.phone || "",
+              address: dt.address || "",
               bio:
                 dt.bio ||
                 "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
@@ -82,8 +82,8 @@ const Profile: React.FC = () => {
             profileData = {
               fullName: userData.fullName || userData.email || "Thành viên",
               email: userData.email || "Không rõ email",
-              phone: userData.phone || "Chưa cập nhật",
-              address: userData.address || "Chưa cập nhật",
+              phone: userData.phone || "",
+              address: userData.address || "",
               bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
               avatar_url:
                 userData.avatar_url ||

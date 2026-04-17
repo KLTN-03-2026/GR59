@@ -4,20 +4,20 @@ import type { AxiosResponse } from "axios";
 // ─── Interfaces ────────────────────────────────────────────────────────────
 
 export interface Hotel {
-  id: string;
+  id: string | number;
   name: string;
   location: string;
   rating: number;
-  reviews: string;
-  type: "RESORT" | "CỔ ĐIỂN" | "HIỆN ĐẠI" | "HOMESTAY";
-  status: "HOẠT ĐỘNG" | "BẢO TRÌ";
-  image: string;
-  previewVideo?: string;
-  description: string;
-  price: string;
-  unit: string;
+  reviewCount: number;
+  category: string | null;
+  status: "ACTIVE" | "MAINTENANCE" | string;
+  imageUrl: string;
   gallery: string[];
-  amenities: string[];
+  averagePrice: number;
+  estimatedDuration: number;
+  provinceId: number;
+  description: string;
+  previewVideo?: string | null;
 }
 
 export interface Restaurant {
@@ -432,19 +432,28 @@ export const fetchPopularLocations = (): Promise<
     .catch(() => wrapMockRes(MOCK_POPULAR_LOCATIONS));
 
 // Hotels
-export const fetchHotelsList = (): Promise<
-  AxiosResponse<BackendResponse<Hotel[]>>
+export const fetchHotelsList = (page = 0, size = 10): Promise<
+  AxiosResponse<BackendResponse<{ content: Hotel[]; page: any }>>
 > =>
   instance
-    .get<BackendResponse<Hotel[]>>("/hotels")
-    .catch(() => wrapMockRes(MOCK_HOTELS));
+    .get<BackendResponse<{ content: Hotel[]; page: any }>>(`/hotels?page=${page}&size=${size}`)
+    .catch(() => wrapMockRes({ content: MOCK_HOTELS as any[], page: { totalElements: MOCK_HOTELS.length, totalPages: 1 } }));
 
 export const removeHotel = (
-  id: string,
+  id: string | number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> =>
   instance
     .delete<BackendResponse<unknown>>(`/hotels/${id}`)
     .catch(() => wrapMockRes({}));
+
+export const createHotel = (
+  data: Omit<Hotel, "id">,
+): Promise<AxiosResponse<BackendResponse<Hotel>>> =>
+  instance
+    .post<BackendResponse<Hotel>>("/hotels", data)
+    .catch(() =>
+      wrapMockRes({ ...data, id: Date.now() } as unknown as Hotel),
+    );
 
 // Restaurants
 export const fetchRestaurantsList = (): Promise<
@@ -521,3 +530,19 @@ export function removeAdminRecord(
     .delete<BackendResponse<unknown>>(`/${endpoint}/${id}`)
     .catch(() => wrapMockRes({}));
 }
+
+export const uploadAdminImage = async (
+  file: File,
+): Promise<AxiosResponse<BackendResponse<{ imageUrl: string }>>> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return await instance.post<BackendResponse<{ imageUrl: string }>>(
+    "/users/avatar", // Sử dụng endpoint upload tập trung
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+};

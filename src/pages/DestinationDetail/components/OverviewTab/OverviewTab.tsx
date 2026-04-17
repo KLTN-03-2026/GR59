@@ -8,6 +8,11 @@ const OverviewTab: React.FC<{ data: Destination }> = ({ data }) => {
   return (
     <div data-aos="fade-up">
       <section className={styles.destSection}>
+        {data.category && (
+          <div className={styles.categoryBadge}>
+            {data.category.toUpperCase()}
+          </div>
+        )}
         <h2 className={styles.destSectionTitle}>Giới thiệu</h2>
         <div className={styles.destDescription}>
           {data.description.split("\n").map((text, index) => (

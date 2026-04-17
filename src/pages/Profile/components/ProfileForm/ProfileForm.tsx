@@ -106,54 +106,68 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
 
       <form className={styles.form} onSubmit={handleSubmit}>
         {mode === "info" ? (
-          <div className={styles.fieldsGrid}>
-            <div className={styles.formGroup}>
-              <label>Họ và tên</label>
-              <div className={styles.inputWrapper}>
-                <User weight="bold" />
-                <input
-                  type="text"
-                  name="fullName"
-                  defaultValue={profile?.fullName || ""}
-                  placeholder="Nhập họ tên"
-                />
+          <div className={styles.formContent}>
+            <div className={styles.fieldSection}>
+              <h4 className={styles.sectionTitle}>
+                <i className="ph-bold ph-identification-card"></i> Thông tin cơ bản
+              </h4>
+              <div className={styles.fieldsGrid}>
+                <div className={styles.formGroup}>
+                  <label>Họ và tên</label>
+                  <div className={styles.inputWrapper}>
+                    <User weight="bold" />
+                    <input
+                      type="text"
+                      name="fullName"
+                      defaultValue={profile?.fullName || ""}
+                      placeholder="Nhập họ tên"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Số điện thoại</label>
+                  <div className={styles.inputWrapper}>
+                    <Phone weight="bold" />
+                    <input
+                      type="text"
+                      name="phone"
+                      defaultValue={profile?.phone || ""}
+                      placeholder="Nhập số điện thoại"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label>Số điện thoại</label>
-              <div className={styles.inputWrapper}>
-                <Phone weight="bold" />
-                <input
-                  type="text"
-                  name="phone"
-                  defaultValue={profile?.phone || ""}
-                  placeholder="Nhập số điện thoại"
-                />
-              </div>
-            </div>
+            <div className={styles.fieldSection}>
+              <h4 className={styles.sectionTitle}>
+                <i className="ph-bold ph-address-book"></i> Liên hệ & Giới thiệu
+              </h4>
+              <div className={styles.fieldsGrid}>
+                <div className={styles.formGroup} style={{ gridColumn: "span 2" }}>
+                  <label>Địa chỉ</label>
+                  <div className={styles.inputWrapper}>
+                    <MapPin weight="bold" />
+                    <input
+                      type="text"
+                      name="address"
+                      defaultValue={profile?.address || ""}
+                      placeholder="Nhập địa chỉ"
+                    />
+                  </div>
+                </div>
 
-            <div className={styles.formGroup} style={{ gridColumn: "span 2" }}>
-              <label>Địa chỉ</label>
-              <div className={styles.inputWrapper}>
-                <MapPin weight="bold" />
-                <input
-                  type="text"
-                  name="address"
-                  defaultValue={profile?.address || ""}
-                  placeholder="Nhập địa chỉ"
-                />
+                <div className={styles.formGroup} style={{ gridColumn: "span 2" }}>
+                  <label>Giới thiệu bản thân</label>
+                  <textarea
+                    name="bio"
+                    rows={4}
+                    defaultValue={profile?.bio || ""}
+                    placeholder="Viết vài dòng giới thiệu về bạn..."
+                  />
+                </div>
               </div>
-            </div>
-
-            <div className={styles.formGroup} style={{ gridColumn: "span 2" }}>
-              <label>Giới thiệu bản thân</label>
-              <textarea
-                name="bio"
-                rows={4}
-                defaultValue={profile?.bio || ""}
-                placeholder="Viết vài dòng giới thiệu về bạn..."
-              />
             </div>
           </div>
         ) : (

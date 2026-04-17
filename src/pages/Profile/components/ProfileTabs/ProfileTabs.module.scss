@@ -1,62 +1,66 @@
 .tabsContainer {
-  margin-bottom: 32px;
-  border-bottom: 2px solid #f1f5f9;
+  margin-bottom: 24px;
+  background: #f8fafc;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+
+  @media (max-width: 768px) {
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
 }
 
 .tabsList {
   display: flex;
-  gap: 32px;
+  gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
 
   @media (max-width: 640px) {
-    gap: 20px;
+    gap: 4px;
   }
 }
 
 .tabItem {
   background: transparent;
   border: none;
-  padding: 12px 0;
+  padding: 10px 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  font-weight: 600;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
   color: #64748b;
   cursor: pointer;
-  position: relative;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 12px;
+
+  @media (max-width: 640px) {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
 
   i {
     font-size: 18px;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #ff7e00;
-    transition: width 0.3s ease;
-  }
-
-  &:hover {
+  &:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.03);
     color: #1e293b;
-    i { opacity: 1; }
   }
 
   &.active {
-    color: #ff7e00;
-    i { opacity: 1; color: #ff7e00; }
+    background: white;
+    color: #33d7d1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-    &::after {
-      width: 100%;
-    }
+    i { opacity: 1; color: #33d7d1; }
   }
 }

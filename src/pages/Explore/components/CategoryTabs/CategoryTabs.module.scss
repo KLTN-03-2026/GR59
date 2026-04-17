@@ -4,6 +4,19 @@
   gap: 15px;
   margin-bottom: 30px;
 
+  @media (max-width: 768px) {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 10px 16px;
+    gap: 10px;
+    margin: 0 -16px 25px; // Negative margin for edge-to-edge scrolling
+    scrollbar-width: none; // Hide for Firefox
+    
+    &::-webkit-scrollbar {
+      display: none; // Hide for Chrome/Safari
+    }
+  }
+
   .tabItem {
     display: flex;
     align-items: center;
@@ -17,6 +30,12 @@
     color: #555;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    white-space: nowrap; // Keep text on one line for scrolling
+
+    @media (max-width: 768px) {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
 
     &:hover {
       background: #f0f0f0;

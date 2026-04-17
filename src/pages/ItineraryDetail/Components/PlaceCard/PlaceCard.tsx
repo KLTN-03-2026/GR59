@@ -7,6 +7,7 @@ interface Props {
   index: number;
   isActive: boolean;
   onClick: () => void;
+  onOpenNavigation: (lat: number, lng: number, name: string) => void;
 }
 
 const getTypeProps = (type: string) => {
@@ -24,7 +25,7 @@ const getTypeProps = (type: string) => {
   }
 };
 
-const PlaceCard: React.FC<Props> = ({ point, index, isActive, onClick }) => {
+const PlaceCard: React.FC<Props> = ({ point, index, isActive, onClick, onOpenNavigation }) => {
   const typeProps = getTypeProps(point.type);
 
   return (
@@ -52,12 +53,20 @@ const PlaceCard: React.FC<Props> = ({ point, index, isActive, onClick }) => {
         <div className={styles.itemTime}>
           <i className="ph-bold ph-clock"></i> {point.time}
         </div>
-        <div>
           <span className={`${styles.itemBadge} ${typeProps.badgeClass}`}>
             {typeProps.label}
           </span>
         </div>
-      </div>
+      <button 
+        className={styles.quickNavBtn}
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenNavigation(point.lat, point.lng, point.name);
+        }}
+        title="Mở Google Maps"
+      >
+        <i className="ph-fill ph-navigation-arrow"></i>
+      </button>
     </div>
   );
 };

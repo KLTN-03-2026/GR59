@@ -1,3 +1,5 @@
+@use "./Topbar.mobile.scss";
+
 .topbar {
   height: 80px;
   background: #F8FAFC; // Cool White Background
@@ -123,7 +125,8 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    object-fit: cover;
-    border: 2px solid #38BDF8;
   }
 }
+
+@include Topbar.mobile-styles();
+

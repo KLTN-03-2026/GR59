@@ -1,6 +1,21 @@
 .destSection {
   margin-bottom: 50px;
   text-align: left;
+  position: relative;
+
+  .categoryBadge {
+    display: inline-block;
+    background: rgba(51, 215, 209, 0.1);
+    color: #33d7d1;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    border: 1px solid rgba(51, 215, 209, 0.2);
+  }
 
   .destSectionTitle {
     font-size: 1.6rem;

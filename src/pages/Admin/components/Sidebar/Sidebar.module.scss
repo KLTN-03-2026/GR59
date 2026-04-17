@@ -1,3 +1,5 @@
+@use "./Sidebar.mobile.scss";
+
 .sidebar {
   width: 280px;
   background-color: #0F172A; // Deep Dark Blue (Sky & Horizon)
@@ -123,3 +125,6 @@
     border-color: rgba(239, 68, 68, 0.2);
   }
 }
+
+@include Sidebar.mobile-styles();
+
