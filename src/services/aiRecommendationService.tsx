@@ -3,7 +3,7 @@ import instance from "../utils/AxiosCustomize";
 
 export interface AIRecommendation {
   id: number;
-  title: string;
+  name: string;
   matchPercentage: number;
   image: string;
 }
@@ -18,49 +18,49 @@ export interface BackendResponse<T = unknown> {
 const MOCK_RECOMMENDATIONS: AIRecommendation[] = [
   {
     "id": 1,
-    "title": "Địa điểm HOT #1",
+    "name": "Địa điểm HOT #1",
     "matchPercentage": 98,
     "image": "https://picsum.photos/200/120?sig=1"
   },
   {
     "id": 2,
-    "title": "Địa điểm HOT #2",
+    "name": "Địa điểm HOT #2",
     "matchPercentage": 95,
     "image": "https://picsum.photos/200/120?sig=2"
   },
   {
     "id": 3,
-    "title": "Địa điểm HOT #3",
+    "name": "Địa điểm HOT #3",
     "matchPercentage": 92,
     "image": "https://picsum.photos/200/120?sig=3"
   },
   {
     "id": 4,
-    "title": "Địa điểm HOT #4",
+    "name": "Địa điểm HOT #4",
     "matchPercentage": 90,
     "image": "https://picsum.photos/200/120?sig=4"
   },
   {
     "id": 5,
-    "title": "Địa điểm HOT #5",
+    "name": "Địa điểm HOT #5",
     "matchPercentage": 88,
     "image": "https://picsum.photos/200/120?sig=5"
   },
   {
     "id": 6,
-    "title": "Địa điểm HOT #6",
+    "name": "Địa điểm HOT #6",
     "matchPercentage": 85,
     "image": "https://picsum.photos/200/120?sig=6"
   },
   {
     "id": 7,
-    "title": "Địa điểm HOT #7",
+    "name": "Địa điểm HOT #7",
     "matchPercentage": 82,
     "image": "https://picsum.photos/200/120?sig=7"
   },
   {
     "id": 8,
-    "title": "Địa điểm HOT #8",
+    "name": "Địa điểm HOT #8",
     "matchPercentage": 80,
     "image": "https://picsum.photos/200/120?sig=8"
   }
