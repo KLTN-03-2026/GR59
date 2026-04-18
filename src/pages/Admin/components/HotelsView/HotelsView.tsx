@@ -22,14 +22,25 @@ const rowVariants = {
 const HotelsView: React.FC = () => {
   const [page, setPage] = useState(1);
   const { data: hotels, pagination, loading, error, refetch } = useHotels();
+  const [search, setSearch] = useState('');
 
-  // Gọi lại API khi trang thay đổi
+  // Debounce search để tránh gọi API quá nhiều
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  
   React.useEffect(() => {
-    refetch(page - 1, PAGE_SIZE);
-  }, [page]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset về trang 1 khi tìm kiếm
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Gọi lại API khi trang hoặc search thay đổi
+  React.useEffect(() => {
+    refetch(page - 1, PAGE_SIZE, debouncedSearch);
+  }, [page, debouncedSearch]);
 
   const [activeTab, setActiveTab] = useState<'all' | 'ACTIVE' | 'MAINTENANCE'>('all');
-  const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
 
@@ -44,12 +55,9 @@ const HotelsView: React.FC = () => {
     if (activeTab !== 'all') {
       list = list.filter(h => h.status === activeTab);
     }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(h => h.name.toLowerCase().includes(q) || h.location.toLowerCase().includes(q));
-    }
+    // Search đã được thực hiện ở Server, không cần lọc local nữa
     return list;
-  }, [hotels, activeTab, search]);
+  }, [hotels, activeTab]);
 
   const totalPages = pagination.totalPages || 1;
   const paged = filtered; // Vì đã phân trang ở Server, ta hiển thị toàn bộ list lọc được trên trang đó

@@ -64,14 +64,26 @@ function useCollection<T>(fetchFn: (...args: any[]) => Promise<any>) {
 
 // ─── Specific hooks ───────────────────────────────────────────────────────────
 
-export const useAttractions = () => useCollection<adminService.Destination>(adminService.fetchAttractionsList);
-export const useRestaurants = () => useCollection<adminService.Restaurant>(adminService.fetchRestaurantsList);
+export const useAttractions = () => useCollection<adminService.Destination>((page, size, keyword) => {
+  if (keyword) return adminService.searchAttractions(keyword, page, size);
+  return adminService.fetchAttractionsList(page, size);
+});
+export const useRestaurants = () => useCollection<adminService.Restaurant>((page, size, keyword) => {
+  if (keyword) return adminService.searchRestaurants(keyword, page, size);
+  return adminService.fetchRestaurantsList(page, size);
+});
 export const useDbUsers = () => useCollection<adminService.DbUser>(adminService.fetchUsersList);
 export const useDashboardStats = () => useCollection<adminService.DashboardStat>(adminService.fetchDashboardStats);
 export const useRecentActivity = () => useCollection<adminService.RecentActivity>(adminService.fetchRecentActivity);
 export const usePopularLocations = () => useCollection<adminService.PopularLocation>(adminService.fetchPopularLocations);
-export const useHotels = () => useCollection<adminService.Hotel>(adminService.fetchHotelsList);
-export const useDestinations = () => useCollection<adminService.Destination>(adminService.fetchAttractionsList);
+export const useHotels = () => useCollection<adminService.Hotel>((page, size, keyword) => {
+  if (keyword) return adminService.searchHotels(keyword, page, size);
+  return adminService.fetchHotelsList(page, size);
+});
+export const useDestinations = () => useCollection<adminService.Destination>((page, size, keyword) => {
+  if (keyword) return adminService.searchAttractions(keyword, page, size);
+  return adminService.fetchAttractionsList(page, size);
+});
 
 // ─── CRUD helpers (delegating to adminService) ────────────────────────────────
 

@@ -23,13 +23,25 @@ const RestaurantsView: React.FC = () => {
   const [page, setPage] = useState(1);
   const { data: restaurants, pagination, loading, error, refetch } = useRestaurants();
 
-  // Gọi lại API khi trang thay đổi
+  const [search, setSearch] = useState('');
+
+  // Debounce search để tránh gọi API quá nhiều
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  
   React.useEffect(() => {
-    refetch(page - 1, PAGE_SIZE);
-  }, [page]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset về trang 1 khi tìm kiếm
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Gọi lại API khi trang hoặc search thay đổi
+  React.useEffect(() => {
+    refetch(page - 1, PAGE_SIZE, debouncedSearch);
+  }, [page, debouncedSearch]);
 
   const [activeTab, setActiveTab] = useState<'all' | 'OPENING' | 'CLOSED'>('all');
-  const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
 
@@ -41,12 +53,9 @@ const RestaurantsView: React.FC = () => {
   const filtered = useMemo(() => {
     let list = [...restaurants];
     if (activeTab !== 'all') list = list.filter(r => r.status === activeTab);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(r => r.name.toLowerCase().includes(q) || r.location.toLowerCase().includes(q));
-    }
+    // Search đã được thực hiện ở Server, không cần lọc local nữa
     return list;
-  }, [restaurants, activeTab, search]);
+  }, [restaurants, activeTab]);
 
   const totalPages = pagination.totalPages || 1;
   const paged = filtered;

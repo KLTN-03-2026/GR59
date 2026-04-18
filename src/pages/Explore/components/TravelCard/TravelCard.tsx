@@ -83,9 +83,9 @@ const TravelCard: React.FC<Props> = ({
 
         <div className={styles.statusBadge}>
           {status && !isPlaying && (
-            <div className={`${styles.ribbon} ${styles[status.toLowerCase()]}`}>
-              {status === 'ACTIVE' || status === 'OPEN' ? 'MỞ\nCỬA' : 
-               status === 'MAINTENANCE' ? 'BẢO\nTRÌ' : 'ĐÓNG\nCỬA'}
+            <div className={`${styles.modernBadge} ${styles[status.toLowerCase()]}`}>
+              {status === 'ACTIVE' || status === 'OPENING' || status === 'OPEN' ? 'Mở cửa' : 
+               status === 'MAINTENANCE' ? 'Bảo trì' : 'Đóng cửa'}
             </div>
           )}
         </div>
@@ -106,7 +106,7 @@ const TravelCard: React.FC<Props> = ({
           aria-label="Yêu thích"
         >
           <Heart
-            size={22}
+            size={26}
             weight={localLiked ? "fill" : "bold"}
           />
         </button>
@@ -134,7 +134,7 @@ const TravelCard: React.FC<Props> = ({
       <div className={styles.cardInfo}>
         <div className={styles.infoHead}>
           <div className={styles.ratingBadge}>
-            <Star size={14} weight="fill" className={styles.starIcon} />{" "}
+            <Star size={16} weight="fill" className={styles.starIcon} />{" "}
             {rating}
           </div>
           {distance && (
@@ -157,12 +157,12 @@ const TravelCard: React.FC<Props> = ({
                   setIsPlaying(true);
                 }}
               >
-                <Play size={16} weight="fill" /> Video
+                <Play size={18} weight="fill" /> Video
               </button>
             )}
           </div>
           <button className={styles.btnExplore}>
-            Chi tiết <ArrowRight size={16} weight="bold" />
+            Chi tiết <ArrowRight size={18} weight="bold" />
           </button>
         </div>
       </div>
