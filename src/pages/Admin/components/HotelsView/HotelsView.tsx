@@ -36,8 +36,8 @@ const HotelsView: React.FC = () => {
   // ─── derived stats ───────────────────────────────────────────────────────────
   // Lưu ý: stats này hiện tại chỉ tính trên trang hiện tại. 
   // Để chính xác tuyệt đối cần API summary từ BE.
-  const totalActive = hotels.filter(h => h.status === 'ACTIVE').length;
-  const totalMaintain = hotels.filter(h => h.status === 'MAINTENANCE').length;
+  const totalActive = hotels.filter(h => h.status === 'ACTIVE' || h.status === 'HOẠT ĐỘNG').length;
+  const totalMaintain = hotels.filter(h => h.status === 'MAINTENANCE' || h.status === 'BẢO TRÌ').length;
 
   const filtered = useMemo(() => {
     let list = [...hotels];
@@ -223,9 +223,9 @@ const HotelsView: React.FC = () => {
                     <span className={`${styles.badge} ${styles.bgPurple}`}>{hotel.category || 'PHỔ THÔNG'}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${hotel.status === 'ACTIVE' ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: hotel.status === 'ACTIVE' ? '#10b981' : '#f59e0b' }}></span>
-                      {hotel.status === 'ACTIVE' ? 'HOẠT ĐỘNG' : 'BẢO TRÌ'}
+                    <span className={`${styles.badge} ${(hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: (hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}></span>
+                      {(hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? 'HOẠT ĐỘNG' : 'BẢO TRÌ'}
                     </span>
                   </td>
                   <td>

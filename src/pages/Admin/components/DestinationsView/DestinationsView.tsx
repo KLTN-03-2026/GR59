@@ -34,7 +34,7 @@ const DestinationsView: React.FC = () => {
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // Stats
-  const totalActive = destinations.filter(d => d.status === 'ACTIVE').length;
+  const totalActive = destinations.filter(d => d.status === 'ACTIVE' || d.status === 'HOẠT ĐỘNG').length;
 
   // Filter & Pagination
   const filtered = useMemo(() => {
@@ -228,9 +228,9 @@ const DestinationsView: React.FC = () => {
                     <span className={`${styles.badge} ${styles.bgPurple}`}>{dest.category || 'PHỔ THÔNG'}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${dest.status === 'ACTIVE' ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: dest.status === 'ACTIVE' ? '#10b981' : '#f59e0b' }}></span>
-                      {dest.status === 'ACTIVE' ? 'HOẠT ĐỘNG' : 'BẢO TRÌ'}
+                    <span className={`${styles.badge} ${(dest.status === 'ACTIVE' || dest.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: (dest.status === 'ACTIVE' || dest.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}></span>
+                      {(dest.status === 'ACTIVE' || dest.status === 'HOẠT ĐỘNG') ? 'HOẠT ĐỘNG' : 'BẢO TRÌ'}
                     </span>
                   </td>
                   <td>

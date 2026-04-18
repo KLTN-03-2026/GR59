@@ -34,8 +34,8 @@ const RestaurantsView: React.FC = () => {
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // ─── derived stats ──────────────────────────────────────────────────────────
-  const totalOpen = restaurants.filter(r => r.status === 'OPENING').length;
-  const totalClosed = restaurants.filter(r => r.status === 'CLOSED').length;
+  const totalOpen = restaurants.filter(r => r.status === 'OPENING' || r.status === 'ĐANG MỞ' || r.status === 'HOẠT ĐỘNG').length;
+  const totalClosed = restaurants.filter(r => r.status === 'CLOSED' || r.status === 'TẠM ĐÓNG').length;
 
   // ─── filtered & paginated ───────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -69,9 +69,9 @@ const RestaurantsView: React.FC = () => {
       `"${r.name}"`,
       `"${r.location}"`,
       r.rating,
-      `"${r.reviews}"`,
-      `"${r.cuisine}"`,
-      `"${r.priceRange}"`,
+      `"${r.reviewCount}"`,
+      `"${r.category}"`,
+      `"${r.averagePrice}"`,
       r.status
     ]);
     
@@ -230,9 +230,9 @@ const RestaurantsView: React.FC = () => {
                     <span className={`${styles.badge} ${styles.bgPurple}`}>{res.category || 'ẨM THỰC'}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${res.status === 'OPENING' ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: res.status === 'OPENING' ? '#10b981' : '#f59e0b' }}></span>
-                      {res.status === 'OPENING' ? 'MỞ CỬA' : 'TẠM ĐÓNG'}
+                    <span className={`${styles.badge} ${(res.status === 'OPENING' || res.status === 'ĐANG MỞ' || res.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: (res.status === 'OPENING' || res.status === 'ĐANG MỞ' || res.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}></span>
+                      {(res.status === 'OPENING' || res.status === 'ĐANG MỞ' || res.status === 'HOẠT ĐỘNG') ? 'MỞ CỬA' : 'TẠM ĐÓNG'}
                     </span>
                   </td>
                   <td>

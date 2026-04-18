@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './AddEditModal.module.scss';
-import { X, Plus, Trash, Image as ImageIcon, Info, MapTrifold, Cloud, Lightbulb, ListChecks, Airplane, Video, UploadSimple, CircleNotch } from "@phosphor-icons/react";
+import { 
+  X, Plus, Trash, Image as ImageIcon, Info, MapTrifold, Cloud, Lightbulb, ListChecks, 
+  Airplane, Video, UploadSimple, CircleNotch, Bed, House, Buildings, Tent, Storefront,
+  ForkKnife, Fish, BowlFood, Coffee, Hamburger, Leaf, Globe, Mountains, 
+  Star, GlobeHemisphereWest, CheckCircle, Wrench, Clock, MapPin
+} from "@phosphor-icons/react";
+import CustomSelect from './CustomSelect';
 import { uploadAdminImage } from '../../../../services/adminService';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -81,7 +87,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
   const handleArrayChange = (field: string, index: number, value: string) => {
     const newArray = [...(formData[field] || [])];
     newArray[index] = value;
-    setFormData(prev => ({ ...prev, [field]: newArray }));
+    setFormData((prev: any) => ({ ...prev, [field]: newArray }));
   };
 
   const handleNestedArrayChange = (field: string, index: number, subfield: string, value: any) => {
@@ -130,6 +136,58 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
       previewUrls.current = [];
     };
   }, [isOpen]);
+
+  const provinceOptions = [
+    { value: 1, label: 'Huế', icon: <MapPin size={18} /> },
+    { value: 2, label: 'Đà Nẵng', icon: <MapPin size={18} /> },
+    { value: 3, label: 'Quảng Nam', icon: <MapPin size={18} /> },
+    { value: 4, label: 'Hà Nội', icon: <MapPin size={18} /> },
+    { value: 5, label: 'TP. Hồ Chí Minh', icon: <MapPin size={18} /> },
+  ];
+
+  const getStatusOptions = () => {
+    if (type === 'restaurant') {
+      return [
+        { value: 'OPENING', label: 'Đang mở cửa (Opening)', icon: <CheckCircle size={18} color="#10b981" /> },
+        { value: 'CLOSED', label: 'Tạm đóng cửa (Closed)', icon: <Clock size={18} color="#f59e0b" /> },
+      ];
+    }
+    return [
+      { value: 'ACTIVE', label: 'Đang hoạt động (Active)', icon: <CheckCircle size={18} color="#10b981" /> },
+      { value: 'MAINTENANCE', label: 'Đang bảo trì (Maintenance)', icon: <Wrench size={18} color="#f59e0b" /> },
+    ];
+  };
+
+  const getCategoryOptions = () => {
+    if (type === 'hotel') {
+      return [
+        { value: 'LUXURY', label: 'Luxury (Hạng sang)', icon: <Buildings size={18} /> },
+        { value: 'RESORT', label: 'Resort (Nghỉ dưỡng)', icon: <Mountains size={18} /> },
+        { value: 'BOUTIQUE', label: 'Boutique (Độc đáo)', icon: <House size={18} /> },
+        { value: 'BUDGET', label: 'Budget (Bình dân)', icon: <Storefront size={18} /> },
+        { value: 'BUSINESS', label: 'Business (Công tác)', icon: <Buildings size={18} /> },
+        { value: 'HOMESTAY', label: 'Homestay', icon: <Tent size={18} /> },
+        { value: 'VILLA', label: 'Villa (Biệt thự)', icon: <House size={18} /> },
+      ];
+    } else if (type === 'restaurant') {
+      return [
+        { value: 'VIETNAMESE', label: 'Món Việt (Vietnamese)', icon: <BowlFood size={18} /> },
+        { value: 'SEAFOOD', label: 'Hải sản (Seafood)', icon: <Fish size={18} /> },
+        { value: 'DESSERT', label: 'Tráng miệng/Cafe (Dessert)', icon: <Coffee size={18} /> },
+        { value: 'WESTERN', label: 'Món Âu (Western)', icon: <Hamburger size={18} /> },
+        { value: 'ASIAN', label: 'Món Á (Asian)', icon: <ForkKnife size={18} /> },
+        { value: 'VEGETARIAN', label: 'Món chay (Vegetarian)', icon: <Leaf size={18} /> },
+      ];
+    } else {
+      return [
+        { value: 'ATTRACTION', label: 'Điểm tham quan', icon: <MapPin size={18} /> },
+        { value: 'CULTURE', label: 'Văn hóa & Lịch sử', icon: <Buildings size={18} /> },
+        { value: 'NATURE', label: 'Thiên nhiên & Sinh thái', icon: <Leaf size={18} /> },
+        { value: 'RELAX', label: 'Nghỉ dưỡng & Thư giãn', icon: <Cloud size={18} /> },
+        { value: 'ENTERTAINMENT', label: 'Giải trí', icon: <Star size={18} /> },
+      ];
+    }
+  };
 
   const handleSaveInternal = () => {
     const finalData = { ...formData };
@@ -273,31 +331,21 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
               </div>
 
               <div className={styles.inputGroup}>
-                <label>Tỉnh thành</label>
-                <select name="provinceId" value={String(formData.provinceId || 1)} onChange={handleChange}>
-                  <option value="1">Huế</option>
-                  <option value="2">Đà Nẵng</option>
-                  <option value="3">Quảng Nam</option>
-                  <option value="4">Hà Nội</option>
-                  <option value="5">TP. Hồ Chí Minh</option>
-                </select>
+                <CustomSelect 
+                  label="Tỉnh thành"
+                  options={provinceOptions}
+                  value={formData.provinceId || 1}
+                  onChange={(val) => setFormData((prev: any) => ({ ...prev, provinceId: val }))}
+                />
               </div>
 
               <div className={styles.inputGroup}>
-                <label>Trạng thái hoạt động</label>
-                <select name="status" value={formData.status || ''} onChange={handleChange}>
-                  {type === 'restaurant' ? (
-                    <>
-                      <option value="OPENING">Đang mở cửa (Opening)</option>
-                      <option value="CLOSED">Tạm đóng cửa (Closed)</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="ACTIVE">Đang hoạt động (Active)</option>
-                      <option value="MAINTENANCE">Đang bảo trì (Maintenance)</option>
-                    </>
-                  )}
-                </select>
+                <CustomSelect 
+                  label="Trạng thái hoạt động"
+                  options={getStatusOptions()}
+                  value={formData.status || ''}
+                  onChange={(val) => setFormData((prev: any) => ({ ...prev, status: val }))}
+                />
               </div>
 
               <div className={styles.inputGroup}>
@@ -320,37 +368,12 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
               <div className={styles.sectionTitle}><Lightbulb size={18} weight="fill" /> Thông tin bổ sung</div>
 
               <div className={styles.inputGroup}>
-                <label>{type === 'restaurant' ? 'Loại hình ẩm thực' : 'Hạng mục / Danh mục'}</label>
-                <select name="category" value={formData.category || ''} onChange={handleChange}>
-                  {type === 'hotel' ? (
-                    <>
-                      <option value="LUXURY">Luxury (Hạng sang)</option>
-                      <option value="RESORT">Resort (Nghỉ dưỡng)</option>
-                      <option value="BOUTIQUE">Boutique (Độc đáo)</option>
-                      <option value="BUDGET">Budget (Bình dân)</option>
-                      <option value="BUSINESS">Business (Công tác)</option>
-                      <option value="HOMESTAY">Homestay</option>
-                      <option value="VILLA">Villa (Biệt thự)</option>
-                    </>
-                  ) : type === 'restaurant' ? (
-                    <>
-                      <option value="VIETNAMESE">Món Việt (Vietnamese)</option>
-                      <option value="SEAFOOD">Hải sản (Seafood)</option>
-                      <option value="DESSERT">Tráng miệng/Cafe (Dessert)</option>
-                      <option value="WESTERN">Món Âu (Western)</option>
-                      <option value="ASIAN">Món Á (Asian)</option>
-                      <option value="VEGETARIAN">Món chay (Vegetarian)</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="ATTRACTION">Điểm tham quan</option>
-                      <option value="CULTURE">Văn hóa & Lịch sử</option>
-                      <option value="NATURE">Thiên nhiên & Sinh thái</option>
-                      <option value="RELAX">Nghỉ dưỡng & Thư giãn</option>
-                      <option value="ENTERTAINMENT">Giải trí</option>
-                    </>
-                  )}
-                </select>
+                <CustomSelect 
+                  label={type === 'restaurant' ? 'Loại hình ẩm thực' : 'Hạng mục / Danh mục'}
+                  options={getCategoryOptions()}
+                  value={formData.category || ''}
+                  onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))}
+                />
               </div>
 
               <div className={styles.inputGroup}>
