@@ -65,23 +65,27 @@ function useCollection<T>(fetchFn: (...args: any[]) => Promise<any>) {
 // ─── Specific hooks ───────────────────────────────────────────────────────────
 
 export const useAttractions = () => useCollection<adminService.Destination>((page, size, keyword) => {
-  if (keyword) return adminService.searchAttractions(keyword, page, size);
+  if (keyword) return adminService.searchAttractionsByKeyword(keyword, page, size);
   return adminService.fetchAttractionsList(page, size);
 });
+
 export const useRestaurants = () => useCollection<adminService.Restaurant>((page, size, keyword) => {
-  if (keyword) return adminService.searchRestaurants(keyword, page, size);
+  if (keyword) return adminService.searchRestaurantsByKeyword(keyword, page, size);
   return adminService.fetchRestaurantsList(page, size);
 });
+
 export const useDbUsers = () => useCollection<adminService.DbUser>(adminService.fetchUsersList);
 export const useDashboardStats = () => useCollection<adminService.DashboardStat>(adminService.fetchDashboardStats);
 export const useRecentActivity = () => useCollection<adminService.RecentActivity>(adminService.fetchRecentActivity);
 export const usePopularLocations = () => useCollection<adminService.PopularLocation>(adminService.fetchPopularLocations);
+
 export const useHotels = () => useCollection<adminService.Hotel>((page, size, keyword) => {
-  if (keyword) return adminService.searchHotels(keyword, page, size);
+  if (keyword) return adminService.searchHotelsByKeyword(keyword, page, size);
   return adminService.fetchHotelsList(page, size);
 });
+
 export const useDestinations = () => useCollection<adminService.Destination>((page, size, keyword) => {
-  if (keyword) return adminService.searchAttractions(keyword, page, size);
+  if (keyword) return adminService.searchAttractionsByKeyword(keyword, page, size);
   return adminService.fetchAttractionsList(page, size);
 });
 

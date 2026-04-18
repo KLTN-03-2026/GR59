@@ -4,9 +4,11 @@ import { CaretDown } from "@phosphor-icons/react";
 
 interface FilterBarProps {
   searchTerm: string;
+  activeTab: string; // Thêm prop này để biết đang ở tab nào
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onProvinceChange: (value: string) => void;
   onPriceRangeChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
   onSortChange: (value: string) => void;
 }
 
@@ -24,6 +26,12 @@ const CustomSelect: React.FC<{
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(options.find(o => o.value === defaultValue) || options[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Khi options thay đổi (do đổi tab), cập nhật lại selected
+    const newSelected = options.find(o => o.value === defaultValue) || options[0];
+    setSelected(newSelected);
+  }, [defaultValue, options]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -76,15 +84,17 @@ const CustomSelect: React.FC<{
 
 const FilterBar: React.FC<FilterBarProps> = ({ 
   searchTerm, 
+  activeTab,
   onSearchChange,
   onProvinceChange,
   onPriceRangeChange,
+  onCategoryChange,
   onSortChange
 }) => {
   const sortOptions = [
-    { value: "rating", label: "⭐️ Đánh giá cao" },
-    { value: "priceAsc", label: "💰 Giá: Thấp - Cao" },
-    { value: "priceDesc", label: "💰 Giá: Cao - Thấp" },
+    { value: "rating", label: "⭐ Số sao cao nhất" },
+    { value: "priceAsc", label: "💰 Giá: Thấp đến Cao" },
+    { value: "priceDesc", label: "💰 Giá: Cao đến Thấp" },
   ];
 
   const provinceOptions = [
@@ -96,11 +106,64 @@ const FilterBar: React.FC<FilterBarProps> = ({
     { value: "5", label: "🏙️ TP. Hồ Chí Minh" },
   ];
 
+  // Logic lấy danh mục động dựa theo Tab
+  const getCategoryOptions = () => {
+    const baseOptions = [{ value: "all", label: "🏷️ Tất cả danh mục" }];
+    
+    if (activeTab === "bed") {
+      return [
+        ...baseOptions,
+        { value: "LUXURY", label: "✨ Cao cấp (Luxury)" },
+        { value: "RESORT", label: "🏰 Resort / Nghỉ dưỡng" },
+        { value: "BOUTIQUE", label: "🎨 Boutique / Phong cách" },
+        { value: "BUDGET", label: "💰 Bình dân / Giá rẻ" },
+        { value: "BUSINESS", label: "💼 Công tác / Business" },
+        { value: "HOMESTAY", label: "🏡 Homestay" },
+        { value: "VILLA", label: "🏠 Villa / Biệt thự" },
+      ];
+    }
+    
+    if (activeTab === "food") {
+      return [
+        ...baseOptions,
+        { value: "VIETNAMESE", label: "🥢 Món Việt" },
+        { value: "SEAFOOD", label: "🦀 Hải sản" },
+        { value: "DESSERT", label: "🍰 Tráng miệng / Cafe" },
+        { value: "WESTERN", label: "🍔 Món Âu" },
+        { value: "ASIAN", label: "🍣 Món Á (Hàn, Nhật...)" },
+        { value: "VEGETARIAN", label: "🥦 Đồ chay" },
+      ];
+    }
+    
+    if (activeTab === "pin") {
+      return [
+        ...baseOptions,
+        { value: "CULTURE", label: "🏛️ Văn hóa & Lịch sử" },
+        { value: "NATURE", label: "🌿 Thiên nhiên & Cảnh sắc" },
+        { value: "ATTRACTION", label: "🗺️ Điểm tham quan chung" },
+        { value: "RELAX", label: "🧘 Nghỉ dưỡng & Thư giãn" },
+        { value: "ENTERTAINMENT", label: "🎡 Vui chơi giải trí" },
+      ];
+    }
+
+    // Default cho Tab "Tất cả"
+    return [
+      ...baseOptions,
+      { value: "resort", label: "🏰 Resort / Luxury" },
+      { value: "hotel", label: "🏨 Khách sạn" },
+      { value: "restaurant", label: "🍽️ Nhà hàng" },
+      { value: "cafe", label: "☕ Cafe" },
+      { value: "attraction", label: "🎡 Điểm tham quan" },
+    ];
+  };
+
+  const categoryOptions = getCategoryOptions();
+
   const priceOptions = [
     { value: "all", label: "💵 Tất cả mức giá" },
-    { value: "budget", label: "🌱 Dưới 500k" },
-    { value: "mid", label: "🌤 500k - 2tr" },
-    { value: "luxury", label: "✨ Trên 2tr" },
+    { value: "budget", label: "🌱 Tiết kiệm (< 500k)" },
+    { value: "mid", label: "🌤 Phổ thông (500k-2tr)" },
+    { value: "luxury", label: "✨ Cao cấp (> 2tr)" },
   ];
 
   return (
@@ -119,6 +182,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
       
       <div className={styles.selectSide}>
         <CustomSelect options={provinceOptions} defaultValue="all" onChange={onProvinceChange} />
+        <CustomSelect 
+          key={activeTab} // Dùng key để re-render select khi đổi tab
+          options={categoryOptions} 
+          defaultValue="all" 
+          onChange={onCategoryChange} 
+        />
         <CustomSelect options={priceOptions} defaultValue="all" onChange={onPriceRangeChange} />
         <CustomSelect options={sortOptions} defaultValue="rating" onChange={onSortChange} />
         

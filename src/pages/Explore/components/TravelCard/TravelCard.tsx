@@ -6,12 +6,13 @@ interface Props {
   image: string;
   title: string;
   rating: number;
-  distance?: string;
+  location?: string;
   description: string;
   isHot?: boolean;
   previewVideo?: string;
   isLiked?: boolean;
   onToggleLike?: () => void;
+  onDetail?: () => void;
   status?: string;
   price?: number;
 }
@@ -20,12 +21,13 @@ const TravelCard: React.FC<Props> = ({
   image,
   title,
   rating,
-  distance,
+  location,
   description,
   isHot,
   previewVideo,
   isLiked = false,
   onToggleLike,
+  onDetail,
   status,
   price,
 }) => {
@@ -137,9 +139,9 @@ const TravelCard: React.FC<Props> = ({
             <Star size={16} weight="fill" className={styles.starIcon} />{" "}
             {rating}
           </div>
-          {distance && (
-            <span className={styles.distanceTag}>
-              <MapPin size={16} weight="bold" /> {distance}
+          {location && (
+            <span className={styles.locationTag}>
+              <MapPin size={18} weight="bold" /> {location}
             </span>
           )}
         </div>
@@ -161,7 +163,10 @@ const TravelCard: React.FC<Props> = ({
               </button>
             )}
           </div>
-          <button className={styles.btnExplore}>
+          <button className={styles.btnExplore} onClick={(e) => {
+            e.stopPropagation();
+            if (onDetail) onDetail();
+          }}>
             Chi tiết <ArrowRight size={18} weight="bold" />
           </button>
         </div>

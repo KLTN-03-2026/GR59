@@ -20,6 +20,7 @@ export interface HighlightItem {
   price: number; // Thêm trường giá số để lọc/sắp xếp
   provinceId: number; // Thêm ID tỉnh thành để lọc
   status?: string; // Trạng thái (ACTIVE, MAINTENANCE, etc.)
+  uniqueId?: string; // Khóa duy nhất gộp từ type + id
 }
 
 export interface PaginatedData<T> {
@@ -102,6 +103,43 @@ export const getHighlightRestaurants = async (): Promise<AxiosResponse<BackendRe
     data: {
       ...response.data,
       data: mappedContent
+    }
+  } as any;
+};
+/**
+ * Tìm kiếm địa điểm theo từ khóa (Tên hoặc Vị trí)
+ */
+export const getHighlightAttractionsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<any>>> => {
+  const response = await instance.get<BackendResponse<any>>(`/attractions/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  const mappedContent = (response.data.data?.content || []).map((item: any) => mapBackendToHighlightItem(item, "pin"));
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      data: {
+        ...response.data.data,
+        content: mappedContent
+      }
+    }
+  } as any;
+};
+
+/**
+ * Tìm kiếm nhà hàng theo từ khóa (Tên hoặc Vị trí)
+ */
+export const getHighlightRestaurantsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<any>>> => {
+  const response = await instance.get<BackendResponse<any>>(`/restaurants/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  const mappedContent = (response.data.data?.content || []).map((item: any) => mapBackendToHighlightItem(item, "food"));
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      data: {
+        ...response.data.data,
+        content: mappedContent
+      }
     }
   } as any;
 };

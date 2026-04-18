@@ -221,5 +221,12 @@ $max-width: 1200px;
   }
 }
 
+.filterWrapper {
+  position: relative;
+  z-index: 100;
+  overflow: visible !important; // Quan trọng để không bị AOS cắt menu
+  margin-bottom: 20px;
+}
+
 @include Explore.mobile-styles();
 

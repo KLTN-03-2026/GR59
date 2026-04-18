@@ -128,9 +128,9 @@ export const fetchHotelsList = (page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: Hotel[]; page: any }>>
 > => instance.get<BackendResponse<{ content: Hotel[]; page: any }>>(`/hotels?page=${page}&size=${size}`);
 
-export const searchHotels = (keyword: string, page = 0, size = 10): Promise<
+export const searchHotelsByKeyword = (keyword: string, page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: Hotel[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Hotel[]; page: any }>>(`/hotels/search/by-name?keyword=${keyword}&page=${page}&size=${size}`);
+> => instance.get<BackendResponse<{ content: Hotel[]; page: any }>>(`/hotels/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
 
 export const removeHotel = (
   id: string | number,
@@ -157,9 +157,9 @@ export const fetchRestaurantsList = (page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: Restaurant[]; page: any }>>
 > => instance.get<BackendResponse<{ content: Restaurant[]; page: any }>>(`/restaurants?page=${page}&size=${size}`);
 
-export const searchRestaurants = (keyword: string, page = 0, size = 10): Promise<
+export const searchRestaurantsByKeyword = (keyword: string, page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: Restaurant[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Restaurant[]; page: any }>>(`/restaurants/search/by-name?keyword=${keyword}&page=${page}&size=${size}`);
+> => instance.get<BackendResponse<{ content: Restaurant[]; page: any }>>(`/restaurants/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
 
 export const createRestaurant = (
   formData: FormData,
@@ -196,9 +196,9 @@ export const fetchAttractionsList = (page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: Destination[]; page: any }>>
 > => instance.get<BackendResponse<{ content: Destination[]; page: any }>>(`/attractions?page=${page}&size=${size}`);
 
-export const searchAttractions = (keyword: string, page = 0, size = 10): Promise<
+export const searchAttractionsByKeyword = (keyword: string, page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: Destination[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Destination[]; page: any }>>(`/attractions/search/by-name?keyword=${keyword}&page=${page}&size=${size}`);
+> => instance.get<BackendResponse<{ content: Destination[]; page: any }>>(`/attractions/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
 
 export const createAttraction = (
   formData: FormData,

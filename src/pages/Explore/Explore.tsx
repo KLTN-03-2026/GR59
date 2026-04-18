@@ -13,12 +13,13 @@ import TravelCard from "./components/TravelCard/TravelCard";
 import AIRecommendations from "./components/AIRecommendations/AIRecommendations";
 
 import { 
-  getAttractions, 
-  getHighlightRestaurants,
+  getHighlightLocations, 
+  getHighlightRestaurants, 
+  getHighlightAttractionsByKeyword,
+  getHighlightRestaurantsByKeyword,
   type HighlightItem 
 } from "../../services/highlightService";
-import { getHotels } from "../../services/hotelService";
-import { getRestaurants } from "../../services/restaurantService";
+import { getHotels, getHotelsByKeyword } from "../../services/hotelService";
 import {
   getSavedTrips,
   addSavedTrip,
@@ -36,67 +37,89 @@ const Explore: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filterProvince, setFilterProvince] = useState("all");
   const [filterPriceRange, setFilterPriceRange] = useState("all");
+  const [filterSubCategory, setFilterSubCategory] = useState("all");
   const [sortBy, setSortBy] = useState("rating");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const ITEMS_PER_PAGE = 6;
 
+  // Xử lý Debounce cho ô tìm kiếm
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-        // Gọi đồng thời 3 API để tối ưu tốc độ
-        const [attractionsRes, hotelsRes, restaurantsRes] = await Promise.all([
-          getAttractions(0, 100), // Tăng số lượng để lọc mượt hơn
-          getHotels(0, 100),
-          getRestaurants(0, 100)
-        ]);
+  const fetchPlaces = async () => {
+    setIsLoading(true);
+    try {
+      const isSearching = debouncedSearch.trim().length > 0;
+      
+      // Gọi đồng thời 3 API
+      const [hotelsRes, restaurantsRes, attractionsRes] = await Promise.all([
+        isSearching 
+          ? getHotelsByKeyword(debouncedSearch, 0, 50) 
+          : getHotels(0, 50),
+        isSearching 
+          ? getHighlightRestaurantsByKeyword(debouncedSearch, 0, 50) 
+          : getHighlightRestaurants(),
+        isSearching 
+          ? getHighlightAttractionsByKeyword(debouncedSearch, 0, 50) 
+          : getHighlightLocations()
+      ]);
 
-        let allItems: HighlightItem[] = [];
+      let allItems: HighlightItem[] = [];
 
-        // 1. Xử lý Địa điểm (Atractions)
-        if (attractionsRes.data && attractionsRes.data.data && attractionsRes.data.data.content) {
-          allItems = [...allItems, ...attractionsRes.data.data.content];
-        }
-
-        // 2. Xử lý Khách sạn (Hotels)
-        if (hotelsRes.data && hotelsRes.data.data && hotelsRes.data.data.content) {
-          allItems = [...allItems, ...hotelsRes.data.data.content];
-        }
-
-        // 3. Xử lý Nhà hàng (Restaurants)
-        if (restaurantsRes.data && restaurantsRes.data.data && restaurantsRes.data.data.content) {
-          allItems = [...allItems, ...restaurantsRes.data.data.content];
-        }
-
-        setPlaces(allItems);
-
-        // 4. Lấy danh sách đã lưu
-        try {
-          const savedTripsRes = await getSavedTrips();
-          if (savedTripsRes.data && savedTripsRes.data.data) {
-            setSavedTrips(savedTripsRes.data.data);
-          }
-        } catch (err) {
-          console.warn("Lỗi API saved-trips:", err);
-        }
-
-      } catch (err: any) {
-        console.error("Lỗi tổng quát khi tải dữ liệu khám phá:", err);
-        setError("Không thể tải dữ liệu từ Backend. Vui lòng kiểm tra kết nối.");
-      } finally {
-        setIsLoading(false);
+      // 1. Xử lý Khách sạn (An toàn)
+      const hotelsData = hotelsRes.data?.data;
+      if (hotelsData) {
+        const hContent = Array.isArray(hotelsData) ? hotelsData : (hotelsData as any).content;
+        if (Array.isArray(hContent)) allItems = [...allItems, ...hContent];
       }
-    };
 
-    fetchData();
-    AOS.init({
-      duration: 800,
-      once: true,
-      easing: "ease-out-quad",
-      delay: 100,
-    });
-  }, []);
+      // 2. Xử lý Nhà hàng (An toàn)
+      const restaurantsData = restaurantsRes.data?.data;
+      if (restaurantsData) {
+        const rContent = Array.isArray(restaurantsData) ? restaurantsData : (restaurantsData as any).content;
+        if (Array.isArray(rContent)) allItems = [...allItems, ...rContent];
+      }
+
+      // 3. Xử lý Địa điểm (An toàn)
+      const attractionsData = attractionsRes.data?.data;
+      if (attractionsData) {
+        const aContent = Array.isArray(attractionsData) ? attractionsData : (attractionsData as any).content;
+        if (Array.isArray(aContent)) allItems = [...allItems, ...aContent];
+      }
+
+      // Đảm bảo ID duy nhất và loại bỏ item null
+      const uniqueItems = allItems
+        .filter(item => item && item.id)
+        .map(item => ({
+          ...item,
+          uniqueId: `${item.type || 'unknown'}-${item.id}`
+        }));
+
+      setPlaces(uniqueItems);
+
+      // Lấy danh sách yêu thích
+      try {
+        const savedRes = await getSavedTrips();
+        if (savedRes.data?.data) setSavedTrips(savedRes.data.data);
+      } catch (e) {
+        console.warn("Lỗi tải saved trips:", e);
+      }
+
+    } catch (err) {
+      console.error("Lỗi fetchPlaces:", err);
+      setError("Không thể tìm kiếm lúc này. Vui lòng thử lại sau.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchPlaces();
+    AOS.init({ duration: 800, once: true });
+  }, [debouncedSearch]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -105,41 +128,55 @@ const Explore: React.FC = () => {
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
+    setFilterSubCategory("all"); // Reset lọc chi tiết khi đổi tab chính
     setCurrentPage(1);
   };
 
   const filteredData = (places || [])
     .filter((item) => {
-      // 1. Lọc theo danh mục chính (Tab)
-      const matchesCategory =
-        activeCategory === "all"
-          ? true
-          : item.type === activeCategory;
+      // 1. Lọc theo danh mục chính (Tab: all, pin, bed, food)
+      const matchesMainCategory =
+        activeCategory === "all" || item.type === activeCategory;
 
-      // 2. Lọc theo từ khóa tìm kiếm
-      const matchesSearch = item.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      // 2. Lọc theo danh mục chi tiết (Dropdown)
+      const itemCategory = item.category?.toUpperCase() || "";
+      const subCatUpper = filterSubCategory.toUpperCase();
+      
+      const matchesSubCategory = 
+        filterSubCategory === "all" || 
+        itemCategory === subCatUpper ||
+        itemCategory.includes(subCatUpper);
 
-      // 3. Lọc theo khu vực (Province)
+      // 3. Lọc theo khu vực (Province ID)
+      const itemProvinceId = item.provinceId?.toString() || "0";
       const matchesProvince = 
-        filterProvince === "all" 
-          ? true 
-          : item.provinceId.toString() === filterProvince;
+        filterProvince === "all" || itemProvinceId === filterProvince;
 
-      // 4. Lọc theo khoảng giá
+      // 4. Lọc theo khoảng giá (Cần kiểm tra kỹ giá trị số)
       let matchesPrice = true;
-      if (filterPriceRange === "budget") matchesPrice = item.price < 500000;
-      else if (filterPriceRange === "mid") matchesPrice = item.price >= 500000 && item.price <= 2000000;
-      else if (filterPriceRange === "luxury") matchesPrice = item.price > 2000000;
+      const itemPrice = Number(item.price) || 0;
 
-      return matchesCategory && matchesSearch && matchesProvince && matchesPrice;
+      if (filterPriceRange === "budget") {
+        matchesPrice = itemPrice > 0 && itemPrice < 500000;
+      } else if (filterPriceRange === "mid") {
+        matchesPrice = itemPrice >= 500000 && itemPrice <= 2000000;
+      } else if (filterPriceRange === "luxury") {
+        matchesPrice = itemPrice > 2000000;
+      }
+
+      // Lưu ý: matchesSearch đã được xử lý ở tầng API (fetchPlaces)
+      return matchesMainCategory && matchesSubCategory && matchesProvince && matchesPrice;
     })
     .sort((a, b) => {
-      // Sắp xếp dữ liệu
-      if (sortBy === "rating") return Number(b.rating) - Number(a.rating);
-      if (sortBy === "priceAsc") return a.price - b.price;
-      if (sortBy === "priceDesc") return b.price - a.price;
+      // Sắp xếp dữ liệu dựa trên rating hoặc giá
+      const ratingA = Number(a.rating) || 0;
+      const ratingB = Number(b.rating) || 0;
+      const priceA = Number(a.price) || 0;
+      const priceB = Number(b.price) || 0;
+
+      if (sortBy === "rating") return ratingB - ratingA;
+      if (sortBy === "priceAsc") return priceA - priceB;
+      if (sortBy === "priceDesc") return priceB - priceA;
       return 0;
     });
 
@@ -219,15 +256,17 @@ const Explore: React.FC = () => {
       </div>
 
       <main className={styles.mainContainer}>
-        <div data-aos="fade-up" data-aos-delay="200">
+        <div data-aos="fade-up" data-aos-delay="200" className={styles.filterWrapper}>
           <CategoryTabs
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
           />
           <FilterBar
             searchTerm={searchTerm}
+            activeTab={activeCategory}
             onSearchChange={handleSearchChange}
             onProvinceChange={(val) => { setFilterProvince(val); setCurrentPage(1); }}
+            onCategoryChange={(val) => { setFilterSubCategory(val); setCurrentPage(1); }}
             onPriceRangeChange={(val) => { setFilterPriceRange(val); setCurrentPage(1); }}
             onSortChange={(val) => { setSortBy(val); setCurrentPage(1); }}
           />
@@ -252,33 +291,31 @@ const Explore: React.FC = () => {
           ) : displayedData.length > 0 ? (
             displayedData.map((location, index) => (
               <div
-                key={location.id}
+                key={location.uniqueId || location.id}
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
               >
-                <Link 
-                  to={
-                    location.type === 'bed' 
+                <TravelCard
+                  image={location.image}
+                  title={location.name}
+                  rating={Number(location.rating)}
+                  location={location.location}
+                  description={location.desc}
+                  isHot={location.isHot}
+                  previewVideo={location.previewVideo || VideoHome}
+                  isLiked={savedTrips.some((t) => t.id == location.id)}
+                  status={location.status}
+                  price={location.price}
+                  onToggleLike={() => handleToggleLike(location)}
+                  onDetail={() => {
+                    const path = location.type === 'bed' 
                       ? `/hotel/${location.id}` 
                       : location.type === 'food' 
                         ? `/restaurant/${location.id}` 
-                        : `/attraction/${location.id}`
-                  }
-                  style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-                >
-                  <TravelCard
-                    image={location.image}
-                    title={location.name}
-                    rating={Number(location.rating)}
-                    description={location.desc}
-                    isHot={location.isHot}
-                    previewVideo={location.previewVideo || VideoHome}
-                    isLiked={savedTrips.some((t) => t.id == location.id)}
-                    status={location.status}
-                    price={location.price}
-                    onToggleLike={() => handleToggleLike(location)}
-                  />
-                </Link>
+                        : `/attraction/${location.id}`;
+                    window.location.href = path;
+                  }}
+                />
               </div>
             ))
           ) : (

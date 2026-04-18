@@ -200,7 +200,7 @@ export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<Back
     image: hotel.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",
     desc: hotel.description || `Mô tả về ${hotel.name} đang được cập nhật.`,
     type: "bed",
-    category: hotel.category?.toLowerCase() || "khách sạn",
+    category: hotel.category || "khách sạn",
     price: hotel.averagePrice || 0,
     provinceId: hotel.provinceId || 0,
     previewVideo: hotel.previewVideo || undefined,
@@ -234,6 +234,40 @@ export const getHotelDetail = async (id: string | number): Promise<AxiosResponse
     data: {
       ...response.data,
       data: fullData
+    }
+  } as any;
+};
+/**
+ * Tìm kiếm khách sạn theo từ khóa (Tên hoặc Vị trí)
+ */
+export const getHotelsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
+  const response = await instance.get<BackendResponse<PaginatedData<BackendHotel>>>(`/hotels/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  const data = response.data.data || (response.data as any).DT;
+
+  const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
+    id: hotel.id.toString(),
+    name: hotel.name || "Đang cập nhật",
+    location: hotel.location || "Đang cập nhật",
+    rating: hotel.rating || 0,
+    reviews: hotel.reviewCount?.toString() || "0",
+    image: hotel.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",
+    desc: hotel.description || `Mô tả về ${hotel.name} đang được cập nhật.`,
+    type: "bed",
+    category: hotel.category?.toLowerCase() || "khách sạn",
+    price: hotel.averagePrice || 0,
+    provinceId: hotel.provinceId || 0,
+    previewVideo: hotel.previewVideo || undefined,
+    status: hotel.status || "ACTIVE"
+  }));
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      data: {
+        ...response.data.data,
+        content: mappedContent
+      }
     }
   } as any;
 };
