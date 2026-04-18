@@ -1,5 +1,5 @@
 @use "./AddSpotModal.mobile.scss";
-@import "../../../../components/styles/variables.scss";
+@use "../../../../components/styles/variables.scss" as vars;
 
 .modalOverlay {
   position: fixed;
@@ -19,7 +19,7 @@
 }
 
 .modalContent {
-  background: $bg-white;
+  background: vars.$bg-white;
   border-radius: 24px;
   max-width: 850px;
   width: 95%;

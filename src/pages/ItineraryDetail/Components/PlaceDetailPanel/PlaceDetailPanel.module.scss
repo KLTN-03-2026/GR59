@@ -1,4 +1,6 @@
+@use "sass:color";
 @use "./PlaceDetailPanel.mobile.scss";
+
 $primary: #33d7d1;
 $dark: #0f172a;
 $slate: #64748b;
@@ -173,7 +175,7 @@ $shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     .primaryAction {
       background: $primary;
       color: #fff;
-      &:hover { background: darken($primary, 5%); transform: translateY(-2px); box-shadow: 0 8px 20px rgba($primary, 0.3); }
+      &:hover { background: color.adjust($primary, $lightness: -5%); transform: translateY(-2px); box-shadow: 0 8px 20px color.change($primary, $alpha: 0.3); }
     }
 
     .secondaryAction {

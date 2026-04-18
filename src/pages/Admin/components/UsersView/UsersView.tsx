@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 import { useDbUsers, deleteRecord } from "../../hooks/useAdminData";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,13 +35,18 @@ const rowVariants = {
 } as const;
 
 const UsersView: React.FC = () => {
-  const { data: users, loading, error, refetch } = useDbUsers();
+  const [page, setPage] = useState(1);
+  const { data: users, pagination, loading, error, refetch } = useDbUsers();
+
+  // Gọi lại API khi trang thay đổi
+  React.useEffect(() => {
+    refetch(page - 1, PAGE_SIZE);
+  }, [page]);
 
   const [activeRoleFilter, setActiveRoleFilter] = useState<
     "All" | "ADMIN" | "USER"
   >("All");
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
 
   const getRoleStyle = (role: string) => {
     switch (role) {
@@ -93,8 +98,8 @@ const UsersView: React.FC = () => {
     return list;
   }, [users, activeRoleFilter, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = pagination.totalPages || 1;
+  const paged = filtered;
 
   const handleDelete = async (id: string) => {
     if (!confirm("Bạn có chắc muốn xóa người dùng này?")) return;
@@ -236,6 +241,7 @@ const UsersView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th style={{ width: '60px' }}>STT</th>
               <th>NGƯỜI DÙNG</th>
               <th>VAI TRÒ</th>
               <th>TRẠNG THÁI</th>
@@ -249,54 +255,56 @@ const UsersView: React.FC = () => {
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className={styles.emptyState}>
+                  <td colSpan={6} className={styles.emptyState}>
                     Không tìm thấy người dùng phù hợp
                   </td>
                 </tr>
               ) : (
                 paged.map((user, idx) => (
                   <motion.tr key={user.id} variants={rowVariants} custom={idx}>
-                    <td>
-                      <div className={styles.infoCol}>
-                        <img
-                          src={`https://i.pravatar.cc/100?u=${user.id}`}
-                          alt=""
-                        />
-                        <div className={styles.textInfo}>
-                          <p>{user.username}</p>
-                          <div className={styles.emailBox}>
-                            <Envelope size={12} color="#cbd5e1" />
-                            <span>{user.email}</span>
-                          </div>
+                  <td style={{ fontWeight: 600, color: '#64748b' }}>
+                    #{(page - 1) * PAGE_SIZE + idx + 1}
+                  </td>
+                  <td>
+                    <div className={styles.infoCol}>
+                      <img
+                        src={`https://i.pravatar.cc/100?u=${user.id}`}
+                        alt=""
+                      />
+                      <div className={styles.textInfo}>
+                        <p>{user.username}</p>
+                        <div className={styles.emailBox}>
+                          <Envelope size={12} color="#cbd5e1" />
+                          <span>{user.email}</span>
                         </div>
                       </div>
-                    </td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${getRoleStyle(user.role)}`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${getStatusStyle(user.status)}`}
-                      >
-                        <StatusIcon status={user.status} />
-                        {statusLabel[user.status]}
-                      </span>
-                    </td>
-                    <td>
-                      <div className={styles.dateCol}>
-                        <p>
-                          {new Date(user.createdAt).toLocaleDateString(
-                            "vi-VN",
-                            { day: "2-digit", month: "short", year: "numeric" },
-                          )}
-                        </p>
-                        <p>#{user.id}</p>
-                      </div>
-                    </td>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      className={`${styles.badge} ${getRoleStyle(user.role)}`}
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={`${styles.badge} ${getStatusStyle(user.status)}`}
+                    >
+                      <StatusIcon status={user.status} />
+                      {statusLabel[user.status]}
+                    </span>
+                  </td>
+                  <td>
+                    <div className={styles.dateCol}>
+                      <p>
+                        {new Date(user.createdAt).toLocaleDateString(
+                          "vi-VN",
+                          { day: "2-digit", month: "short", year: "numeric" },
+                        )}
+                      </p>
+                    </div>
+                  </td>
                     <td>
                       <div className={styles.actionGroup}>
                         <button className={styles.actionBtn} title="Chỉnh sửa người dùng">
@@ -326,10 +334,10 @@ const UsersView: React.FC = () => {
           <p className={styles.paginationInfo}>
             Hiển thị{" "}
             <span>
-              {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–
-              {Math.min(page * PAGE_SIZE, filtered.length)}
+              {Math.min((page - 1) * PAGE_SIZE + 1, pagination.totalElements)}–
+              {Math.min(page * PAGE_SIZE, pagination.totalElements)}
             </span>{" "}
-            của <span>{filtered.length}</span> người dùng
+            của <span>{pagination.totalElements}</span> người dùng
           </p>
           <div className={styles.paginationBtns}>
             <button

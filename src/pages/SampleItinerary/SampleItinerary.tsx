@@ -84,6 +84,30 @@ const SampleItinerary: React.FC = () => {
     setCurrentPage(1);
   };
 
+  const getPageNumbers = () => {
+    const delta = 1;
+    const range = [];
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage > 1 + delta + 1) {
+      range.unshift("...");
+    }
+    if (currentPage < totalPages - delta - 1) {
+      range.push("...");
+    }
+
+    range.unshift(1);
+    if (totalPages > 1) range.push(totalPages);
+
+    return range;
+  };
+
   return (
     <div className={styles.pageWrapper}>
       <ItineraryHero />
@@ -141,14 +165,18 @@ const SampleItinerary: React.FC = () => {
               </button>
               
               <div className={styles.pageNumbers}>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    className={`${styles.pageBtn} ${currentPage === page ? styles.activePage : ""}`}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </button>
+                {getPageNumbers().map((pageNum, idx) => (
+                  pageNum === "..." ? (
+                    <span key={`dots-${idx}`} className={styles.paginationDots}>...</span>
+                  ) : (
+                    <button
+                      key={idx}
+                      className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}
+                      onClick={() => handlePageChange(pageNum as number)}
+                    >
+                      {pageNum}
+                    </button>
+                  )
                 ))}
               </div>
 

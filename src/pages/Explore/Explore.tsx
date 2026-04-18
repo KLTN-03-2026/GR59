@@ -275,6 +275,7 @@ const Explore: React.FC = () => {
                     previewVideo={location.previewVideo || VideoHome}
                     isLiked={savedTrips.some((t) => t.id == location.id)}
                     status={location.status}
+                    price={location.price}
                     onToggleLike={() => handleToggleLike(location)}
                   />
                 </Link>

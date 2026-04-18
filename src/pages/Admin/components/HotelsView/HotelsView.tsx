@@ -28,7 +28,7 @@ const HotelsView: React.FC = () => {
     refetch(page - 1, PAGE_SIZE);
   }, [page]);
 
-  const [activeTab, setActiveTab] = useState<'all' | 'HOẠT ĐỘNG' | 'BẢO TRÌ'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'ACTIVE' | 'MAINTENANCE'>('all');
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -36,14 +36,13 @@ const HotelsView: React.FC = () => {
   // ─── derived stats ───────────────────────────────────────────────────────────
   // Lưu ý: stats này hiện tại chỉ tính trên trang hiện tại. 
   // Để chính xác tuyệt đối cần API summary từ BE.
-  const totalActive = hotels.filter(h => h.status === 'ACTIVE' || h.status === 'HOẠT ĐỘNG').length;
-  const totalMaintain = hotels.filter(h => h.status === 'MAINTENANCE' || h.status === 'BẢO TRÌ').length;
+  const totalActive = hotels.filter(h => h.status === 'ACTIVE').length;
+  const totalMaintain = hotels.filter(h => h.status === 'MAINTENANCE').length;
 
   const filtered = useMemo(() => {
     let list = [...hotels];
     if (activeTab !== 'all') {
-      const matchStatus = activeTab === 'HOẠT ĐỘNG' ? 'ACTIVE' : 'MAINTENANCE';
-      list = list.filter(h => h.status === activeTab || h.status === matchStatus);
+      list = list.filter(h => h.status === activeTab);
     }
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -55,7 +54,7 @@ const HotelsView: React.FC = () => {
   const totalPages = pagination.totalPages || 1;
   const paged = filtered; // Vì đã phân trang ở Server, ta hiển thị toàn bộ list lọc được trên trang đó
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string | number) => {
     if (!confirm('Bạn có chắc muốn xóa khách sạn này không?')) return;
     try {
       await deleteRecord('hotels', id);
@@ -139,15 +138,15 @@ const HotelsView: React.FC = () => {
           <div className={styles.tabGroup}>
             <button
               className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('all'); }}
+              onClick={() => { setActiveTab('all'); setPage(1); }}
             >Tất cả ({pagination.totalElements || hotels.length})</button>
             <button
-              className={`${styles.tab} ${activeTab === 'HOẠT ĐỘNG' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('HOẠT ĐỘNG'); }}
+              className={`${styles.tab} ${activeTab === 'ACTIVE' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveTab('ACTIVE'); setPage(1); }}
             >Đang hoạt động</button>
             <button
-              className={`${styles.tab} ${activeTab === 'BẢO TRÌ' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('BẢO TRÌ'); }}
+              className={`${styles.tab} ${activeTab === 'MAINTENANCE' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveTab('MAINTENANCE'); setPage(1); }}
             >Bảo trì</button>
           </div>
         </div>
@@ -169,6 +168,7 @@ const HotelsView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th style={{ width: '60px' }}>STT</th>
               <th>THÔNG TIN KHÁCH SẠN</th>
               <th>ĐỊA ĐIỂM</th>
               <th>ĐÁNH GIÁ</th>
@@ -183,12 +183,15 @@ const HotelsView: React.FC = () => {
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
                     Không tìm thấy kết quả phù hợp
                   </td>
                 </tr>
               ) : paged.map((hotel, idx) => (
                 <motion.tr key={hotel.id} variants={rowVariants} custom={idx}>
+                  <td style={{ fontWeight: 600, color: '#64748b' }}>
+                    #{(page - 1) * PAGE_SIZE + idx + 1}
+                  </td>
                   <td>
                     <div className={styles.infoCol}>
                       <div className={styles.imgWrapper}>
@@ -200,7 +203,6 @@ const HotelsView: React.FC = () => {
                       </div>
                       <div className={styles.textInfo}>
                         <p>{hotel.name}</p>
-                        <p>#{hotel.id}</p>
                       </div>
                     </div>
                   </td>
@@ -221,9 +223,9 @@ const HotelsView: React.FC = () => {
                     <span className={`${styles.badge} ${styles.bgPurple}`}>{hotel.category || 'PHỔ THÔNG'}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${(hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: (hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}></span>
-                      {hotel.status === 'ACTIVE' ? 'HOẠT ĐỘNG' : hotel.status === 'MAINTENANCE' ? 'BẢO TRÌ' : hotel.status}
+                    <span className={`${styles.badge} ${hotel.status === 'ACTIVE' ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: hotel.status === 'ACTIVE' ? '#10b981' : '#f59e0b' }}></span>
+                      {hotel.status === 'ACTIVE' ? 'HOẠT ĐỘNG' : 'BẢO TRÌ'}
                     </span>
                   </td>
                   <td>

@@ -1,5 +1,5 @@
 @use "./DashboardView.mobile.scss";
-@import "../../../../components/styles/variables.scss";
+@use "../../../../components/styles/variables.scss" as vars;
 
 $accent-sky: #38BDF8;    // Sky Blue
 $accent-deep: #0EA5E9;   // Deep Sky Blue

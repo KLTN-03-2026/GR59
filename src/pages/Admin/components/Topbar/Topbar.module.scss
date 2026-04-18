@@ -2,7 +2,7 @@
 
 .topbar {
   height: 80px;
-  background: #F8FAFC; // Cool White Background
+  background: #f8fafc; // Cool White Background
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
@@ -16,7 +16,7 @@
 .viewTitle {
   font-size: 1.75rem;
   font-weight: 900;
-  color: #1E293B; // Dark Blue Gray
+  color: #1e293b; // Dark Blue Gray
   margin: 0;
   letter-spacing: -0.05em;
 }
@@ -24,7 +24,7 @@
 .searchRel {
   position: relative;
   width: 400px;
-  
+
   .searchIcon {
     position: absolute;
     left: 20px;
@@ -41,12 +41,12 @@
     border-radius: 14px;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #1E293B;
+    color: #1e293b;
     transition: all 0.2s;
-    
+
     &:focus {
       outline: none;
-      border-color: #38BDF8; // Primary Accent (Sky Blue)
+      border-color: #38bdf8; // Primary Accent (Sky Blue)
       box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
     }
 
@@ -57,8 +57,8 @@
 }
 
 .iconBtn {
-  width: 44px;
-  height: 44px;
+  width: 54px;
+  height: 54px;
   border-radius: 12px;
   background: white;
   border: 1px solid #e2e8f0;
@@ -69,10 +69,11 @@
   position: relative;
   transition: all 0.2s;
   cursor: pointer;
+  
 
   &:hover {
-    color: #38BDF8;
-    border-color: #38BDF8;
+    color: #38bdf8;
+    border-color: #38bdf8;
     background-color: white;
   }
 
@@ -100,7 +101,7 @@
   transition: all 0.2s;
 
   &:hover {
-    border-color: #38BDF8;
+    border-color: #38bdf8;
   }
 
   .userInfo {
@@ -108,13 +109,13 @@
     p:first-child {
       font-size: 0.8125rem;
       font-weight: 800;
-      color: #1E293B;
+      color: #1e293b;
       margin: 0;
     }
     p:last-child {
       font-size: 0.6875rem;
       font-weight: 700;
-      color: #0EA5E9; // Smart Highlight
+      color: #0ea5e9; // Smart Highlight
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin: 0;
@@ -129,4 +130,3 @@
 }
 
 @include Topbar.mobile-styles();
-

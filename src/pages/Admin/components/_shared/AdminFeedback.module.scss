@@ -1,4 +1,4 @@
-@import "../../../../components/styles/variables.scss";
+@use "../../../../components/styles/variables.scss" as vars;
 
 $shimmer-gradient: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
 

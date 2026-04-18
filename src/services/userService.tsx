@@ -116,7 +116,7 @@ export const postLogout = (
   refreshToken: string,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   return instance.post<BackendResponse<unknown>>("/auth/logout", {
-    refreshToken: refreshToken,
+    refresh_token: refreshToken,
   });
 };
 

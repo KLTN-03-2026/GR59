@@ -132,12 +132,9 @@ const Login: React.FC<Props> = ({ onToggle }) => {
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => toast.error("Đăng nhập Google thất bại!")}
-            useOneTap
             theme="outline"
             shape="pill"
             text="signin"
-            locale="vi"
-            width="100%"
             logo_alignment="center"
           />
         </div>

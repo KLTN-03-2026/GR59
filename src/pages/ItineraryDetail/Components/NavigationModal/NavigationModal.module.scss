@@ -1,5 +1,5 @@
 @use "./NavigationModal.mobile.scss";
-@import "../../../../components/styles/variables.scss";
+@use "../../../../components/styles/variables.scss" as vars;
 
 .modalOverlay {
   position: fixed;

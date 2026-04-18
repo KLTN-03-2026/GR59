@@ -51,22 +51,9 @@ const mapBackendToHighlightItem = (item: any, type: "pin" | "food"): HighlightIt
   distance: item.distance || (item as any).distance,
   previewVideo: item.previewVideo || undefined,
   price: item.averagePrice || 0,
-  provinceId: item.provinceId || 0
+  provinceId: item.provinceId || 0,
+  status: item.status || "ACTIVE"
 });
-
-// Lấy tất cả địa điểm (cho trang Explore)
-export const getPlaces = async (): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
-  const response = await instance.get<BackendResponse<any>>("/places");
-  const responseData = response.data.data || (response.data as any).DT;
-  
-  return {
-    ...response,
-    data: {
-      ...response.data,
-      data: Array.isArray(responseData) ? responseData : []
-    }
-  } as any;
-};
 
 /**
  * Lấy danh sách địa điểm tham quan từ API thật

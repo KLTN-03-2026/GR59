@@ -11,7 +11,7 @@ import StepProgressBar from "./components/StepProgressBar/StepProgressBar";
 import InterestItem from "./components/InterestItem/InterestItem";
 import type { PlannerFormData, InterestOption } from "./types";
 import { postTravelPlan } from "../../services/plannerService";
-import { getPlaces } from "../../services/highlightService";
+import { getHighlightRestaurants } from "../../services/highlightService";
 
 const INTERESTS: InterestOption[] = [
   { id: "Ẩm thực", icon: "ph-fill ph-fork-knife", color: "#f97316" },
@@ -63,21 +63,7 @@ const Planner: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchDestinations = async () => {
-      try {
-        const res = await getPlaces();
-        if (res.data && res.data.DT) {
-          // Lọc ra danh sách tên các thành phố độc nhất
-          const uniqueTitles = Array.from(new Set(res.data.DT.map((item) => item.title)));
-          setSuggestions(uniqueTitles);
-        }
-      } catch (error) {
-        console.error("Lỗi khi tải gợi ý địa điểm:", error);
-      }
-    };
-    fetchDestinations();
-  }, []);
+
 
   useEffect(() => {
     if (heroData) {

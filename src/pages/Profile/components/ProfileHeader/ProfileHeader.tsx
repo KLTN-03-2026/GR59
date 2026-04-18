@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import styles from "./ProfileHeader.module.scss";
+import { anhmatdinh } from "../../../../assets/images/img";
 import { uploadImage } from "../../../../services/profileService";
 import { toast } from "react-toastify";
 
@@ -73,7 +74,7 @@ const ProfileHeader: React.FC<Props> = ({
     }
   };
 
-  const defaultAvatar = "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png";
+  const defaultAvatar = anhmatdinh;
   const defaultCover = "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg";
 
   return (

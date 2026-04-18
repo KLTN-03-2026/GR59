@@ -205,6 +205,150 @@ const MOCK_ITINERARIES: ItineraryType[] = [
         ]
       }
     ]
+  },
+  {
+    "id": "34",
+    "trip_name": "Sapa - Nơi gặp gỡ đất trời",
+    "duration": "3 ngày 2 đêm",
+    "price": 2800000,
+    "rating": 4.7,
+    "img": "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=800",
+    "location": "Sapa",
+    "category": "nature",
+    "maxPeople": 2,
+    "itinerary": []
+  },
+  {
+    "id": "35",
+    "trip_name": "Ninh Bình - Tràng An Bái Đính",
+    "duration": "2 ngày 1 đêm",
+    "price": 1500000,
+    "rating": 4.6,
+    "img": "https://images.unsplash.com/photo-1599708145804-0373df89966d?q=80&w=800",
+    "location": "Ninh Bình",
+    "category": "culture",
+    "maxPeople": 10,
+    "itinerary": []
+  },
+  {
+    "id": "36",
+    "trip_name": "Huế - Kinh đô cổ kính",
+    "duration": "3 ngày 2 đêm",
+    "price": 2200000,
+    "rating": 4.5,
+    "img": "https://images.unsplash.com/photo-1584043204475-8cc101d6c77a?q=80&w=800",
+    "location": "Huế",
+    "category": "culture",
+    "maxPeople": 4,
+    "itinerary": []
+  },
+  {
+    "id": "37",
+    "trip_name": "Hội An - Hoài niệm phố cổ",
+    "duration": "2 ngày 1 đêm",
+    "price": 1200000,
+    "rating": 4.9,
+    "img": "https://images.unsplash.com/photo-1555581938-23011a74ec41?q=80&w=800",
+    "location": "Hội An",
+    "category": "culture",
+    "maxPeople": 2,
+    "itinerary": []
+  },
+  {
+    "id": "38",
+    "trip_name": "Đà Nẵng - Thành phố đáng sống",
+    "duration": "4 ngày 3 đêm",
+    "price": 3800000,
+    "rating": 4.8,
+    "img": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800",
+    "location": "Đà Nẵng",
+    "category": "beach",
+    "maxPeople": 4,
+    "itinerary": []
+  },
+  {
+    "id": "39",
+    "trip_name": "Quy Nhơn - Kỳ Co Eo Gió",
+    "duration": "4 ngày 3 đêm",
+    "price": 4500000,
+    "rating": 4.7,
+    "img": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=800",
+    "location": "Quy Nhơn",
+    "category": "beach",
+    "maxPeople": 5,
+    "itinerary": []
+  },
+  {
+    "id": "40",
+    "trip_name": "Vũng Tàu - Biển xanh nắng vàng",
+    "duration": "2 ngày 1 đêm",
+    "price": 1800000,
+    "rating": 4.4,
+    "img": "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800",
+    "location": "Vũng Tàu",
+    "category": "beach",
+    "maxPeople": 8,
+    "itinerary": []
+  },
+  {
+    "id": "41",
+    "trip_name": "Hạ Long - Kỳ quan thế giới",
+    "duration": "3 ngày 2 đêm",
+    "price": 5500000,
+    "rating": 4.9,
+    "img": "https://images.unsplash.com/photo-1524338198850-8a2ff63a401f?q=80&w=800",
+    "location": "Hạ Long",
+    "category": "nature",
+    "maxPeople": 2,
+    "itinerary": []
+  },
+  {
+    "id": "42",
+    "trip_name": "Mộc Châu - Mùa hoa cải trắng",
+    "duration": "2 ngày 1 đêm",
+    "price": 1400000,
+    "rating": 4.5,
+    "img": "https://images.unsplash.com/photo-1551632432-c73600989ea1?q=80&w=800",
+    "location": "Mộc Châu",
+    "category": "nature",
+    "maxPeople": 4,
+    "itinerary": []
+  },
+  {
+    "id": "43",
+    "trip_name": "Cần Thơ - Gạo trắng nước trong",
+    "duration": "2 ngày 1 đêm",
+    "price": 1600000,
+    "rating": 4.6,
+    "img": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=800",
+    "location": "Cần Thơ",
+    "category": "culture",
+    "maxPeople": 5,
+    "itinerary": []
+  },
+  {
+    "id": "44",
+    "trip_name": "Phan Thiết - Đồi cát bay",
+    "duration": "3 ngày 2 đêm",
+    "price": 2600000,
+    "rating": 4.3,
+    "img": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800",
+    "location": "Phan Thiết",
+    "category": "beach",
+    "maxPeople": 3,
+    "itinerary": []
+  },
+  {
+    "id": "45",
+    "trip_name": "Quảng Bình - Vương quốc hang động",
+    "duration": "4 ngày 3 đêm",
+    "price": 6200000,
+    "rating": 5.0,
+    "img": "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800",
+    "location": "Quảng Bình",
+    "category": "nature",
+    "maxPeople": 4,
+    "itinerary": []
   }
 ];
 

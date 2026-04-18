@@ -16,77 +16,66 @@ interface AddEditModalProps {
 
 const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, title, type, initialData }) => {
   const [formData, setFormData] = useState<any>({});
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // State mới để lưu file thực tế trước khi gửi FormData
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [tempGalleryFiles, setTempGalleryFiles] = useState<File[]>([]);
+  // Lưu trữ các ObjectURL để cleanup
+  const previewUrls = useRef<string[]>([]);
 
   useEffect(() => {
     if (initialData) {
-      setFormData({
+      // Unify initialData keys for internal use
+      const unifiedData = {
         ...initialData,
-        mapCoordinates: initialData.mapCoordinates || initialData.coordinates || { lat: 21.0285, lng: 105.8542 }
-      });
+        // Name/Title mapping (Unified to 'name')
+        name: initialData.name || initialData.title || '',
+        // Unified Image mapping
+        imageUrl: initialData.imageUrl || initialData.image || initialData.img || initialData.heroImage,
+        // Reviews mapping (Unified to 'reviewCount')
+        reviews: initialData.reviewCount || initialData.reviews || 0,
+        // Price mapping (Unified to 'averagePrice')
+        price: initialData.averagePrice || initialData.priceRange || initialData.price || 0,
+        // Duration mapping (Unified to 'estimatedDuration')
+        duration: initialData.estimatedDuration || initialData.time || 0,
+        // Location mapping
+        location: initialData.location || '',
+        // Province mapping
+        provinceId: initialData.provinceId || 1,
+        // Status mapping
+        status: initialData.status || (type === 'restaurant' ? 'OPENING' : 'ACTIVE'),
+        // Category/Type mapping
+        category: initialData.category || (type === 'hotel' ? 'LUXURY' : (type === 'restaurant' ? 'VIETNAMESE' : 'ATTRACTION'))
+      };
+      setFormData(unifiedData);
     } else {
       const baseData = {
-        status: type === 'restaurant' ? 'ĐANG MỞ' : 'HOẠT ĐỘNG',
+        name: '',
+        location: '',
+        provinceId: 1,
+        status: type === 'restaurant' ? 'OPENING' : 'ACTIVE',
         rating: 5,
         reviews: '0',
+        imageUrl: '',
         gallery: [],
         description: '',
         previewVideo: '',
+        category: type === 'hotel' ? 'LUXURY' : (type === 'restaurant' ? 'VIETNAMESE' : 'ATTRACTION'),
+        price: type === 'hotel' ? 0 : '',
+        duration: type === 'hotel' ? 1200 : '',
       };
 
-      if (type === 'destination') {
-        setFormData({
-          ...baseData,
-          title: '',
-          location: '',
-          img: '', 
-          distance: '',
-          price: '',
-          time: '',
-          category: 'popular',
-          travelTimeFromHanoi: '',
-          mapScreenshot: '',
-          mapCoordinates: { lat: 21.0285, lng: 105.8542 },
-          weatherCurrent: { temp: 25, description: 'Trời quang đãng', icon: 'Sun' },
-          travelTips: [{ icon: 'Lightbulb', title: 'Mẹo nhỏ', content: 'Hãy chuẩn bị kỹ trước khi đi.' }],
-          quickInfo: [{ id: Date.now(), label: 'Thông tin', value: 'Giá trị' }],
-          services: [],
-          features: []
-        });
-      } else if (type === 'hotel') {
-        setFormData({
-          ...baseData,
-          name: '',
-          location: '',
-          imageUrl: '',
-          category: 'LUXURY',
-          averagePrice: 0,
-          estimatedDuration: 1200,
-          provinceId: 1,
-          status: 'ACTIVE',
-          rating: 4.5,
-          reviewCount: 100,
-          gallery: []
-        });
-      } else {
-        setFormData({
-          ...baseData,
-          name: '',
-          location: '',
-          image: '',
-          cuisine: 'VIỆT NAM',
-          priceRange: '',
-          features: []
-        });
-      }
+      setFormData(baseData);
     }
   }, [initialData, type, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const handleArrayChange = (field: string, index: number, value: string) => {
@@ -111,60 +100,80 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
     setFormData((prev: any) => ({ ...prev, [field]: newArray }));
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, field: 'main' | 'gallery') => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, field: 'main' | 'gallery') => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    try {
-      setIsUploading(true);
-      
-      const uploadPromises = Array.from(files).map(file => uploadAdminImage(file));
-      const results = await Promise.all(uploadPromises);
-      
-      const newUrls = results
-        .filter(res => res.data && res.data.status === 200 && res.data.data?.imageUrl)
-        .map(res => res.data.data!.imageUrl);
+    if (type === 'hotel' || type === 'restaurant' || type === 'destination') {
+      const newFiles = Array.from(files);
+      const newPreviews = newFiles.map(file => {
+        const url = URL.createObjectURL(file);
+        previewUrls.current.push(url);
+        return url;
+      });
 
-      if (newUrls.length > 0) {
-        if (field === 'main') {
-          const mainField = type === 'destination' ? 'img' : (type === 'hotel' ? 'imageUrl' : 'image');
-          setFormData((prev: any) => ({ ...prev, [mainField]: newUrls[0] }));
-          toast.success('Đã tải ảnh chính lên!');
-        } else {
-          setFormData((prev: any) => ({ ...prev, gallery: [...(prev.gallery || []), ...newUrls] }));
-          toast.success(`Đã tải ${newUrls.length} ảnh vào thư viện!`);
-        }
+      if (field === 'main') {
+        setMainImageFile(newFiles[0]);
+        setFormData((prev: any) => ({ ...prev, imageUrl: newPreviews[0] }));
+      } else {
+        setTempGalleryFiles(prev => [...prev, ...newFiles]);
+        setFormData((prev: any) => ({ ...prev, gallery: [...(prev.gallery || []), ...newPreviews] }));
       }
-    } catch (error) {
-      console.error('Upload failed:', error);
-      toast.error('Tải ảnh lên thất bại!');
-    } finally {
-      setIsUploading(false);
-      if (event.target) event.target.value = '';
+      return;
     }
   };
+
+  // Cleanup ObjectURLs khi đóng modal hoặc unmount
+  useEffect(() => {
+    return () => {
+      previewUrls.current.forEach(url => URL.revokeObjectURL(url));
+      previewUrls.current = [];
+    };
+  }, [isOpen]);
 
   const handleSaveInternal = () => {
     const finalData = { ...formData };
     
-    if (type === 'hotel') {
-      // Ép kiểu số cho Hotel để khớp Backend API
-      finalData.rating = parseFloat(finalData.rating) || 0;
-      finalData.reviewCount = parseInt(finalData.reviewCount) || 0;
-      finalData.averagePrice = parseInt(finalData.averagePrice) || 0;
-      finalData.estimatedDuration = parseInt(finalData.estimatedDuration) || 0;
-      finalData.provinceId = parseInt(finalData.provinceId) || 1;
+    if (type === 'hotel' || type === 'restaurant' || type === 'destination') {
+      // 1. Chuẩn bị Metadata Key và Object
+      const metadataKey = type === 'hotel' ? 'hotel' : (type === 'restaurant' ? 'restaurant' : 'attraction');
       
-      // Xóa trường redundant nếu có
-      delete finalData.reviews;
-    }
+      let metadata: any = {};
+      
+      // Unified metadata for all types (Hotel, Restaurant, Destination)
+      metadata = {
+        name: finalData.name,
+        description: finalData.description,
+        location: finalData.location,
+        rating: parseFloat(finalData.rating) || 5.0,
+        reviewCount: parseInt(finalData.reviews) || 0,
+        imageUrl: finalData.imageUrl,
+        gallery: Array.isArray(finalData.gallery) ? finalData.gallery.filter((url: string) => !url.startsWith('blob:')) : [],
+        previewVideo: finalData.previewVideo || null,
+        category: finalData.category || null,
+        status: finalData.status || 'ACTIVE',
+        averagePrice: parseInt(finalData.price) || 0,
+        estimatedDuration: parseInt(finalData.duration) || 0,
+        provinceId: parseInt(finalData.provinceId) || 1
+      };
 
-    if (type === 'destination') {
-      if (!finalData.img && finalData.heroImage) finalData.img = finalData.heroImage;
-      delete finalData.heroImage;
-      
-      if (!finalData.mapCoordinates && finalData.coordinates) finalData.mapCoordinates = finalData.coordinates;
-      delete finalData.coordinates;
+      // 2. Tạo FormData theo cấu trúc Backend yêu cầu
+      const fd = new FormData();
+      const jsonBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+      fd.append(metadataKey, jsonBlob);
+
+      if (mainImageFile) {
+        fd.append('imageFile', mainImageFile);
+      }
+
+      if (tempGalleryFiles.length > 0) {
+        tempGalleryFiles.forEach(file => {
+          fd.append('galleryFiles', file);
+        });
+      }
+
+      onSave(fd);
+      return;
     }
 
     onSave(finalData);
@@ -172,7 +181,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
 
   if (!isOpen) return null;
 
-  const mainImageUrl = type === 'destination' ? (formData.img || formData.heroImage) : formData.image;
+  const mainImageUrl = type === 'hotel' 
+    ? formData.imageUrl 
+    : (type === 'destination' ? (formData.img || formData.heroImage) : formData.image);
 
   return (
     <AnimatePresence>
@@ -194,14 +205,58 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
             <div className={styles.formGrid}>
               <div className={styles.sectionTitle}><Info size={18} weight="fill" /> Thông tin cơ bản</div>
               
+              {/* Main Image Header - Prominent at the top */}
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`} style={{ marginBottom: '32px' }}>
+                <div className={styles.mainImageHeader}>
+                  <div className={styles.mainPreviewWrapper}>
+                    {formData.imageUrl ? (
+                      <img src={formData.imageUrl} alt="Preview" />
+                    ) : (
+                      <div className={styles.placeholderIcon}>
+                        <ImageIcon size={48} weight="thin" />
+                      </div>
+                    )}
+                    <button 
+                      type="button" 
+                      className={styles.uploadBtnOverlay}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <UploadSimple size={20} weight="bold" />
+                      <span>{formData.imageUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
+                    </button>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      hidden 
+                      accept="image/*" 
+                      onChange={(e) => handleFileUpload(e, 'main')} 
+                    />
+                  </div>
+                  <div className={styles.imageMetaInfo}>
+                    <label>Hình ảnh đại diện (URL hoặc Tải lên)</label>
+                    <input 
+                      type="text" 
+                      name="imageUrl" 
+                      value={formData.imageUrl || ''} 
+                      onChange={handleChange}
+                      placeholder="Dán URL hình ảnh tại đây hoặc nhấn nút Tải lên bên cạnh..."
+                    />
+                    <div className={styles.statusBadges}>
+                      <span className={styles.tipBadge}>Chất lượng tốt nhất: 800x600px</span>
+                      {isUploading && <span className={styles.uploadingBadge}><CircleNotch size={14} className="ph-spin" /> Đang tải...</span>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <label>Tên / Tiêu đề chính</label>
+                <label>Tên / Tiêu đề chính ({type === 'hotel' ? 'Khách sạn' : type === 'restaurant' ? 'Nhà hàng' : 'Địa điểm'})</label>
                 <input 
                   type="text" 
-                  name={type === 'destination' ? 'title' : 'name'} 
-                  value={(type === 'destination' ? formData.title : formData.name) || ''} 
+                  name="name" 
+                  value={formData.name || ''} 
                   onChange={handleChange}
-                  placeholder="Nhập tên chính thức tại đây..."
+                  placeholder={`Nhập tên ${type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'}...`}
                   style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0EA5E9' }}
                 />
               </div>
@@ -218,68 +273,57 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
               </div>
 
               <div className={styles.inputGroup}>
-                <label>Xếp hạng (1-5)</label>
-                <input type="number" step="0.1" min="0" max="5" name="rating" value={formData.rating || ''} onChange={handleChange} />
+                <label>Tỉnh thành</label>
+                <select name="provinceId" value={String(formData.provinceId || 1)} onChange={handleChange}>
+                  <option value="1">Huế</option>
+                  <option value="2">Đà Nẵng</option>
+                  <option value="3">Quảng Nam</option>
+                  <option value="4">Hà Nội</option>
+                  <option value="5">TP. Hồ Chí Minh</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Trạng thái hoạt động</label>
+                <select name="status" value={formData.status || ''} onChange={handleChange}>
+                  {type === 'restaurant' ? (
+                    <>
+                      <option value="OPENING">Đang mở cửa (Opening)</option>
+                      <option value="CLOSED">Tạm đóng cửa (Closed)</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="ACTIVE">Đang hoạt động (Active)</option>
+                      <option value="MAINTENANCE">Đang bảo trì (Maintenance)</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Xếp hạng (Sao / Điểm)</label>
+                <input type="number" step="0.1" min="0" max="5" name="rating" value={formData.rating || ''} onChange={handleChange} placeholder="Ví dụ: 4.8" />
               </div>
 
               <div className={styles.inputGroup}>
                 <label>Lượt đánh giá</label>
                 <input 
                   type="number" 
-                  name={type === 'hotel' ? 'reviewCount' : 'reviews'} 
-                  value={(type === 'hotel' ? formData.reviewCount : formData.reviews) || ''} 
+                  name="reviews" 
+                  value={formData.reviews || ''} 
                   onChange={handleChange} 
-                  placeholder="Ví dụ: 850" 
+                  placeholder="Ví dụ: 1250" 
                 />
               </div>
 
+              {/* Type Specific Advanced Info */}
+              <div className={styles.sectionTitle}><Lightbulb size={18} weight="fill" /> Thông tin bổ sung</div>
+
               <div className={styles.inputGroup}>
-                <label>Trạng thái</label>
-                <select name="status" value={formData.status || ''} onChange={handleChange}>
-                  {type === 'restaurant' ? (
+                <label>{type === 'restaurant' ? 'Loại hình ẩm thực' : 'Hạng mục / Danh mục'}</label>
+                <select name="category" value={formData.category || ''} onChange={handleChange}>
+                  {type === 'hotel' ? (
                     <>
-                      <option value="ĐANG MỞ">Đang mở</option>
-                      <option value="TẠM ĐÓNG">Tạm đóng</option>
-                    </>
-                  ) : type === 'hotel' ? (
-                    <>
-                      <option value="ACTIVE">Hoạt động (Active)</option>
-                      <option value="MAINTENANCE">Bảo trì (Maintenance)</option>
-                      <option value="CLOSED">Đóng cửa (Closed)</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="HOẠT ĐỘNG">Hoạt động</option>
-                      <option value="BẢO TRÌ">Bảo trì</option>
-                      <option value="ĐÓNG CỬA">Đóng cửa</option>
-                    </>
-                  )}
-                </select>
-              </div>
-
-              {type === 'destination' && (
-                <>
-                  <div className={styles.inputGroup}>
-                    <label>Danh mục</label>
-                    <select name="category" value={formData.category} onChange={handleChange}>
-                      <option value="culture">Văn hóa (Culture)</option>
-                      <option value="nature">Thiên nhiên (Nature)</option>
-                      <option value="beach">Biển đảo (Beach)</option>
-                      <option value="popular">Phổ biến (Popular)</option>
-                    </select>
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Khoảng giá</label>
-                    <input type="text" name="price" value={formData.price || ''} onChange={handleChange} placeholder="Ví dụ: 1.5tr - 5tr VNĐ" />
-                  </div>
-                </>
-              )}
-
-              {type === 'hotel' && (
-                <>
-                  <div className={styles.inputGroup}>
-                    <label>Hạng mục (Category)</label>
-                    <select name="category" value={formData.category || ''} onChange={handleChange}>
                       <option value="LUXURY">Luxury (Hạng sang)</option>
                       <option value="RESORT">Resort (Nghỉ dưỡng)</option>
                       <option value="BOUTIQUE">Boutique (Độc đáo)</option>
@@ -287,114 +331,75 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
                       <option value="BUSINESS">Business (Công tác)</option>
                       <option value="HOMESTAY">Homestay</option>
                       <option value="VILLA">Villa (Biệt thự)</option>
-                    </select>
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Giá trung bình (VNĐ)</label>
-                    <input type="number" name="averagePrice" value={formData.averagePrice || 0} onChange={handleChange} placeholder="Ví dụ: 5500000" />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Thời gian ước tính (phút)</label>
-                    <input type="number" name="estimatedDuration" value={formData.estimatedDuration || 1200} onChange={handleChange} />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Mã tỉnh thành (Province ID)</label>
-                    <select name="provinceId" value={String(formData.provinceId || 1)} onChange={handleChange}>
-                      <option value="1">1 - Huế</option>
-                      <option value="2">2 - Đà Nẵng</option>
-                      <option value="3">3 - Quảng Nam</option>
-                      <option value="4">4 - Hà Nội</option>
-                      <option value="5">5 - TP.HCM</option>
-                    </select>
-                  </div>
-                </>
-              )}
+                    </>
+                  ) : type === 'restaurant' ? (
+                    <>
+                      <option value="VIETNAMESE">Món Việt (Vietnamese)</option>
+                      <option value="SEAFOOD">Hải sản (Seafood)</option>
+                      <option value="DESSERT">Tráng miệng/Cafe (Dessert)</option>
+                      <option value="WESTERN">Món Âu (Western)</option>
+                      <option value="ASIAN">Món Á (Asian)</option>
+                      <option value="VEGETARIAN">Món chay (Vegetarian)</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="ATTRACTION">Điểm tham quan</option>
+                      <option value="CULTURE">Văn hóa & Lịch sử</option>
+                      <option value="NATURE">Thiên nhiên & Sinh thái</option>
+                      <option value="RELAX">Nghỉ dưỡng & Thư giãn</option>
+                      <option value="ENTERTAINMENT">Giải trí</option>
+                    </>
+                  )}
+                </select>
+              </div>
 
-              {type === 'restaurant' && (
-                <>
-                  <div className={styles.inputGroup}>
-                    <label>Ẩm thực</label>
-                    <select name="cuisine" value={formData.cuisine} onChange={handleChange}>
-                      <option value="VIỆT NAM">Việt Nam</option>
-                      <option value="CHÂU Á">Châu Á</option>
-                      <option value="CHÂU ÂU">Châu Âu</option>
-                    </select>
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Khoảng giá</label>
-                    <input type="text" name="priceRange" value={formData.priceRange || ''} onChange={handleChange} placeholder="Ví dụ: 500k - 2tr VNĐ" />
-                  </div>
-                </>
-              )}
+              <div className={styles.inputGroup}>
+                <label>{type === 'hotel' ? 'Giá trung bình (VNĐ/Đêm)' : (type === 'restaurant' ? 'Khoảng giá (VNĐ)' : 'Giá vé tham quan')}</label>
+                <input 
+                  type={type === 'hotel' ? 'number' : 'text'} 
+                  name="price" 
+                  value={formData.price || ''} 
+                  onChange={handleChange} 
+                  placeholder="Ví dụ: 500k - 2tr" 
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>{type === 'hotel' ? 'Thời gian trải nghiệm (phút)' : 'Thời gian tham quan ước tính'}</label>
+                <input 
+                  type={type === 'hotel' ? 'number' : 'text'} 
+                  name="duration" 
+                  value={formData.duration || ''} 
+                  onChange={handleChange} 
+                  placeholder={type === 'hotel' ? '1200' : 'Ví dụ: 2-3 tiếng'} 
+                />
+              </div>
 
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                 <label>Mô tả chi tiết</label>
-                <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder="Nhập mô tả chi tiết cho đối tượng này..."></textarea>
+                <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder={`Nhập mô tả chi tiết về ${type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'} này...`}></textarea>
               </div>
 
               {/* Media Section */}
-              <div className={styles.sectionTitle}><ImageIcon size={18} weight="fill" /> Hình ảnh & Media</div>
+              <div className={styles.sectionTitle}><ImageIcon size={18} weight="fill" /> Video & Thư viện ảnh</div>
               
-              <div className={styles.inputGroup}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label style={{ margin: 0 }}>Hình ảnh chính (URL hoặc Tải lên)</label>
-                  <button 
-                    type="button" 
-                    className={styles.uploadBtnSmall} 
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                  >
-                    {isUploading ? <CircleNotch size={14} className="ph-spin" /> : <UploadSimple size={14} />}
-                    <span>Tải ảnh</span>
-                  </button>
-                </div>
-                <input 
-                  type="text" 
-                  name={type === 'destination' ? 'img' : (type === 'hotel' ? 'imageUrl' : 'image')} 
-                  value={(type === 'destination' ? formData.img : (type === 'hotel' ? formData.imageUrl : formData.image)) || ''} 
-                  onChange={handleChange}
-                  placeholder="https://images.unsplash.com/..."
-                />
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  hidden 
-                  accept="image/*" 
-                  onChange={(e) => handleFileUpload(e, 'main')} 
-                />
-                <div className={styles.imagePreview}>
-                  {mainImageUrl ? (
-                    <img src={mainImageUrl} alt="Main preview" />
-                  ) : (
-                    <div className={styles.noImage}>
-                      <ImageIcon size={32} weight="thin" />
-                      <span>Chưa có ảnh</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label><Video size={16} weight="fill" /> Video giới thiệu (URL)</label>
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                <label><Video size={16} weight="fill" /> Video giới thiệu (YouTube URL)</label>
                 <input 
                   type="text" 
                   name="previewVideo" 
                   value={formData.previewVideo || ''} 
                   onChange={handleChange} 
-                  placeholder="https://youtube.com/..." 
+                  placeholder="https://youtube.com/watch?v=..." 
                 />
-                {type === 'destination' && (
-                  <div style={{ marginTop: '24px' }}>
-                    <label>Map Screenshot (URL)</label>
-                    <input type="text" name="mapScreenshot" value={formData.mapScreenshot || ''} onChange={handleChange} placeholder="URL ảnh bản đồ" />
-                  </div>
-                )}
               </div>
+
+
 
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <label style={{ margin: 0 }}>Thư viện ảnh khách sạn (Gallery)</label>
+                    <label style={{ margin: 0 }}>Thư viện hình ảnh ({type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'})</label>
                     <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>({formData.gallery?.length || 0} ảnh)</span>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -431,7 +436,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
                         type="text" 
                         value={url} 
                         onChange={(e) => handleArrayChange('gallery', index, e.target.value)}
-                        placeholder="Dán URL hình ảnh từ Unsplash hoặc link web..."
+                        placeholder="Dán URL hình ảnh..."
                         style={{ flex: 1 }}
                       />
                       <button type="button" className={styles.removeBtn} onClick={() => removeArrayItem('gallery', index)} style={{ padding: '8px' }}>
@@ -442,97 +447,12 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
                   
                   {(!formData.gallery || formData.gallery.length === 0) && (
                     <div style={{ textAlign: 'center', padding: '24px', border: '2px dashed #e2e8f0', borderRadius: '16px', color: '#94a3b8', fontSize: '0.875rem' }}>
-                      Chưa có ảnh nào trong bộ sưu tập. Nhấn "Thêm đường dẫn ảnh" để bắt đầu.
+                      Chưa có ảnh nào trong bộ sưu tập.
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Details & Extras Section */}
-              <div className={styles.sectionTitle}><ListChecks size={18} weight="fill" /> Tiện ích & Đặc điểm</div>
-              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <label>Đặc điểm danh sách</label>
-                  <button type="button" className={styles.addBtn} onClick={() => addArrayItem('features')}>
-                    <Plus size={14} weight="bold" /> Thêm đặc điểm
-                  </button>
-                </div>
-                <div className={styles.arrayGrid}>
-                  {formData.features?.map((feat: string, index: number) => (
-                    <div key={index} className={styles.arrayItem} style={{ display: 'flex', gap: '8px' }}>
-                      <input 
-                        type="text" 
-                        value={feat} 
-                        onChange={(e) => handleArrayChange('features', index, e.target.value)}
-                        placeholder="Ví dụ: WiFi miễn phí"
-                      />
-                      <button type="button" className={styles.removeBtn} onClick={() => removeArrayItem('features', index)}>
-                        <Trash size={18} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {type === 'destination' && (
-                <>
-                  <div className={styles.sectionTitle}><MapTrifold size={18} weight="fill" /> Bản đồ & Thời tiết</div>
-                  <div className={styles.inputGroup}>
-                    <label>Vĩ độ (Lat)</label>
-                    <input 
-                      type="number" 
-                      step="0.0001" 
-                      value={formData.mapCoordinates?.lat || ''} 
-                      onChange={(e) => setFormData((prev: any) => ({ ...prev, mapCoordinates: { ...prev.mapCoordinates, lat: parseFloat(e.target.value) } }))}
-                    />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Kinh độ (Lng)</label>
-                    <input 
-                      type="number" 
-                      step="0.0001" 
-                      value={formData.mapCoordinates?.lng || ''} 
-                      onChange={(e) => setFormData((prev: any) => ({ ...prev, mapCoordinates: { ...prev.mapCoordinates, lng: parseFloat(e.target.value) } }))}
-                    />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Nhiệt độ hiện tại (°C)</label>
-                    <input 
-                      type="number" 
-                      value={formData.weatherCurrent?.temp || ''} 
-                      onChange={(e) => setFormData((prev: any) => ({ ...prev, weatherCurrent: { ...prev.weatherCurrent, temp: parseInt(e.target.value) } }))}
-                    />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Mô tả thời tiết</label>
-                    <input 
-                      type="text" 
-                      value={formData.weatherCurrent?.description || ''} 
-                      onChange={(e) => setFormData((prev: any) => ({ ...prev, weatherCurrent: { ...prev.weatherCurrent, description: e.target.value } }))}
-                      placeholder="Nắng đẹp, Mây rải rác..."
-                    />
-                  </div>
-
-                  <div className={styles.sectionTitle}><Lightbulb size={18} weight="fill" /> Mẹo du lịch</div>
-                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                    <button type="button" className={styles.addBtn} onClick={() => addArrayItem('travelTips', { icon: 'Lightbulb', title: '', content: '' })}>
-                      <Plus size={14} weight="bold" /> Thêm mẹo
-                    </button>
-                    <div className={styles.nestedList}>
-                      {formData.travelTips?.map((tip: any, index: number) => (
-                        <div key={index} className={styles.nestedItem}>
-                          <div className={styles.nestedRow}>
-                            <input title="Icon" style={{ width: '80px' }} value={tip.icon} onChange={e => handleNestedArrayChange('travelTips', index, 'icon', e.target.value)} />
-                            <input placeholder="Tiêu đề mẹo" value={tip.title} onChange={e => handleNestedArrayChange('travelTips', index, 'title', e.target.value)} />
-                            <button type="button" className={styles.removeBtn} onClick={() => removeArrayItem('travelTips', index)}><Trash size={18} /></button>
-                          </div>
-                          <textarea placeholder="Nội dung chi tiết..." value={tip.content} onChange={e => handleNestedArrayChange('travelTips', index, 'content', e.target.value)}></textarea>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
           </div>
 

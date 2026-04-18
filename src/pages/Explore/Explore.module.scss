@@ -1,3 +1,4 @@
+@use "sass:color";
 @use "./Explore.mobile.scss";
 $bg-color: #f6fdfd; // Màu cyan cực nhạt nền
 $primary-color: #33d7d1; // Màu xanh ngọc chủ đạo mới
@@ -104,7 +105,7 @@ $max-width: 1200px;
         background: $primary-color;
         color: white;
         border-color: $primary-color;
-        box-shadow: 0 8px 20px rgba($primary-color, 0.3);
+        box-shadow: 0 8px 20px color.change($primary-color, $alpha: 0.3);
       }
     }
 

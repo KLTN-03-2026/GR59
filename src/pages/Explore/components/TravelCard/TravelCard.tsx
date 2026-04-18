@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Star, MapPin, Play, X } from "@phosphor-icons/react";
+import { Heart, Star, MapPin, Play, X, ArrowRight } from "@phosphor-icons/react";
 import styles from "./TravelCard.module.scss";
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
   isLiked?: boolean;
   onToggleLike?: () => void;
   status?: string;
+  price?: number;
 }
 
 const TravelCard: React.FC<Props> = ({
@@ -25,6 +26,8 @@ const TravelCard: React.FC<Props> = ({
   previewVideo,
   isLiked = false,
   onToggleLike,
+  status,
+  price,
 }) => {
   const [localLiked, setLocalLiked] = React.useState(isLiked);
   const [isHovered, setIsHovered] = React.useState(false);
@@ -56,7 +59,7 @@ const TravelCard: React.FC<Props> = ({
       }}
       data-is-playing={isPlaying}
     >
-      <div className={styles.imageWrapper}>
+      <div className={styles.imageContainer}>
         <img
           src={image}
           alt={title}
@@ -78,6 +81,21 @@ const TravelCard: React.FC<Props> = ({
 
         <div className={styles.imageOverlay} />
 
+        <div className={styles.statusBadge}>
+          {status && !isPlaying && (
+            <div className={`${styles.ribbon} ${styles[status.toLowerCase()]}`}>
+              {status === 'ACTIVE' || status === 'OPEN' ? 'MỞ\nCỬA' : 
+               status === 'MAINTENANCE' ? 'BẢO\nTRÌ' : 'ĐÓNG\nCỬA'}
+            </div>
+          )}
+        </div>
+
+        {isHot && !isPlaying && (
+          <div className={styles.hotTag}>
+            HOT
+          </div>
+        )}
+
         <button
           className={`${styles.heartBtn} ${localLiked ? styles.liked : ""}`}
           onClick={(e) => {
@@ -87,14 +105,17 @@ const TravelCard: React.FC<Props> = ({
           }}
           aria-label="Yêu thích"
         >
-          <div style={{ fontSize: "1rem" }}>
-            <Heart
-              size={24}
-              weight={localLiked ? "fill" : "bold"}
-              color={localLiked ? "#ff4d4d" : "currentColor"}
-            />
-          </div>
+          <Heart
+            size={22}
+            weight={localLiked ? "fill" : "bold"}
+          />
         </button>
+
+        {price && price > 0 && (
+          <div className={styles.floatingPrice}>
+            {price.toLocaleString("vi-VN")}đ
+          </div>
+        )}
 
         {isPlaying && (
           <button
@@ -108,29 +129,14 @@ const TravelCard: React.FC<Props> = ({
             <X size={20} weight="bold" />
           </button>
         )}
-
-        {isHot && !isPlaying && (
-          <div className={styles.hotBadge}>
-            <span className={styles.dot} />
-            HẤP DẪN
-          </div>
-        )}
-
-        {status === "MAINTENANCE" && !isPlaying && (
-          <div className={`${styles.hotBadge} ${styles.maintenanceBadge}`}>
-            <span className={`${styles.dot} ${styles.maintenanceDot}`} />
-            BẢO TRÌ
-          </div>
-        )}
       </div>
-      {}
 
-      <div className={styles.floatingContent}>
-        <div className={styles.topMeta}>
-          <span className={styles.ratingBadge}>
+      <div className={styles.cardInfo}>
+        <div className={styles.infoHead}>
+          <div className={styles.ratingBadge}>
             <Star size={14} weight="fill" className={styles.starIcon} />{" "}
             {rating}
-          </span>
+          </div>
           {distance && (
             <span className={styles.distanceTag}>
               <MapPin size={16} weight="bold" /> {distance}
@@ -151,11 +157,13 @@ const TravelCard: React.FC<Props> = ({
                   setIsPlaying(true);
                 }}
               >
-                <Play size={16} weight="fill" /> Xem video
+                <Play size={16} weight="fill" /> Video
               </button>
             )}
           </div>
-          <button className={styles.btnExplore}>Xem chi tiết</button>
+          <button className={styles.btnExplore}>
+            Chi tiết <ArrowRight size={16} weight="bold" />
+          </button>
         </div>
       </div>
     </div>

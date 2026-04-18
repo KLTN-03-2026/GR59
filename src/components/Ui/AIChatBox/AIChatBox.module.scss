@@ -1,3 +1,5 @@
+@use "./AIChatBox.mobile.scss";
+
 $primary: #33d7d1;
 $dark: #0f172a;
 $slate: #64748b;
@@ -275,13 +277,4 @@ $shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   }
 }
 
-@media (max-width: 500px) {
-  .chatWrapper {
-    bottom: 20px;
-    right: 20px;
-  }
-  .chatWindow {
-    width: calc(100vw - 40px);
-    height: 70vh;
-  }
-}
+@include AIChatBox.mobile-styles();

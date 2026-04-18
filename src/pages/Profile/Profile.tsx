@@ -8,6 +8,7 @@ import ProfileForm from "./components/ProfileForm/ProfileForm";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
 import { getProfile, getSavedTrips } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
+import { anhmatdinh } from "../../assets/images/img";
 
 const Profile: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -49,7 +50,7 @@ const Profile: React.FC = () => {
               avatar_url:
                 dt.avatar_url ||
                 dt.avatarUrl ||
-                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
+                anhmatdinh,
               cover_url:
                 dt.cover_url ||
                 dt.cover ||
@@ -88,7 +89,7 @@ const Profile: React.FC = () => {
               avatar_url:
                 userData.avatar_url ||
                 userData.avatarUrl ||
-                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1741528643/user-avatar_hpxv4t.png",
+                anhmatdinh,
               cover_url:
                 userData.cover_url ||
                 userData.cover ||

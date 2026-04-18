@@ -39,7 +39,13 @@ function useCollection<T>(fetchFn: (...args: any[]) => Promise<any>) {
           });
         }
       } else {
-        setData(Array.isArray(resData) ? resData : []);
+        const list = Array.isArray(resData) ? resData : [];
+        setData(list);
+        setPagination({
+          totalPages: 1,
+          totalElements: list.length,
+          currentPage: 0
+        });
       }
     } catch (err) {
       setError('Không thể kết nối tới máy chủ.');
@@ -58,28 +64,38 @@ function useCollection<T>(fetchFn: (...args: any[]) => Promise<any>) {
 
 // ─── Specific hooks ───────────────────────────────────────────────────────────
 
-export const useHotels = () => useCollection<adminService.Hotel>(adminService.fetchHotelsList);
+export const useAttractions = () => useCollection<adminService.Destination>(adminService.fetchAttractionsList);
 export const useRestaurants = () => useCollection<adminService.Restaurant>(adminService.fetchRestaurantsList);
 export const useDbUsers = () => useCollection<adminService.DbUser>(adminService.fetchUsersList);
 export const useDashboardStats = () => useCollection<adminService.DashboardStat>(adminService.fetchDashboardStats);
 export const useRecentActivity = () => useCollection<adminService.RecentActivity>(adminService.fetchRecentActivity);
 export const usePopularLocations = () => useCollection<adminService.PopularLocation>(adminService.fetchPopularLocations);
-export const useDestinations = () => useCollection<adminService.Destination>(adminService.fetchDestinationsList);
+export const useHotels = () => useCollection<adminService.Hotel>(adminService.fetchHotelsList);
+export const useDestinations = () => useCollection<adminService.Destination>(adminService.fetchAttractionsList);
 
 // ─── CRUD helpers (delegating to adminService) ────────────────────────────────
 
-export const deleteRecord = async (endpoint: string, id: string): Promise<void> => {
+export const deleteRecord = async (endpoint: string, id: string | number): Promise<void> => {
   switch (endpoint) {
     case 'hotels': return (await adminService.removeHotel(id)).data as any;
     case 'restaurants': return (await adminService.removeRestaurant(id)).data as any;
     case 'users': return (await adminService.removeUser(id)).data as any;
-    case 'destinations': return (await adminService.removeDestination(id)).data as any;
-    default: return (await adminService.removeAdminRecord(endpoint, id)).data as any;
+    case 'attractions': return (await adminService.removeAttraction(id)).data as any;
+    default: throw new Error(`Endpoint ${endpoint} không hỗ trợ xóa`);
   }
 };
 
-export const updateRecord = async <T>(endpoint: string, id: string, data: Partial<T>): Promise<T> => {
-  const response = await adminService.updateAdminRecord<T>(endpoint, id, data);
+export const updateRecord = async <T>(endpoint: string, id: string | number, data: any): Promise<T> => {
+  let response;
+  if (endpoint === 'hotels') {
+    response = await adminService.updateHotel(id, data);
+  } else if (endpoint === 'restaurants') {
+    response = await adminService.updateRestaurant(id, data);
+  } else if (endpoint === 'destinations') {
+    response = await adminService.updateAttraction(id, data);
+  } else {
+    throw new Error(`Endpoint ${endpoint} không hỗ trợ cập nhật`);
+  }
   return (response.data.DT || response.data.data) as T;
 };
 
@@ -87,8 +103,12 @@ export const createRecord = async <T>(endpoint: string, data: Omit<T, 'id'>): Pr
   let response;
   if (endpoint === 'hotels') {
     response = await adminService.createHotel(data as any);
+  } else if (endpoint === 'restaurants') {
+    response = await adminService.createRestaurant(data as any);
+  } else if (endpoint === 'destinations') {
+    response = await adminService.createAttraction(data as any);
   } else {
-    response = await adminService.createAdminRecord<T>(endpoint, data);
+    throw new Error(`Endpoint ${endpoint} không hỗ trợ tạo mới`);
   }
   return (response.data.DT || response.data.data) as T;
 };

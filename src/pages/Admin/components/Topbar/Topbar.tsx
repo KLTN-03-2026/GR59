@@ -19,11 +19,10 @@ const Topbar: React.FC<TopbarProps> = ({ viewTitle }) => {
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button className={styles.iconBtn}>
-            <Bell size={22} />
-            <span className={styles.badge}></span>
+            <Bell size={30}   />
           </button>
           <button className={styles.iconBtn}>
-            <Question size={22} />
+            <Question size={30}  />
           </button>
         </div>
 

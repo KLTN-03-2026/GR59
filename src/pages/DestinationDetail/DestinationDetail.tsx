@@ -14,8 +14,8 @@ import ServicesTab from "./components/ServicesTab/ServicesTab";
 import ReviewsTab from "./components/ReviewsTab/ReviewsTab";
 import TipsTab from "./components/TipsTab/TipsTab";
 import HighlightLocations from "../Home/components/HighlightLocations/HighlightLocations";
-import { getHotels, getHotelDetail } from "../../services/hotelService";
-import { getPlaces, getHighlightRestaurants } from "../../services/highlightService";
+import { getHotelDetail, getHotels } from "../../services/hotelService";
+import { getHighlightRestaurants } from "../../services/highlightService";
 import { getRestaurantDetail } from "../../services/restaurantService";
 import { getAttractionDetail, type Destination } from "../../services/destinationService";
 
@@ -95,13 +95,11 @@ const DestinationDetail: React.FC = () => {
         let allItems: any[] = [];
         
         // 2. Fetch đồng thời với số lượng lớn hơn để đảm bảo tập dữ liệu lọc
-        const [placesRes, hotelsRes, restaurantsRes] = await Promise.all([
-          getPlaces(),
+        const [hotelsRes, restaurantsRes] = await Promise.all([
           getHotels(0, 100), // Tăng size lên 100
           getHighlightRestaurants()
         ]);
 
-        if (placesRes.data?.data) allItems = [...allItems, ...placesRes.data.data];
         if (hotelsRes.data?.data?.content) allItems = [...allItems, ...hotelsRes.data.data.content];
         if (restaurantsRes.data?.data) allItems = [...allItems, ...restaurantsRes.data.data];
 

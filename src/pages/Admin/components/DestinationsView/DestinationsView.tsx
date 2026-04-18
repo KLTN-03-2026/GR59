@@ -8,7 +8,7 @@ import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
 import { toast } from 'react-toastify';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,16 +20,21 @@ const rowVariants = {
 } as const;
 
 const DestinationsView: React.FC = () => {
-  const { data: destinations, loading, error, refetch } = useDestinations();
-
-  const [activeTab, setActiveTab] = useState<'all' | 'HOẠT ĐỘNG' | 'BẢO TRÌ'>('all');
-  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const { data: destinations, pagination, loading, error, refetch } = useDestinations();
+
+  // Gọi lại API khi trang thay đổi
+  React.useEffect(() => {
+    refetch(page - 1, PAGE_SIZE);
+  }, [page]);
+
+  const [activeTab, setActiveTab] = useState<'all' | 'ACTIVE' | 'MAINTENANCE'>('all');
+  const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // Stats
-  const totalActive = destinations.filter(d => d.status === 'HOẠT ĐỘNG').length;
+  const totalActive = destinations.filter(d => d.status === 'ACTIVE').length;
 
   // Filter & Pagination
   const filtered = useMemo(() => {
@@ -37,15 +42,15 @@ const DestinationsView: React.FC = () => {
     if (activeTab !== 'all') list = list.filter(d => d.status === activeTab);
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(d => d.title.toLowerCase().includes(q) || d.location.toLowerCase().includes(q));
+      list = list.filter(d => d.name.toLowerCase().includes(q) || d.location.toLowerCase().includes(q));
     }
     return list;
   }, [destinations, activeTab, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = pagination.totalPages || 1;
+  const paged = filtered; // Vì đã phân trang ở Server, hiển thị toàn bộ list lọc được
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string | number) => {
     if (!confirm('Bạn có chắc muốn xóa địa điểm này không?')) return;
     try {
       await deleteRecord('destinations', id);
@@ -60,10 +65,10 @@ const DestinationsView: React.FC = () => {
     const headers = ['ID', 'Tiêu đề', 'Vị trí', 'Đánh giá', 'Lượt reviews', 'Danh mục', 'Trạng thái'];
     const rows = filtered.map(d => [
       d.id,
-      `"${d.title}"`,
+      `"${d.name}"`,
       `"${d.location}"`,
       d.rating,
-      `"${d.reviews}"`,
+      `"${d.reviewCount}"`,
       `"${d.category}"`,
       d.status
     ]);
@@ -139,14 +144,14 @@ const DestinationsView: React.FC = () => {
             <button
               className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
               onClick={() => { setActiveTab('all'); setPage(1); }}
-            >Tất cả ({destinations.length})</button>
+            >Tất cả ({pagination.totalElements || destinations.length})</button>
             <button
-              className={`${styles.tab} ${activeTab === 'HOẠT ĐỘNG' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('HOẠT ĐỘNG'); setPage(1); }}
+              className={`${styles.tab} ${activeTab === 'ACTIVE' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveTab('ACTIVE'); setPage(1); }}
             >Đang hoạt động</button>
             <button
-              className={`${styles.tab} ${activeTab === 'BẢO TRÌ' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('BẢO TRÌ'); setPage(1); }}
+              className={`${styles.tab} ${activeTab === 'MAINTENANCE' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveTab('MAINTENANCE'); setPage(1); }}
             >Bảo trì</button>
           </div>
         </div>
@@ -168,10 +173,11 @@ const DestinationsView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th style={{ width: '60px' }}>STT</th>
               <th>THÔNG TIN ĐỊA ĐIỂM</th>
-              <th>VỊ TRÍ</th>
+              <th>ĐỊA ĐIỂM</th>
               <th>ĐÁNH GIÁ</th>
-              <th>DANH MỤC</th>
+              <th>PHONG CÁCH</th>
               <th>TRẠNG THÁI</th>
               <th style={{ textAlign: 'right' }}>THAO TÁC</th>
             </tr>
@@ -182,24 +188,26 @@ const DestinationsView: React.FC = () => {
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
                     Không tìm thấy địa điểm nào
                   </td>
                 </tr>
               ) : paged.map((dest, idx) => (
                 <motion.tr key={dest.id} variants={rowVariants} custom={idx}>
+                  <td style={{ fontWeight: 600, color: '#64748b' }}>
+                    #{(page - 1) * PAGE_SIZE + idx + 1}
+                  </td>
                   <td>
                     <div className={styles.infoCol}>
                       <div className={styles.imgWrapper}>
-                        <img src={dest.img || dest.heroImage} alt="" />
+                        <img src={dest.imageUrl} alt="" />
                         <span 
                           className={styles.statusIndicator} 
                           style={{ backgroundColor: dest.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}
                         ></span>
                       </div>
                       <div className={styles.textInfo}>
-                        <p>{dest.title}</p>
-                        <p>#{dest.id}</p>
+                        <p>{dest.name}</p>
                       </div>
                     </div>
                   </td>
@@ -213,16 +221,16 @@ const DestinationsView: React.FC = () => {
                     <div className={styles.ratingCol}>
                       <Star size={16} weight="fill" color="#f59e0b" />
                       <span>{dest.rating}</span>
-                      <span>({dest.reviews})</span>
+                      <span>({dest.reviewCount})</span>
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${dest.category === 'popular' ? styles.bgBlue : styles.bgPurple}`}>{dest.category}</span>
+                    <span className={`${styles.badge} ${styles.bgPurple}`}>{dest.category || 'PHỔ THÔNG'}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${dest.status === 'HOẠT ĐỘNG' ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: dest.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}></span>
-                      {dest.status}
+                    <span className={`${styles.badge} ${dest.status === 'ACTIVE' ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: dest.status === 'ACTIVE' ? '#10b981' : '#f59e0b' }}></span>
+                      {dest.status === 'ACTIVE' ? 'HOẠT ĐỘNG' : 'BẢO TRÌ'}
                     </span>
                   </td>
                   <td>
@@ -242,11 +250,17 @@ const DestinationsView: React.FC = () => {
         </table>
 
         <div className={styles.pagination}>
-          <p className={styles.paginationInfo}>Hiển thị <span>{paged.length}</span> của <span>{filtered.length}</span> kết quả</p>
+          <p className={styles.paginationInfo}>
+            Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, pagination.totalElements)}–{Math.min(page * PAGE_SIZE, pagination.totalElements)}</span> của <span>{pagination.totalElements}</span> kết quả
+          </p>
           <div className={styles.paginationBtns}>
-             <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}><CaretLeft size={16} /></button>
+             <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+               <CaretLeft size={20} weight="bold" />
+             </button>
              <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</button>
-             <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}><CaretRight size={16} /></button>
+             <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+               <CaretRight size={20} weight="bold" />
+             </button>
           </div>
         </div>
       </motion.div>

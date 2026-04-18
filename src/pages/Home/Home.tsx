@@ -21,14 +21,13 @@ const Home: React.FC = () => {
   useEffect(() => {
     AOS.init({
       duration: 1000,
-      once: true, // Chỉ chạy hiệu ứng một lần khi cuộn qua
+      once: true, 
     });
 
     flatpickr("#dates-input", {
       mode: "range",
       minDate: "today",
       dateFormat: "d/m/Y",
-      // locale: Vietnamese
     });
 
     const fetchUser = async () => {
@@ -42,8 +41,8 @@ const Home: React.FC = () => {
       // 2. Nếu đã đăng nhập thì mới gọi dữ liệu
       try {
         const res = await getProfile();
-        if (res?.data?.DT?.name) {
-          setUserName(res.data.DT.name);
+        if (res?.data?.DT?.fullName) {
+          setUserName(res.data.DT.fullName);
         } else {
           const localName = localStorage.getItem("username");
           if (localName) setUserName(localName);

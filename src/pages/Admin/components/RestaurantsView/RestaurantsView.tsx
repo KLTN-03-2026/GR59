@@ -8,7 +8,7 @@ import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
 import { toast } from 'react-toastify';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,17 +20,22 @@ const rowVariants = {
 } as const;
 
 const RestaurantsView: React.FC = () => {
-  const { data: restaurants, loading, error, refetch } = useRestaurants();
-
-  const [activeTab, setActiveTab] = useState<'all' | 'HOẠT ĐỘNG' | 'TẠM ĐÓNG'>('all');
-  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const { data: restaurants, pagination, loading, error, refetch } = useRestaurants();
+
+  // Gọi lại API khi trang thay đổi
+  React.useEffect(() => {
+    refetch(page - 1, PAGE_SIZE);
+  }, [page]);
+
+  const [activeTab, setActiveTab] = useState<'all' | 'OPENING' | 'CLOSED'>('all');
+  const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // ─── derived stats ──────────────────────────────────────────────────────────
-  const totalOpen = restaurants.filter(r => r.status === 'HOẠT ĐỘNG').length;
-  const totalClosed = restaurants.filter(r => r.status === 'BẢO TRÌ' || r.status === 'TẠM ĐÓNG').length;
+  const totalOpen = restaurants.filter(r => r.status === 'OPENING').length;
+  const totalClosed = restaurants.filter(r => r.status === 'CLOSED').length;
 
   // ─── filtered & paginated ───────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -43,10 +48,10 @@ const RestaurantsView: React.FC = () => {
     return list;
   }, [restaurants, activeTab, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = pagination.totalPages || 1;
+  const paged = filtered;
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string | number) => {
     if (!confirm('Bạn có chắc muốn xóa nhà hàng này không?')) return;
     try {
       await deleteRecord('restaurants', id);
@@ -141,14 +146,14 @@ const RestaurantsView: React.FC = () => {
             <button
               className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
               onClick={() => { setActiveTab('all'); setPage(1); }}
-            >Tất cả ({restaurants.length})</button>
+            >Tất cả ({pagination.totalElements || restaurants.length})</button>
             <button
-              className={`${styles.tab} ${activeTab === 'HOẠT ĐỘNG' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('HOẠT ĐỘNG'); setPage(1); }}
+              className={`${styles.tab} ${activeTab === 'OPENING' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveTab('OPENING'); setPage(1); }}
             >Đang hoạt động</button>
             <button
-              className={`${styles.tab} ${activeTab === 'TẠM ĐÓNG' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('TẠM ĐÓNG'); setPage(1); }}
+              className={`${styles.tab} ${activeTab === 'CLOSED' ? styles.tabActive : ''}`}
+              onClick={() => { setActiveTab('CLOSED'); setPage(1); }}
             >Tạm đóng</button>
           </div>
         </div>
@@ -170,10 +175,11 @@ const RestaurantsView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th style={{ width: '60px' }}>STT</th>
               <th>THÔNG TIN NHÀ HÀNG</th>
               <th>ĐỊA ĐIỂM</th>
               <th>ĐÁNH GIÁ</th>
-              <th>ẨM THỰC</th>
+              <th>PHONG CÁCH</th>
               <th>TRẠNG THÁI</th>
               <th style={{ textAlign: 'right' }}>THAO TÁC</th>
             </tr>
@@ -184,24 +190,26 @@ const RestaurantsView: React.FC = () => {
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
                     Không tìm thấy kết quả phù hợp
                   </td>
                 </tr>
               ) : paged.map((res, idx) => (
                 <motion.tr key={res.id} variants={rowVariants} custom={idx}>
+                  <td style={{ fontWeight: 600, color: '#64748b' }}>
+                    #{(page - 1) * PAGE_SIZE + idx + 1}
+                  </td>
                   <td>
                     <div className={styles.infoCol}>
                       <div className={styles.imgWrapper}>
-                        <img src={res.image} alt="" />
+                        <img src={res.imageUrl} alt="" />
                         <span 
                           className={styles.statusIndicator} 
-                          style={{ backgroundColor: res.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}
+                          style={{ backgroundColor: (res.status === 'HOẠT ĐỘNG' || res.status === 'ĐANG MỞ') ? '#10b981' : '#f59e0b' }}
                         ></span>
                       </div>
                       <div className={styles.textInfo}>
                         <p>{res.name}</p>
-                        <p>#{res.id}</p>
                       </div>
                     </div>
                   </td>
@@ -215,16 +223,16 @@ const RestaurantsView: React.FC = () => {
                     <div className={styles.ratingCol}>
                       <Star size={16} weight="fill" color="#f59e0b" />
                       <span>{res.rating}</span>
-                      <span>({res.reviews})</span>
+                      <span>({res.reviewCount})</span>
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${res.cuisine === 'VIỆT NAM' ? styles.bgOrange : styles.bgBlue}`}>{res.cuisine}</span>
+                    <span className={`${styles.badge} ${styles.bgPurple}`}>{res.category || 'ẨM THỰC'}</span>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${res.status === 'HOẠT ĐỘNG' ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: res.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}></span>
-                      {res.status}
+                    <span className={`${styles.badge} ${res.status === 'OPENING' ? styles.bgEmerald : styles.bgAmber}`}>
+                      <span className={styles.dot} style={{ backgroundColor: res.status === 'OPENING' ? '#10b981' : '#f59e0b' }}></span>
+                      {res.status === 'OPENING' ? 'MỞ CỬA' : 'TẠM ĐÓNG'}
                     </span>
                   </td>
                   <td>
@@ -246,15 +254,15 @@ const RestaurantsView: React.FC = () => {
         {/* Pagination */}
         <div className={styles.pagination}>
           <p className={styles.paginationInfo}>
-            Hiển thị <span>{paged.length}</span> của <span>{filtered.length}</span> nhà hàng
+            Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, pagination.totalElements)}–{Math.min(page * PAGE_SIZE, pagination.totalElements)}</span> của <span>{pagination.totalElements}</span> kết quả
           </p>
           <div className={styles.paginationBtns}>
             <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}>
-              <CaretLeft size={16} />
+              <CaretLeft size={20} weight="bold" />
             </button>
             <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</button>
             <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
-              <CaretRight size={16} />
+              <CaretRight size={20} weight="bold" />
             </button>
           </div>
         </div>

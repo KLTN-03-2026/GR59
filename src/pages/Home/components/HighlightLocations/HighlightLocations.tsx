@@ -135,7 +135,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
 
   return (
     <section className={styles.locations}>
-      <div className={`container ${styles.locationsContainer}`}>
+      <div className={styles.locationsContainer}>
         <div className={styles.headerWrapper} data-aos="fade-up">
           <div className={styles.header}>
             <div className={styles.headerTitle}>
@@ -218,7 +218,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
             ) : items && items.length > 0 ? (
               items.map((item, idx) => (
                 <Link
-                  key={item.id}
+                  key={`${item.type}-${item.id}`}
                   to={
                     item.type === 'bed' 
                       ? `/hotel/${item.id}` 
@@ -230,49 +230,48 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                   data-aos="fade-up"
                   data-aos-delay={idx * 100}
                 >
-                   <div className={styles.locationCard}>
-                    <div className={styles.locationImage}>
+                  <div className={styles.locationCard}>
+                    <div className={styles.imageContainer}>
                       <img src={item.image} alt={item.name} />
                       <div className={styles.imageOverlay}></div>
-                      <div className={styles.cardBadges}>
-                        {item.isHot && (
-                          <span className={styles.hotBadge}>
-                            <Fire size={14} weight="fill" /> HOT
-                          </span>
-                        )}
-                        <span className={styles.locationBadge}>
-                          {renderIcon(item.type)} {item.location}
+                      <div className={styles.statusBadge}>
+                        <span className={`${styles.ribbon} ${styles[item.status?.toLowerCase() || 'active']}`}>
+                          {item.status === 'ACTIVE' || item.status === 'OPEN' ? 'MỞ\nCỬA' : 
+                           item.status === 'MAINTENANCE' ? 'BẢO\nTRÌ' : 'ĐÓNG\nCỬA'}
                         </span>
                       </div>
+                      {item.isHot && (
+                        <div className={styles.hotTag}>
+                          HOT
+                        </div>
+                      )}
                       {item.price > 0 && (
-                        <div className={styles.priceTag}>
-                          Chỉ từ <span>{item.price.toLocaleString("vi-VN")}đ</span>
+                        <div className={styles.floatingPrice}>
+                          {item.price.toLocaleString("vi-VN")}đ
                         </div>
                       )}
                     </div>
-                    <div className={styles.locationContent}>
-                      <h3>{item.name}</h3>
-                      <div className={styles.locationRating}>
-                        <div className={styles.stars}>
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={16}
-                              weight={
-                                i < Math.floor(Number(item.rating))
-                                  ? "fill"
-                                  : "regular"
-                              }
-                            />
-                          ))}
+                    
+                    <div className={styles.cardInfo}>
+                      <div className={styles.infoHead}>
+                        <div className={styles.typeBadge}>
+                          {renderIcon(item.type)} {item.type === 'bed' ? 'Khách sạn' : item.type === 'food' ? 'Ẩm thực' : 'Địa điểm'}
                         </div>
-                        <span>
-                          ({item.rating}/5 từ {item.reviews} đánh giá)
-                        </span>
+                        <div className={styles.ratingBadge}>
+                          <Star size={14} weight="fill" /> {item.rating}
+                        </div>
                       </div>
+                      
+                      <h3>{item.name}</h3>
                       <p>{item.desc}</p>
-                      <div className={styles.moreLink}>
-                        Xem chi tiết <ArrowRight weight="bold" />
+                      
+                      <div className={styles.infoFooter}>
+                        <div className={styles.locationName}>
+                          <MapPin size={14} weight="fill" /> {item.location}
+                        </div>
+                        <div className={styles.viewDetail}>
+                          Xem thêm <ArrowRight size={16} weight="bold" />
+                        </div>
                       </div>
                     </div>
                   </div>
