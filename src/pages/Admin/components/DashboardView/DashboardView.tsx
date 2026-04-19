@@ -164,7 +164,7 @@ const DashboardView: React.FC = () => {
             <LoadingRows count={5} />
           ) : (
             <tbody>
-              {activities.map((act, idx) => (
+              {activities.map((act, _idx) => (
                 <motion.tr key={act.id} variants={rowVariants}>
                   <td>
                     <p style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0' }}>{act.time}</p>

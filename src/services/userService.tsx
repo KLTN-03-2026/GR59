@@ -29,6 +29,8 @@ export interface BackendResponse<T = unknown> {
   message: string;
   data?: T;
   DT?: T;
+  EC?: number;
+  EM?: string;
 }
 
 // 1. Đăng ký (Thay API thật)

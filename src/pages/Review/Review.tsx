@@ -24,7 +24,7 @@ const Review: React.FC = () => {
   ]);
 
   const [recentReviews, setRecentReviews] = useState<ReviewItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
 
   // Lấy dữ liệu API lúc đầu
   useEffect(() => {
@@ -33,7 +33,7 @@ const Review: React.FC = () => {
         setIsLoading(true);
         const res = await getReviews();
         if (res.data && res.data.status === 200) {
-          setRecentReviews(res.data.data);
+          setRecentReviews(res.data.data!);
         }
       } catch (err) {
         console.error("Lỗi khi tải đánh giá:", err);

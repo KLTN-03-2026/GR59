@@ -1,7 +1,7 @@
 import React from "react";
 import { Star, MapPin, Money, Clock } from "@phosphor-icons/react";
 import styles from "./QuickStats.module.scss";
-import type { Destination } from "../../DestinationDetail"; // Import interface từ file chính
+import type { Destination } from "../../../../services/destinationService"; // Import interface từ file chính
 
 
 const QuickStats: React.FC<{ data: Destination }> = ({ data }) => {

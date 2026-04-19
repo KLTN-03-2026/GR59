@@ -36,7 +36,7 @@ const SampleItinerary: React.FC = () => {
       try {
         setIsLoading(true);
         const response = await getSampleItineraries();
-        setItineraries(response.data.DT);
+        setItineraries(response.data.DT!);
       } catch (err) {
         console.error("Lỗi khi lấy lộ trình mẫu:", err);
         setError("Không thể tải dữ liệu lộ trình. Vui lòng thử lại sau.");

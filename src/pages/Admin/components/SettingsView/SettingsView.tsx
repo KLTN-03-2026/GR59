@@ -4,13 +4,11 @@ import {
   User, 
   ShieldCheck, 
   Globe, 
-  BellRinging, 
   Key, 
   CloudArrowUp,
   FloppyDisk,
   DeviceMobile,
   Lock,
-  Eye,
   Envelope
 } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from 'framer-motion';

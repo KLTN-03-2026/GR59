@@ -12,7 +12,7 @@ import AddTripCard from "./components/AddTripCard/AddTripCard";
 
 // Import Types
 import type { TripPlan } from "./types";
-import TopBar from "./components/TopBar/Topbar";
+import TopBar from "./components/TopBar/TopBar";
 
 const MOCK_TRIPS: TripPlan[] = [
   {

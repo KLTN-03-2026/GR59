@@ -65,7 +65,7 @@ const Register: React.FC<Props> = ({ onToggle }) => {
           response.data &&
           response.data.status === 200
         ) {
-          saveAuthData(response.data.data);
+          saveAuthData(response.data.data!);
           toast.success("Đăng ký Google thành công! 🚀");
           navigate("/");
         } else {
@@ -173,7 +173,7 @@ const Register: React.FC<Props> = ({ onToggle }) => {
                   res.data &&
                   res.data.status === 200
                 ) {
-                  saveAuthData(res.data.data);
+                  saveAuthData(res.data.data!);
                   toast.success("Đăng ký Facebook thành công! 🚀");
                   navigate("/");
                 } else {

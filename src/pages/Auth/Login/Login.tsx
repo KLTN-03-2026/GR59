@@ -43,7 +43,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
           response.data &&
           response.data.status === 200
         ) {
-          const data = response.data.data;
+          const data = response.data.data!;
           const user = data.user;
           if (data.accessToken) localStorage.setItem("token", data.accessToken);
           if (data.refreshToken)
@@ -89,7 +89,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
     try {
       const response = await postLogin(cleanEmail, password);
       if (response.data && response.data.status === 200) {
-        const data = response.data.data;
+        const data = response.data.data!;
         const user = data.user;
         if (data.accessToken) localStorage.setItem("token", data.accessToken);
         if (data.refreshToken)
@@ -154,7 +154,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
                   res.data &&
                   res.data.status === 200
                 ) {
-                  const data = res.data.data;
+                  const data = res.data.data!;
                   const user = data.user;
                   if (data.accessToken)
                     localStorage.setItem("token", data.accessToken);

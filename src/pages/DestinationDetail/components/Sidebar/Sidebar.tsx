@@ -10,7 +10,7 @@ import {
   Lightning,
 } from "@phosphor-icons/react";
 import styles from "./Sidebar.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 const Sidebar: React.FC<{ data: Destination }> = ({ data }) => {
   return (

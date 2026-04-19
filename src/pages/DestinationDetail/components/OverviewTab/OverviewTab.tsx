@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./OverviewTab.module.scss";
-import type { Destination } from "../../DestinationDetail"; // Import interface từ file chính
+import type { Destination } from "../../../../services/destinationService"; // Import interface từ file chính
 
 const OverviewTab: React.FC<{ data: Destination }> = ({ data }) => {
   const [mainImage, setMainImage] = useState(data.gallery[0]);
@@ -10,7 +10,7 @@ const OverviewTab: React.FC<{ data: Destination }> = ({ data }) => {
       <section className={styles.destSection}>
         <h2 className={styles.destSectionTitle}>Giới thiệu</h2>
         <div className={styles.destDescription}>
-          {data.description.split("\n").map((text, index) => (
+          {data.description.split("\n").map((text: string, index: number) => (
             <p key={index} className={styles.paragraph}>
               {text}
             </p>

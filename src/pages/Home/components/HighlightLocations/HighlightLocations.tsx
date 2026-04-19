@@ -49,7 +49,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
         }
 
         if (res && res.data && res.data.EC === 0) {
-          setItems(res.data.DT);
+          setItems(res.data.DT!);
         }
       } catch (error) {
         console.error("Error fetching highlight data:", error);

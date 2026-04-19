@@ -1,7 +1,7 @@
 import React from "react";
 import { Star, StarHalf } from "@phosphor-icons/react";
 import styles from "./ReviewsTab.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 interface ReviewsTabProps {
   reviews: Destination["reviewsData"];

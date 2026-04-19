@@ -9,7 +9,7 @@ import {
 } from "@phosphor-icons/react";
 
 import styles from "./DestHero.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
   const [isFavorite, setIsFavorite] = useState(false);

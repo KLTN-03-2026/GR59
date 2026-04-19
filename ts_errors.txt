@@ -1,0 +1,14 @@
+﻿src/pages/Admin/components/SettingsView/SettingsView.tsx(7,3): error TS6133: 'BellRinging' is declared but its value is never read.
+src/pages/Admin/components/SettingsView/SettingsView.tsx(13,3): error TS6133: 'Eye' is declared but its value is never read.
+src/pages/DestinationDetail/DestinationDetail.tsx(33,31): error TS18048: 'res.data.data' is possibly 'undefined'.
+src/pages/Home/components/HighlightLocations/HighlightLocations.tsx(52,20): error TS2345: Argument of type 'HighlightItem[] | undefined' is not assignable to parameter of type 'SetStateAction<HighlightItem[]>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<HighlightItem[]>'.
+src/pages/Home/components/Testimonials/Testimonials.tsx(19,22): error TS2345: Argument of type 'TestimonialItem[] | undefined' is not assignable to parameter of type 'SetStateAction<TestimonialItem[]>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<TestimonialItem[]>'.
+src/pages/News/News.tsx(45,23): error TS2345: Argument of type 'NewsItem[] | undefined' is not assignable to parameter of type 'SetStateAction<NewsItem[]>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<NewsItem[]>'.
+src/pages/Review/Review.tsx(27,10): error TS6133: 'isLoading' is declared but its value is never read.
+src/pages/Review/Review.tsx(36,28): error TS2345: Argument of type 'ReviewItem[] | undefined' is not assignable to parameter of type 'SetStateAction<ReviewItem[]>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<ReviewItem[]>'.
+src/pages/SampleItinerary/SampleItinerary.tsx(39,24): error TS2345: Argument of type 'ItineraryType[] | undefined' is not assignable to parameter of type 'SetStateAction<ItineraryType[]>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<ItineraryType[]>'.

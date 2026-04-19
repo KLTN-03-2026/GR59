@@ -42,7 +42,7 @@ const News: React.FC = () => {
       try {
         const res = await getNewsList();
         if (res.data && res.data.status === 200) {
-          setNewsData(res.data.data);
+          setNewsData(res.data.data!);
         }
       } catch (error) {
         console.error("Lỗi khi tải tin tức:", error);

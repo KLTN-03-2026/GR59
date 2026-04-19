@@ -29,8 +29,8 @@ const DestinationDetail: React.FC = () => {
         setIsLoading(true);
         const res = await getDestinationDetail(slug);
         if (res.data && res.data.status === 200) {
-          setData(res.data.data);
-          document.title = `${res.data.data.title} - AI Travel Planner`;
+          setData(res.data.data!);
+          document.title = `${res.data.data!.title} - AI Travel Planner`;
         }
       } catch (err) {
         console.error("Lỗi khi tải chi tiết địa điểm:", err);

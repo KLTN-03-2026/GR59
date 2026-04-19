@@ -8,7 +8,7 @@ import {
   Users,
 } from "@phosphor-icons/react";
 import styles from "./TipsTab.module.scss";
-import type { Destination } from "../../DestinationDetail";
+import type { Destination } from "../../../../services/destinationService";
 
 interface TipsTabProps {
   tips: Destination["travelTips"];
@@ -28,7 +28,7 @@ const TipsTab: React.FC<TipsTabProps> = ({ tips }) => {
     <div className={styles.tipsContainer} data-aos="fade-up">
       <h2 className={styles.tabTitle}>Mẹo du lịch</h2>
       <div className={styles.tipsGrid}>
-        {tips.map((tip, idx) => (
+        {tips.map((tip: any, idx: number) => (
           <div key={idx} className={styles.tipCard}>
             <div className={styles.iconCircle}>
               {iconMap[tip.icon] || <Clock size={30} weight="fill" />}
