@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import styles from './RestaurantsView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, MagnifyingGlass, Trash, CaretLeft, CaretRight, FileArrowDown, Check } from "@phosphor-icons/react";
+import { MapPin, Star, Pencil, Plus, MagnifyingGlass, Trash, CaretLeft, CaretRight, FileArrowDown, Check, Eye } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRestaurants, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
+import DetailModal from '../_shared/DetailModal';
 import { toast } from 'react-toastify';
 
 const PAGE_SIZE = 10;
@@ -44,6 +45,8 @@ const RestaurantsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'OPENING' | 'CLOSED'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | number | null>(null);
 
   // ─── derived stats ──────────────────────────────────────────────────────────
   const totalOpen = restaurants.filter(r => r.status === 'OPENING' || r.status === 'ĐANG MỞ' || r.status === 'HOẠT ĐỘNG').length;
@@ -120,6 +123,15 @@ const RestaurantsView: React.FC = () => {
   const openEditModal = (item: any) => {
     setEditingItem(item);
     setIsModalOpen(true);
+  };
+
+  const categoryMap: Record<string, string> = {
+    'VIETNAMESE': 'Món Việt',
+    'SEAFOOD': 'Hải sản',
+    'DESSERT': 'Tráng miệng',
+    'WESTERN': 'Món Âu',
+    'ASIAN': 'Món Á',
+    'VEGETARIAN': 'Món chay'
   };
 
   return (
@@ -236,7 +248,9 @@ const RestaurantsView: React.FC = () => {
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${styles.bgPurple}`}>{res.category || 'ẨM THỰC'}</span>
+                    <span className={`${styles.badge} ${styles.bgPurple}`}>
+                      {res.category && categoryMap[res.category] ? categoryMap[res.category] : (res.category || 'ẨM THỰC')}
+                    </span>
                   </td>
                   <td>
                     <span className={`${styles.badge} ${(res.status === 'OPENING' || res.status === 'ĐANG MỞ' || res.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
@@ -246,6 +260,13 @@ const RestaurantsView: React.FC = () => {
                   </td>
                   <td>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                      <button 
+                        className={styles.actionBtn} 
+                        onClick={() => { setDetailId(res.id); setIsDetailOpen(true); }}
+                        title="Xem chi tiết"
+                      >
+                        <Eye size={24} weight="bold" />
+                      </button>
                       <button className={styles.actionBtn} onClick={() => openEditModal(res)}>
                         <Pencil size={24} weight="bold" />
                       </button>
@@ -275,7 +296,13 @@ const RestaurantsView: React.FC = () => {
             </button>
           </div>
         </div>
-      </motion.div>
+        <DetailModal 
+        isOpen={isDetailOpen} 
+        onClose={() => setIsDetailOpen(false)} 
+        id={detailId} 
+        type="restaurant" 
+      />
+    </motion.div>
 
       <AddEditModal 
         isOpen={isModalOpen} 

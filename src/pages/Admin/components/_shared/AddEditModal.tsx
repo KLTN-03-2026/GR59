@@ -16,7 +16,7 @@ interface AddEditModalProps {
   onClose: () => void;
   onSave: (data: any) => void;
   title: string;
-  type: 'destination' | 'hotel' | 'restaurant';
+  type: 'destination' | 'hotel' | 'restaurant' | 'user';
   initialData?: any;
 }
 
@@ -55,7 +55,17 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
         // Status mapping
         status: initialData.status || (type === 'restaurant' ? 'OPENING' : 'ACTIVE'),
         // Category/Type mapping
-        category: initialData.category || (type === 'hotel' ? 'LUXURY' : (type === 'restaurant' ? 'VIETNAMESE' : 'ATTRACTION'))
+        category: initialData.category || (type === 'hotel' ? 'LUXURY' : (type === 'restaurant' ? 'VIETNAMESE' : 'ATTRACTION')),
+        // User specific fields
+        email: initialData.email || '',
+        fullName: initialData.fullName || '',
+        address: initialData.address || '',
+        phone: initialData.phone || '',
+        bio: initialData.bio || '',
+        roleId: initialData.roleId || 2,
+        isEmailVerified: initialData.isEmailVerified ?? false,
+        isActive: initialData.isActive ?? true,
+        password: ''
       };
       setFormData(unifiedData);
     } else {
@@ -234,6 +244,28 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
       return;
     }
 
+    if (type === 'user') {
+      // Validation for new users
+      if (!initialData && !finalData.password) {
+        toast.warn("Vui lòng nhập mật khẩu cho người dùng mới!");
+        return;
+      }
+
+      const userData = {
+        email: finalData.email,
+        fullName: finalData.fullName,
+        address: finalData.address,
+        phone: finalData.phone,
+        bio: finalData.bio,
+        roleId: parseInt(finalData.roleId) || 2,
+        isEmailVerified: finalData.isEmailVerified === true || finalData.isEmailVerified === 'true',
+        isActive: finalData.isActive === true || finalData.isActive === 'true',
+        ...( !initialData ? { password: finalData.password } : {} )
+      };
+      onSave(userData);
+      return;
+    }
+
     onSave(finalData);
   };
 
@@ -261,221 +293,282 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
 
           <div className={styles.body}>
             <div className={styles.formGrid}>
-              <div className={styles.sectionTitle}><Info size={18} weight="fill" /> Thông tin cơ bản</div>
-              
-              {/* Main Image Header - Prominent at the top */}
-              <div className={`${styles.inputGroup} ${styles.fullWidth}`} style={{ marginBottom: '32px' }}>
-                <div className={styles.mainImageHeader}>
-                  <div className={styles.mainPreviewWrapper}>
-                    {formData.imageUrl ? (
-                      <img src={formData.imageUrl} alt="Preview" />
-                    ) : (
-                      <div className={styles.placeholderIcon}>
-                        <ImageIcon size={48} weight="thin" />
+              {type !== 'user' ? (
+                <>
+                  <div className={styles.sectionTitle}><Info size={18} weight="fill" /> Thông tin cơ bản</div>
+                  
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`} style={{ marginBottom: '32px' }}>
+                    <div className={styles.mainImageHeader}>
+                      <div className={styles.mainPreviewWrapper}>
+                        {formData.imageUrl ? (
+                          <img src={formData.imageUrl} alt="Preview" />
+                        ) : (
+                          <div className={styles.placeholderIcon}>
+                            <ImageIcon size={48} weight="thin" />
+                          </div>
+                        )}
+                        <button 
+                          type="button" 
+                          className={styles.uploadBtnOverlay}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <UploadSimple size={20} weight="bold" />
+                          <span>{formData.imageUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
+                        </button>
+                        <input 
+                          type="file" 
+                          ref={fileInputRef} 
+                          hidden 
+                          accept="image/*" 
+                          onChange={(e) => handleFileUpload(e, 'main')} 
+                        />
                       </div>
-                    )}
-                    <button 
-                      type="button" 
-                      className={styles.uploadBtnOverlay}
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <UploadSimple size={20} weight="bold" />
-                      <span>{formData.imageUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
-                    </button>
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      hidden 
-                      accept="image/*" 
-                      onChange={(e) => handleFileUpload(e, 'main')} 
-                    />
+                      <div className={styles.imageMetaInfo}>
+                        <label>Hình ảnh đại diện (URL hoặc Tải lên)</label>
+                        <input 
+                          type="text" 
+                          name="imageUrl" 
+                          value={formData.imageUrl || ''} 
+                          onChange={handleChange}
+                          placeholder="Dán URL hình ảnh tại đây hoặc nhấn nút Tải lên bên cạnh..."
+                        />
+                        <div className={styles.statusBadges}>
+                          <span className={styles.tipBadge}>Chất lượng tốt nhất: 800x600px</span>
+                          {isUploading && <span className={styles.uploadingBadge}><CircleNotch size={14} className="ph-spin" /> Đang tải...</span>}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className={styles.imageMetaInfo}>
-                    <label>Hình ảnh đại diện (URL hoặc Tải lên)</label>
+
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <label>Tên / Tiêu đề chính ({type === 'hotel' ? 'Khách sạn' : type === 'restaurant' ? 'Nhà hàng' : 'Địa điểm'})</label>
                     <input 
                       type="text" 
-                      name="imageUrl" 
-                      value={formData.imageUrl || ''} 
+                      name="name" 
+                      value={formData.name || ''} 
                       onChange={handleChange}
-                      placeholder="Dán URL hình ảnh tại đây hoặc nhấn nút Tải lên bên cạnh..."
+                      placeholder={`Nhập tên ${type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'}...`}
+                      style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0EA5E9' }}
                     />
-                    <div className={styles.statusBadges}>
-                      <span className={styles.tipBadge}>Chất lượng tốt nhất: 800x600px</span>
-                      {isUploading && <span className={styles.uploadingBadge}><CircleNotch size={14} className="ph-spin" /> Đang tải...</span>}
-                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <label>Tên / Tiêu đề chính ({type === 'hotel' ? 'Khách sạn' : type === 'restaurant' ? 'Nhà hàng' : 'Địa điểm'})</label>
-                <input 
-                  type="text" 
-                  name="name" 
-                  value={formData.name || ''} 
-                  onChange={handleChange}
-                  placeholder={`Nhập tên ${type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'}...`}
-                  style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0EA5E9' }}
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>Địa điểm / Vị trí</label>
-                <input 
-                  type="text" 
-                  name="location" 
-                  value={formData.location || ''} 
-                  onChange={handleChange}
-                  placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh"
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <CustomSelect 
-                  label="Tỉnh thành"
-                  options={provinceOptions}
-                  value={formData.provinceId || 1}
-                  onChange={(val) => setFormData((prev: any) => ({ ...prev, provinceId: val }))}
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <CustomSelect 
-                  label="Trạng thái hoạt động"
-                  options={getStatusOptions()}
-                  value={formData.status || ''}
-                  onChange={(val) => setFormData((prev: any) => ({ ...prev, status: val }))}
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>Xếp hạng (Sao / Điểm)</label>
-                <input type="number" step="0.1" min="0" max="5" name="rating" value={formData.rating || ''} onChange={handleChange} placeholder="Ví dụ: 4.8" />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>Lượt đánh giá</label>
-                <input 
-                  type="number" 
-                  name="reviews" 
-                  value={formData.reviews || ''} 
-                  onChange={handleChange} 
-                  placeholder="Ví dụ: 1250" 
-                />
-              </div>
-
-              {/* Type Specific Advanced Info */}
-              <div className={styles.sectionTitle}><Lightbulb size={18} weight="fill" /> Thông tin bổ sung</div>
-
-              <div className={styles.inputGroup}>
-                <CustomSelect 
-                  label={type === 'restaurant' ? 'Loại hình ẩm thực' : 'Hạng mục / Danh mục'}
-                  options={getCategoryOptions()}
-                  value={formData.category || ''}
-                  onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))}
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>{type === 'hotel' ? 'Giá trung bình (VNĐ/Đêm)' : (type === 'restaurant' ? 'Khoảng giá (VNĐ)' : 'Giá vé tham quan')}</label>
-                <input 
-                  type={type === 'hotel' ? 'number' : 'text'} 
-                  name="price" 
-                  value={formData.price || ''} 
-                  onChange={handleChange} 
-                  placeholder="Ví dụ: 500k - 2tr" 
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>{type === 'hotel' ? 'Thời gian trải nghiệm (phút)' : 'Thời gian tham quan ước tính'}</label>
-                <input 
-                  type={type === 'hotel' ? 'number' : 'text'} 
-                  name="duration" 
-                  value={formData.duration || ''} 
-                  onChange={handleChange} 
-                  placeholder={type === 'hotel' ? '1200' : 'Ví dụ: 2-3 tiếng'} 
-                />
-              </div>
-
-              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <label>Mô tả chi tiết</label>
-                <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder={`Nhập mô tả chi tiết về ${type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'} này...`}></textarea>
-              </div>
-
-              {/* Media Section */}
-              <div className={styles.sectionTitle}><ImageIcon size={18} weight="fill" /> Video & Thư viện ảnh</div>
-              
-              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <label><Video size={16} weight="fill" /> Video giới thiệu (YouTube URL)</label>
-                <input 
-                  type="text" 
-                  name="previewVideo" 
-                  value={formData.previewVideo || ''} 
-                  onChange={handleChange} 
-                  placeholder="https://youtube.com/watch?v=..." 
-                />
-              </div>
-
-
-
-              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <label style={{ margin: 0 }}>Thư viện hình ảnh ({type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'})</label>
-                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>({formData.gallery?.length || 0} ảnh)</span>
+                  <div className={styles.inputGroup}>
+                    <label>Địa điểm / Vị trí</label>
+                    <input 
+                      type="text" 
+                      name="location" 
+                      value={formData.location || ''} 
+                      onChange={handleChange}
+                      placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh"
+                    />
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                      type="button" 
-                      className={styles.addBtn} 
-                      onClick={() => galleryInputRef.current?.click()}
-                      style={{ padding: '8px 16px', background: '#f0f9ff', color: '#0ea5e9' }}
-                      disabled={isUploading}
-                    >
-                      {isUploading ? <CircleNotch size={14} className="ph-spin" /> : <UploadSimple size={14} weight="bold" />} Tải từ máy tính
-                    </button>
-                    <button type="button" className={styles.addBtn} onClick={() => addArrayItem('gallery')} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', color: '#64748b' }}>
-                      <Plus size={14} weight="bold" /> Thêm đường dẫn
-                    </button>
+
+                  <div className={styles.inputGroup}>
+                    <CustomSelect 
+                      label="Tỉnh thành"
+                      options={provinceOptions}
+                      value={formData.provinceId || 1}
+                      onChange={(val) => setFormData((prev: any) => ({ ...prev, provinceId: val }))}
+                    />
                   </div>
-                </div>
-                <input 
-                  type="file" 
-                  ref={galleryInputRef} 
-                  hidden 
-                  multiple 
-                  accept="image/*" 
-                  onChange={(e) => handleFileUpload(e, 'gallery')} 
-                />
-                
-                <div className={styles.galleryManageList}>
-                  {formData.gallery?.map((url: string, index: number) => (
-                    <div key={index} className={styles.galleryInputRow} style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
-                      <div className={styles.miniPreview} style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
-                        {url ? <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ImageIcon size={20} weight="thin" style={{ margin: '14px' }} />}
-                      </div>
-                      <input 
-                        type="text" 
-                        value={url} 
-                        onChange={(e) => handleArrayChange('gallery', index, e.target.value)}
-                        placeholder="Dán URL hình ảnh..."
-                        style={{ flex: 1 }}
-                      />
-                      <button type="button" className={styles.removeBtn} onClick={() => removeArrayItem('gallery', index)} style={{ padding: '8px' }}>
-                        <Trash size={18} />
-                      </button>
-                    </div>
-                  ))}
+
+                  <div className={styles.inputGroup}>
+                    <CustomSelect 
+                      label="Trạng thái hoạt động"
+                      options={getStatusOptions()}
+                      value={formData.status || ''}
+                      onChange={(val) => setFormData((prev: any) => ({ ...prev, status: val }))}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label>Xếp hạng (Sao / Điểm)</label>
+                    <input type="number" step="0.1" min="0" max="5" name="rating" value={formData.rating || ''} onChange={handleChange} placeholder="Ví dụ: 4.8" />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label>Lượt đánh giá</label>
+                    <input 
+                      type="number" 
+                      name="reviews" 
+                      value={formData.reviews || ''} 
+                      onChange={handleChange} 
+                      placeholder="Ví dụ: 1250" 
+                    />
+                  </div>
+
+                  <div className={styles.sectionTitle}><Lightbulb size={18} weight="fill" /> Thông tin bổ sung</div>
+
+                  <div className={styles.inputGroup}>
+                    <CustomSelect 
+                      label={type === 'restaurant' ? 'Loại hình ẩm thực' : 'Hạng mục / Danh mục'}
+                      options={getCategoryOptions()}
+                      value={formData.category || ''}
+                      onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label>{type === 'hotel' ? 'Giá trung bình (VNĐ/Đêm)' : (type === 'restaurant' ? 'Khoảng giá (VNĐ)' : 'Giá vé tham quan')}</label>
+                    <input 
+                      type={type === 'hotel' ? 'number' : 'text'} 
+                      name="price" 
+                      value={formData.price || ''} 
+                      onChange={handleChange} 
+                      placeholder="Ví dụ: 500k - 2tr" 
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label>{type === 'hotel' ? 'Thời gian trải nghiệm (phút)' : 'Thời gian tham quan ước tính'}</label>
+                    <input 
+                      type={type === 'hotel' ? 'number' : 'text'} 
+                      name="duration" 
+                      value={formData.duration || ''} 
+                      onChange={handleChange} 
+                      placeholder={type === 'hotel' ? '1200' : 'Ví dụ: 2-3 tiếng'} 
+                    />
+                  </div>
+
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <label>Mô tả chi tiết</label>
+                    <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder={`Nhập mô tả chi tiết về ${type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'} này...`}></textarea>
+                  </div>
+
+                  <div className={styles.sectionTitle}><ImageIcon size={18} weight="fill" /> Video & Thư viện ảnh</div>
                   
-                  {(!formData.gallery || formData.gallery.length === 0) && (
-                    <div style={{ textAlign: 'center', padding: '24px', border: '2px dashed #e2e8f0', borderRadius: '16px', color: '#94a3b8', fontSize: '0.875rem' }}>
-                      Chưa có ảnh nào trong bộ sưu tập.
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <label><Video size={16} weight="fill" /> Video giới thiệu (YouTube URL)</label>
+                    <input 
+                      type="text" 
+                      name="previewVideo" 
+                      value={formData.previewVideo || ''} 
+                      onChange={handleChange} 
+                      placeholder="https://youtube.com/watch?v=..." 
+                    />
+                  </div>
+
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <label style={{ margin: 0 }}>Thư viện hình ảnh ({type === 'hotel' ? 'khách sạn' : type === 'restaurant' ? 'nhà hàng' : 'địa điểm'})</label>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>({formData.gallery?.length || 0} ảnh)</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          type="button" 
+                          className={styles.addBtn} 
+                          onClick={() => galleryInputRef.current?.click()}
+                          style={{ padding: '8px 16px', background: '#f0f9ff', color: '#0ea5e9' }}
+                          disabled={isUploading}
+                        >
+                          {isUploading ? <CircleNotch size={14} className="ph-spin" /> : <UploadSimple size={14} weight="bold" />} Tải từ máy tính
+                        </button>
+                        <button type="button" className={styles.addBtn} onClick={() => addArrayItem('gallery')} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', color: '#64748b' }}>
+                          <Plus size={14} weight="bold" /> Thêm đường dẫn
+                        </button>
+                      </div>
+                    </div>
+                    <input 
+                      type="file" 
+                      ref={galleryInputRef} 
+                      hidden 
+                      multiple 
+                      accept="image/*" 
+                      onChange={(e) => handleFileUpload(e, 'gallery')} 
+                    />
+                    
+                    <div className={styles.galleryManageList}>
+                      {formData.gallery?.map((url: string, index: number) => (
+                        <div key={index} className={styles.galleryInputRow} style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
+                          <div className={styles.miniPreview} style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
+                            {url ? <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ImageIcon size={20} weight="thin" style={{ margin: '14px' }} />}
+                          </div>
+                          <input 
+                            type="text" 
+                            value={url} 
+                            onChange={(e) => handleArrayChange('gallery', index, e.target.value)}
+                            placeholder="Dán URL hình ảnh..."
+                            style={{ flex: 1 }}
+                          />
+                          <button type="button" className={styles.removeBtn} onClick={() => removeArrayItem('gallery', index)} style={{ padding: '8px' }}>
+                            <Trash size={18} />
+                          </button>
+                        </div>
+                      ))}
+                      
+                      {(!formData.gallery || formData.gallery.length === 0) && (
+                        <div style={{ textAlign: 'center', padding: '24px', border: '2px dashed #e2e8f0', borderRadius: '16px', color: '#94a3b8', fontSize: '0.875rem' }}>
+                          Chưa có ảnh nào trong bộ sưu tập.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.sectionTitle}><Buildings size={18} weight="fill" /> Thông tin tài khoản</div>
+                  <div className={styles.inputGroup}>
+                    <label>Họ và tên</label>
+                    <input type="text" name="fullName" value={formData.fullName || ''} onChange={handleChange} placeholder="Nguyễn Văn A" />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label>Email</label>
+                    <input type="email" name="email" value={formData.email || ''} onChange={handleChange} placeholder="example@gmail.com" />
+                  </div>
+                  {!initialData && (
+                    <div className={styles.inputGroup}>
+                      <label>Mật khẩu</label>
+                      <input type="password" name="password" value={formData.password || ''} onChange={handleChange} placeholder="Mật khẩu ít nhất 8 ký tự..." />
                     </div>
                   )}
-                </div>
-              </div>
-
+                  <div className={styles.inputGroup}>
+                    <label>Số điện thoại</label>
+                    <input type="text" name="phone" value={formData.phone || ''} onChange={handleChange} placeholder="09xxxxxxxx" />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label>Địa chỉ</label>
+                    <input type="text" name="address" value={formData.address || ''} onChange={handleChange} placeholder="Hà Nội, Việt Nam" />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <CustomSelect 
+                      label="Vai trò"
+                      options={[
+                        { value: 1, label: 'Quản trị viên (Admin)', icon: <Buildings size={18} /> },
+                        { value: 2, label: 'Người dùng (User)', icon: <Globe size={18} /> }
+                      ]}
+                      value={formData.roleId || 2}
+                      onChange={(val) => setFormData((prev: any) => ({ ...prev, roleId: val }))}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <CustomSelect 
+                      label="Xác minh Email"
+                      options={[
+                        { value: true, label: 'Đã xác minh', icon: <CheckCircle size={18} color="#10b981" /> },
+                        { value: false, label: 'Chưa xác minh', icon: <X size={18} color="#ef4444" /> }
+                      ]}
+                      value={formData.isEmailVerified ?? false}
+                      onChange={(val) => setFormData((prev: any) => ({ ...prev, isEmailVerified: val }))}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <CustomSelect 
+                      label="Trạng thái hoạt động"
+                      options={[
+                        { value: true, label: 'Đang hoạt động', icon: <CheckCircle size={18} color="#10b981" /> },
+                        { value: false, label: 'Ngừng hoạt động', icon: <X size={18} color="#ef4444" /> }
+                      ]}
+                      value={formData.isActive ?? true}
+                      onChange={(val) => setFormData((prev: any) => ({ ...prev, isActive: val }))}
+                    />
+                  </div>
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <label>Giới thiệu (Bio)</label>
+                    <textarea name="bio" value={formData.bio || ''} onChange={handleChange} placeholder="Mô tả ngắn về người dùng..."></textarea>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

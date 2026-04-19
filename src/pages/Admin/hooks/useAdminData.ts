@@ -59,7 +59,15 @@ function useCollection<T>(fetchFn: (...args: any[]) => Promise<any>) {
     fetchData();
   }, []); // Chỉ gọi lần đầu, việc fetch phân trang sẽ do View gọi refetch với args
 
-  return { data, pagination, loading, error, refetch: fetchData };
+  const toggleUserStatus = async (id: string | number, currentStatus: boolean) => {
+    if (currentStatus) {
+      return await adminService.lockUser(id);
+    } else {
+      return await adminService.unlockUser(id);
+    }
+  };
+
+  return { data, pagination, loading, error, refetch: fetchData, toggleUserStatus };
 }
 
 // ─── Specific hooks ───────────────────────────────────────────────────────────
@@ -74,7 +82,11 @@ export const useRestaurants = () => useCollection<adminService.Restaurant>((page
   return adminService.fetchRestaurantsList(page, size);
 });
 
-export const useDbUsers = () => useCollection<adminService.DbUser>(adminService.fetchUsersList);
+export const useDbUsers = () => useCollection<adminService.DbUser>((page, size, keyword, isActive) => {
+  if (isActive !== undefined && isActive !== null) return adminService.fetchUsersByStatus(isActive, page, size);
+  if (keyword) return adminService.searchUsersByKeyword(keyword, page, size);
+  return adminService.fetchUsersList(page, size);
+});
 export const useDashboardStats = () => useCollection<adminService.DashboardStat>(adminService.fetchDashboardStats);
 export const useRecentActivity = () => useCollection<adminService.RecentActivity>(adminService.fetchRecentActivity);
 export const usePopularLocations = () => useCollection<adminService.PopularLocation>(adminService.fetchPopularLocations);
@@ -109,6 +121,8 @@ export const updateRecord = async <T>(endpoint: string, id: string | number, dat
     response = await adminService.updateRestaurant(id, data);
   } else if (endpoint === 'destinations') {
     response = await adminService.updateAttraction(id, data);
+  } else if (endpoint === 'users') {
+    response = await adminService.updateUser(id, data);
   } else {
     throw new Error(`Endpoint ${endpoint} không hỗ trợ cập nhật`);
   }
@@ -123,6 +137,8 @@ export const createRecord = async <T>(endpoint: string, data: Omit<T, 'id'>): Pr
     response = await adminService.createRestaurant(data as any);
   } else if (endpoint === 'destinations') {
     response = await adminService.createAttraction(data as any);
+  } else if (endpoint === 'users') {
+    response = await adminService.createUser(data);
   } else {
     throw new Error(`Endpoint ${endpoint} không hỗ trợ tạo mới`);
   }

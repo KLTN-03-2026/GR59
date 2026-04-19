@@ -94,7 +94,17 @@ const Testimonials: React.FC = () => {
                       styles[rev.color as keyof typeof styles] || ""
                     }`}
                   >
-                    {rev.initial}
+                    {rev.avatarUrl ? (
+                      <img 
+                        src={rev.avatarUrl} 
+                        alt={rev.name} 
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : null}
+                    <span style={{ display: rev.avatarUrl ? 'none' : 'block' }}>{rev.initial}</span>
                   </div>
                   <div>
                     <h4>{rev.name}</h4>

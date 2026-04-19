@@ -3,15 +3,15 @@ import { CaretDown, Check } from 'phosphor-react';
 import styles from './CustomSelect.module.scss';
 
 interface Option {
-  value: string | number;
+  value: string | number | boolean;
   label: string;
   icon?: React.ReactNode;
 }
 
 interface CustomSelectProps {
   options: Option[];
-  value: string | number;
-  onChange: (value: string | number) => void;
+  value: string | number | boolean;
+  onChange: (value: any) => void;
   placeholder?: string;
   label?: string;
 }
@@ -38,7 +38,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = (optionValue: string | number) => {
+  const handleSelect = (optionValue: string | number | boolean) => {
     onChange(optionValue);
     setIsOpen(false);
   };

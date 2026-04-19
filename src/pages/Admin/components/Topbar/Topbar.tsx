@@ -4,9 +4,10 @@ import { MagnifyingGlass, Bell, Question } from "@phosphor-icons/react";
 
 interface TopbarProps {
   viewTitle: string;
+  user?: any;
 }
 
-const Topbar: React.FC<TopbarProps> = ({ viewTitle }) => {
+const Topbar: React.FC<TopbarProps> = ({ viewTitle, user }) => {
   return (
     <header className={styles.topbar}>
       <h2 className={styles.viewTitle}>{viewTitle}</h2>
@@ -31,10 +32,10 @@ const Topbar: React.FC<TopbarProps> = ({ viewTitle }) => {
         <div className={styles.userProfile}>
           <div className={styles.userInfo}>
             <p>Quản trị viên</p>
-            <p>Super Admin</p>
+            <p>{user?.fullName || user?.name || 'Admin'}</p>
           </div>
           <img 
-            src="https://i.pravatar.cc/100?u=admin" 
+            src={user?.avatarUrl || user?.imageUrl || "https://i.pravatar.cc/100?u=admin"} 
             alt="Avatar" 
             className={styles.avatar}
           />

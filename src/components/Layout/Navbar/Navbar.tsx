@@ -16,6 +16,7 @@ import {
   FacebookLogo,
   InstagramLogo,
   YoutubeLogo,
+  ShieldCheck,
 } from "phosphor-react";
 import { toast } from "react-toastify"; // Đảm bảo đã import toast
 import styles from "./Navbar.module.scss";
@@ -29,6 +30,18 @@ const Navbar: React.FC = () => {
   });
   const [username, setUsername] = useState(() => {
     return localStorage.getItem("username") || "";
+  });
+  const [userRole, setUserRole] = useState<string | null>(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        return user.role || null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -49,6 +62,18 @@ const Navbar: React.FC = () => {
 
     if (storedUsername !== username) {
       setUsername(storedUsername);
+    }
+    
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.role !== userRole) setUserRole(user.role);
+      } catch (e) {
+        setUserRole(null);
+      }
+    } else {
+      setUserRole(null);
     }
     
     // Close mobile menu on route change
@@ -142,6 +167,11 @@ const Navbar: React.FC = () => {
                 <Link to="/dashboard" className={styles.dropdownItem}>
                   <MapTrifold size={20} /> Lịch trình của tôi
                 </Link>
+                {userRole === "ADMIN" && (
+                  <Link to="/admin" className={styles.dropdownItem}>
+                    <ShieldCheck size={20} /> Quản trị hệ thống
+                  </Link>
+                )}
                 <Link to="/ai-suggestions" className={styles.dropdownItem}>
                   <Sparkle size={20} /> Gợi ý từ AI
                 </Link>
@@ -223,6 +253,12 @@ const Navbar: React.FC = () => {
                     <MapTrifold size={22} weight="bold" /> 
                     <span>Lịch trình của tôi</span>
                   </Link>
+                  {userRole === "ADMIN" && (
+                    <Link to="/admin" className={styles.mobileMenuItem} onClick={() => setIsMenuOpen(false)}>
+                      <ShieldCheck size={22} weight="bold" /> 
+                      <span>Quản trị hệ thống</span>
+                    </Link>
+                  )}
                   <a href="/" onClick={(e) => { handleLogOut(e); setIsMenuOpen(false); }} className={`${styles.mobileMenuItem} ${styles.logout}`}>
                     <SignOut size={22} weight="bold" /> 
                     <span>Đăng xuất</span>

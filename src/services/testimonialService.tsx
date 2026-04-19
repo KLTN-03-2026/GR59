@@ -10,11 +10,14 @@ export interface TestimonialItem {
   color: string;
   text: string;
   delay: string;
+  avatarUrl?: string;
 }
 
 export interface BackendReview {
   id: number;
   userId: number;
+  userName?: string;
+  userImage?: string;
   hotelId: number | null;
   restaurantId: number | null;
   attractionId: number | null;
@@ -23,10 +26,8 @@ export interface BackendReview {
   comment: string;
   isVerified: boolean;
   createdAt: string;
-  user?: {
-    fullName: string;
-    avatar: string | null;
-  } | null;
+  updatedAt: string;
+  images: string[];
 }
 
 export interface PaginatedData<T> {
@@ -58,18 +59,18 @@ const getInitials = (name: string) => {
 };
 
 const mapBackendToTestimonial = (review: BackendReview, index: number): TestimonialItem => {
-  const hasUser = !!review.user;
-  const name = review.user?.fullName || (hasUser ? "BE đang thiếu fullName" : "BE đang thiếu thông tin User");
+  const name = review.userName || "Khách hàng";
   const role = review.type === "HOTEL" ? "Khách lưu trú" : review.type === "RESTAURANT" ? "Thực khách" : "Khách tham quan";
   
   return {
     id: review.id.toString(),
     name: name,
     role: role,
-    initial: review.user?.fullName ? getInitials(review.user.fullName) : "BE",
+    initial: name ? getInitials(name) : "U",
     color: COLORS[index % COLORS.length],
-    text: review.comment || "BE đang thiếu nội dung comment",
-    delay: ((index % 3) * 200 + 100).toString()
+    text: review.comment || "Không có nội dung đánh giá",
+    delay: ((index % 3) * 200 + 100).toString(),
+    avatarUrl: review.userImage
   };
 };
 

@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import styles from './DestinationsView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, Globe, FileArrowDown, Check } from "@phosphor-icons/react";
+import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, Globe, FileArrowDown, Check, Eye } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDestinations, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
+import DetailModal from '../_shared/DetailModal';
 import { toast } from 'react-toastify';
 
 const PAGE_SIZE = 10;
@@ -43,6 +44,8 @@ const DestinationsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'ACTIVE' | 'MAINTENANCE'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | number | null>(null);
 
   // Stats
   const totalActive = destinations.filter(d => d.status === 'ACTIVE' || d.status === 'HOẠT ĐỘNG').length;
@@ -117,6 +120,14 @@ const DestinationsView: React.FC = () => {
   const openEditModal = (item: any) => {
     setEditingItem(item);
     setIsModalOpen(true);
+  };
+
+  const categoryMap: Record<string, string> = {
+    'ATTRACTION': 'Điểm tham quan',
+    'CULTURE': 'Văn hóa & Lịch sử',
+    'NATURE': 'Thiên nhiên',
+    'RELAX': 'Nghỉ dưỡng',
+    'ENTERTAINMENT': 'Giải trí'
   };
 
   return (
@@ -233,7 +244,9 @@ const DestinationsView: React.FC = () => {
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${styles.bgPurple}`}>{dest.category || 'PHỔ THÔNG'}</span>
+                    <span className={`${styles.badge} ${styles.bgPurple}`}>
+                      {dest.category && categoryMap[dest.category] ? categoryMap[dest.category] : (dest.category || 'PHỔ THÔNG')}
+                    </span>
                   </td>
                   <td>
                     <span className={`${styles.badge} ${(dest.status === 'ACTIVE' || dest.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
@@ -243,6 +256,13 @@ const DestinationsView: React.FC = () => {
                   </td>
                   <td>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                      <button 
+                        className={styles.actionBtn} 
+                        onClick={() => { setDetailId(dest.id); setIsDetailOpen(true); }}
+                        title="Xem chi tiết"
+                      >
+                        <Eye size={24} weight="bold" />
+                      </button>
                       <button className={styles.actionBtn} onClick={() => openEditModal(dest)}>
                         <Pencil size={24} weight="bold" />
                       </button>
@@ -271,7 +291,13 @@ const DestinationsView: React.FC = () => {
              </button>
           </div>
         </div>
-      </motion.div>
+        <DetailModal 
+        isOpen={isDetailOpen} 
+        onClose={() => setIsDetailOpen(false)} 
+        id={detailId} 
+        type="destination" 
+      />
+    </motion.div>
 
       <AddEditModal 
         isOpen={isModalOpen} 

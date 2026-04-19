@@ -12,6 +12,8 @@ export interface UserData {
   refreshToken?: string;
   createdAt?: string;
   role?: string;
+  roleId?: number;
+  roleName?: string;
   status?: string;
   avatarUrl?: string | null;
   isActive?: boolean;

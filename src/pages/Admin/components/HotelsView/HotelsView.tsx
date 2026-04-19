@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import styles from './HotelsView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, FileArrowDown, Check } from "@phosphor-icons/react";
+import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, FileArrowDown, Check, Eye } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHotels, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
+import DetailModal from '../_shared/DetailModal';
 import { toast } from 'react-toastify';
 
 const PAGE_SIZE = 10;
@@ -43,6 +44,8 @@ const HotelsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'ACTIVE' | 'MAINTENANCE'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | number | null>(null);
 
   // ─── derived stats ───────────────────────────────────────────────────────────
   // Lưu ý: stats này hiện tại chỉ tính trên trang hiện tại. 
@@ -112,6 +115,16 @@ const HotelsView: React.FC = () => {
     } catch {
       toast.error('Thao tác thất bại!');
     }
+  };
+
+  const categoryMap: Record<string, string> = {
+    'LUXURY': 'Hạng sang',
+    'RESORT': 'Nghỉ dưỡng',
+    'BOUTIQUE': 'Độc đáo',
+    'BUDGET': 'Bình dân',
+    'BUSINESS': 'Công tác',
+    'HOMESTAY': 'Homestay',
+    'VILLA': 'Biệt thự'
   };
 
   return (
@@ -228,7 +241,9 @@ const HotelsView: React.FC = () => {
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${styles.bgPurple}`}>{hotel.category || 'PHỔ THÔNG'}</span>
+                    <span className={`${styles.badge} ${styles.bgPurple}`}>
+                      {hotel.category && categoryMap[hotel.category] ? categoryMap[hotel.category] : (hotel.category || 'PHỔ THÔNG')}
+                    </span>
                   </td>
                   <td>
                     <span className={`${styles.badge} ${(hotel.status === 'ACTIVE' || hotel.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
@@ -238,6 +253,13 @@ const HotelsView: React.FC = () => {
                   </td>
                   <td>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                      <button 
+                        className={styles.actionBtn} 
+                        onClick={() => { setDetailId(hotel.id); setIsDetailOpen(true); }}
+                        title="Xem chi tiết"
+                      >
+                        <Eye size={24} weight="bold" />
+                      </button>
                       <button className={styles.actionBtn} onClick={() => { setEditingItem(hotel); setIsModalOpen(true); }}>
                         <Pencil size={24} weight="bold" />
                       </button>
@@ -267,7 +289,13 @@ const HotelsView: React.FC = () => {
             </button>
           </div>
         </div>
-      </motion.div>
+        <DetailModal 
+        isOpen={isDetailOpen} 
+        onClose={() => setIsDetailOpen(false)} 
+        id={detailId} 
+        type="hotel" 
+      />
+    </motion.div>
 
       <AddEditModal 
         isOpen={isModalOpen} 

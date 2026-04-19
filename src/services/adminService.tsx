@@ -162,6 +162,11 @@ export const updateHotel = (
     headers: { "Content-Type": "multipart/form-data" },
   });
 
+export const fetchHotelDetail = (
+  id: string | number,
+): Promise<AxiosResponse<BackendResponse<Hotel>>> =>
+  instance.get<BackendResponse<Hotel>>(`/hotels/${id}`);
+
 // Restaurants
 export const fetchRestaurantsList = (page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: Restaurant[]; page: any }>>
@@ -191,6 +196,11 @@ export const removeRestaurant = (
 ): Promise<AxiosResponse<BackendResponse<unknown>>> =>
   instance.delete<BackendResponse<unknown>>(`/restaurants/${id}`);
 
+export const fetchRestaurantDetail = (
+  id: string | number,
+): Promise<AxiosResponse<BackendResponse<Restaurant>>> =>
+  instance.get<BackendResponse<Restaurant>>(`/restaurants/${id}`);
+
 // Users
 export const fetchUsersList = (page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: DbUser[]; page: any }>>
@@ -203,11 +213,87 @@ export const fetchUsersList = (page = 0, size = 10): Promise<
   });
 };
 
+export const searchUsersByKeyword = (keyword: string, page = 0, size = 10): Promise<
+  AxiosResponse<BackendResponse<{ content: DbUser[]; page: any }>>
+> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<{ content: DbUser[]; page: any }>>(
+    `/admin/users/search?keyword=${keyword}&page=${page}&size=${size}`, 
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+};
+
+export const fetchUsersByStatus = (isActive: boolean, page = 0, size = 10): Promise<
+  AxiosResponse<BackendResponse<{ content: DbUser[]; page: any }>>
+> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<{ content: DbUser[]; page: any }>>(
+    `/admin/users/filter/status?isActive=${isActive}&page=${page}&size=${size}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+};
+
+export const fetchUserDetail = (
+  id: string | number,
+): Promise<AxiosResponse<BackendResponse<DbUser>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<DbUser>>(`/admin/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
+
+export const createUser = (
+  data: any,
+): Promise<AxiosResponse<BackendResponse<DbUser>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.post<BackendResponse<DbUser>>("/admin/users", data, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
+
+export const updateUser = (
+  id: string | number,
+  data: any,
+): Promise<AxiosResponse<BackendResponse<DbUser>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.put<BackendResponse<DbUser>>(`/admin/users/${id}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
+
+export const lockUser = (id: string | number): Promise<AxiosResponse<BackendResponse<any>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.put(`/admin/users/${id}/lock`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const unlockUser = (id: string | number): Promise<AxiosResponse<BackendResponse<any>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.put(`/admin/users/${id}/unlock`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
 export const removeUser = (
   id: string | number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   const token = localStorage.getItem("accessToken");
-  return instance.delete<BackendResponse<unknown>>(`/users/${id}`, {
+  return instance.delete<BackendResponse<unknown>>(`/admin/users/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -242,6 +328,11 @@ export const removeAttraction = (
   id: string | number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> =>
   instance.delete<BackendResponse<unknown>>(`/attractions/${id}`);
+
+export const fetchAttractionDetail = (
+  id: string | number,
+): Promise<AxiosResponse<BackendResponse<Destination>>> =>
+  instance.get<BackendResponse<Destination>>(`/attractions/${id}`);
 
 
 export const uploadAdminImage = async (

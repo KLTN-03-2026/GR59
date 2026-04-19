@@ -8,16 +8,20 @@ import {
   MagnifyingGlass,
   DotsThreeVertical,
   CheckCircle,
-  XCircle,
   Clock,
   UserPlus,
   CaretLeft,
   CaretRight,
-
+  Eye,
+  Lock,
+  LockOpen,
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
-import { useDbUsers, deleteRecord } from "../../hooks/useAdminData";
+import { useDbUsers, deleteRecord, updateRecord, createRecord } from "../../hooks/useAdminData";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
+import DetailModal from "../_shared/DetailModal";
+import AddEditModal from "../_shared/AddEditModal";
+import { toast } from "react-toastify";
 
 const PAGE_SIZE = 10;
 
@@ -36,17 +40,34 @@ const rowVariants = {
 
 const UsersView: React.FC = () => {
   const [page, setPage] = useState(1);
-  const { data: users, pagination, loading, error, refetch } = useDbUsers();
+  const { data: users, pagination, loading, error, refetch, toggleUserStatus } = useDbUsers();
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | number | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editUser, setEditUser] = useState<any>(null);
 
-  // Gọi lại API khi trang thay đổi
-  React.useEffect(() => {
-    refetch(page - 1, PAGE_SIZE);
-  }, [page]);
-
+  const [activeStatusFilter, setActiveStatusFilter] = useState<
+    "All" | "Active" | "Inactive"
+  >("All");
   const [activeRoleFilter, setActiveRoleFilter] = useState<
     "All" | "ADMIN" | "USER"
   >("All");
   const [search, setSearch] = useState("");
+
+  // Gọi lại API khi trang, từ khóa tìm kiếm hoặc bộ lọc trạng thái thay đổi
+  React.useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const isActive =
+        activeStatusFilter === "Active"
+          ? true
+          : activeStatusFilter === "Inactive"
+            ? false
+            : undefined;
+      refetch(page - 1, PAGE_SIZE, search, isActive);
+    }, 400); // Debounce 400ms
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [page, search, activeStatusFilter]);
 
   const getRoleStyle = (role: string) => {
     switch (role) {
@@ -68,23 +89,16 @@ const UsersView: React.FC = () => {
     return <Clock size={13} weight="fill" />;
   };
 
-  const getStatusLabel = (isActive: boolean) => isActive ? "Hoạt động" : "Không hoạt động";
+  const getStatusLabel = (isActive: boolean) =>
+    isActive ? "Hoạt động" : "Không hoạt động";
 
-  // ─── Filtered & Paginated ────────────────────────────────────────────────────
+  // ─── Filtered (Chỉ lọc role local vì server-side search đã lo phần keyword) ───
   const filtered = useMemo(() => {
     let list = [...users];
     if (activeRoleFilter !== "All")
       list = list.filter((u) => u.roleName === activeRoleFilter);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (u) =>
-          (u.fullName || "").toLowerCase().includes(q) ||
-          (u.email || "").toLowerCase().includes(q),
-      );
-    }
     return list;
-  }, [users, activeRoleFilter, search]);
+  }, [users, activeRoleFilter]);
 
   const totalPages = pagination.totalPages || 1;
   const paged = filtered;
@@ -96,6 +110,45 @@ const UsersView: React.FC = () => {
       refetch();
     } catch {
       alert("Xóa thất bại!");
+    }
+  };
+
+  const handleEdit = (user: any) => {
+    setEditUser(user);
+    setIsEditOpen(true);
+  };
+
+  const handleSaveUser = async (formData: any) => {
+    try {
+      if (editUser) {
+        await updateRecord("users", editUser.id, formData);
+        toast.success("Cập nhật người dùng thành công!");
+      } else {
+        await createRecord("users", formData);
+        toast.success("Thêm người dùng thành công!");
+      }
+      setIsEditOpen(false);
+      refetch();
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || err.response?.data?.EM || "Thao tác thất bại!";
+      toast.error(errorMsg);
+    }
+  };
+
+  const handleToggleStatus = async (user: any) => {
+    try {
+      const confirmMsg = user.isActive 
+        ? `Bạn có chắc muốn khóa tài khoản của ${user.fullName}?` 
+        : `Bạn có chắc muốn mở khóa tài khoản cho ${user.fullName}?`;
+      
+      if (window.confirm(confirmMsg)) {
+        await toggleUserStatus(user.id, user.isActive);
+        toast.success(`${user.isActive ? 'Khóa' : 'Mở khóa'} thành công!`);
+        refetch();
+      }
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || err.response?.data?.EM || "Thao tác thất bại!";
+      toast.error(errorMsg);
     }
   };
 
@@ -114,7 +167,14 @@ const UsersView: React.FC = () => {
           </p>
         </div>
         <div className={styles.pageActions}>
-          <button className={styles.btnPrimary} title="Thêm người dùng mới">
+          <button 
+            className={styles.btnPrimary} 
+            title="Thêm người dùng mới"
+            onClick={() => {
+              setEditUser(null);
+              setIsEditOpen(true);
+            }}
+          >
             <UserPlus size={18} weight="bold" />
             <span>Thêm người dùng</span>
           </button>
@@ -135,9 +195,7 @@ const UsersView: React.FC = () => {
         <StatCard
           label="ĐANG HOẠT ĐỘNG"
           value={
-            loading
-              ? "..."
-              : String(users.filter((u) => u.isActive).length)
+            loading ? "..." : String(users.filter((u) => u.isActive).length)
           }
           footerText="Trong 30 ngày qua"
           icon="UserCheck"
@@ -154,9 +212,7 @@ const UsersView: React.FC = () => {
         <StatCard
           label="KHÔNG HOẠT ĐỘNG"
           value={
-            loading
-              ? "..."
-              : String(users.filter((u) => !u.isActive).length)
+            loading ? "..." : String(users.filter((u) => !u.isActive).length)
           }
           trend="-4% tháng trước"
           trendUp={false}
@@ -169,25 +225,31 @@ const UsersView: React.FC = () => {
         <div className={styles.filterHeader}>
           <div className={styles.tabGroup}>
             <button
-              className={`${styles.tab} ${activeRoleFilter === "All" ? styles.tabActive : ""}`}
+              className={`${styles.tab} ${activeStatusFilter === "All" ? styles.tabActive : ""}`}
               onClick={() => {
-                setActiveRoleFilter("All");
+                setActiveStatusFilter("All");
                 setPage(1);
               }}
             >
-              Tất cả ({users.length})
+              Tất cả
             </button>
             <button
-              className={`${styles.tab} ${activeRoleFilter === "ADMIN" ? styles.tabActive : ""}`}
+              className={`${styles.tab} ${activeStatusFilter === "Active" ? styles.tabActive : ""}`}
               onClick={() => {
-                setActiveRoleFilter("ADMIN");
+                setActiveStatusFilter("Active");
                 setPage(1);
               }}
             >
-              Quyền Admin
+              Đang hoạt động
             </button>
-            <button className={styles.tab} title="Xem người dùng không hoạt động">
-              Không hoạt động ({users.filter((u) => !u.isActive).length})
+            <button
+              className={`${styles.tab} ${activeStatusFilter === "Inactive" ? styles.tabActive : ""}`}
+              onClick={() => {
+                setActiveStatusFilter("Inactive");
+                setPage(1);
+              }}
+            >
+              Ngừng hoạt động
             </button>
           </div>
         </div>
@@ -224,12 +286,17 @@ const UsersView: React.FC = () => {
       <motion.div variants={rowVariants} className={styles.tableContainer}>
         <div className={styles.tableHeader}>
           <h3>Danh sách người dùng</h3>
-          <button className={styles.tableAction} title="Xuất danh sách người dùng">Xuất danh sách</button>
+          <button
+            className={styles.tableAction}
+            title="Xuất danh sách người dùng"
+          >
+            Xuất danh sách
+          </button>
         </div>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th style={{ width: '60px' }}>STT</th>
+              <th style={{ width: "60px" }}>STT</th>
               <th>NGƯỜI DÙNG</th>
               <th>VAI TRÒ</th>
               <th>TRẠNG THÁI</th>
@@ -250,63 +317,97 @@ const UsersView: React.FC = () => {
               ) : (
                 paged.map((user, idx) => (
                   <motion.tr key={user.id} variants={rowVariants} custom={idx}>
-                  <td style={{ fontWeight: 600, color: '#64748b' }}>
-                    #{(page - 1) * PAGE_SIZE + idx + 1}
-                  </td>
-                  <td>
-                    <div className={styles.infoCol}>
-                      <img
-                        src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`}
-                        alt=""
-                      />
-                      <div className={styles.textInfo}>
-                        <p>{user.fullName}</p>
-                        <div className={styles.emailBox}>
-                          <Envelope size={12} color="#cbd5e1" />
-                          <span>{user.email}</span>
+                    <td style={{ fontWeight: 600, color: "#64748b" }}>
+                      #{(page - 1) * PAGE_SIZE + idx + 1}
+                    </td>
+                    <td>
+                      <div className={styles.infoCol}>
+                        <img
+                          src={
+                            user.avatarUrl ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`
+                          }
+                          alt=""
+                        />
+                        <div className={styles.textInfo}>
+                          <p>{user.fullName}</p>
+                          <div className={styles.emailBox}>
+                            <Envelope size={12} color="#cbd5e1" />
+                            <span>{user.email}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span
-                      className={`${styles.badge} ${getRoleStyle(user.roleName)}`}
-                    >
-                      {user.roleName}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`${styles.badge} ${getStatusStyle(user.isActive)}`}
-                    >
-                      <StatusIcon isActive={user.isActive} />
-                      {getStatusLabel(user.isActive)}
-                    </span>
-                  </td>
-                  <td>
-                    <div className={styles.dateCol}>
-                      <p>
-                        {new Date(user.createdAt).toLocaleDateString(
-                          "vi-VN",
-                          { day: "2-digit", month: "short", year: "numeric" },
-                        )}
-                      </p>
-                    </div>
-                  </td>
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.badge} ${getRoleStyle(user.roleName)}`}
+                      >
+                        {user.roleName}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.badge} ${getStatusStyle(user.isActive)}`}
+                      >
+                        <StatusIcon isActive={user.isActive} />
+                        {getStatusLabel(user.isActive)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.dateCol}>
+                        <p>
+                          {new Date(user.createdAt).toLocaleDateString(
+                            "vi-VN",
+                            { day: "2-digit", month: "short", year: "numeric" },
+                          )}
+                        </p>
+                      </div>
+                    </td>
                     <td>
                       <div className={styles.actionGroup}>
-                        <button className={styles.actionBtn} title="Chỉnh sửa người dùng">
-                          <Pencil size={17} />
+                        <button 
+                          className={styles.actionBtn} 
+                          onClick={() => { setDetailId(user.id); setIsDetailOpen(true); }}
+                          title="Xem chi tiết"
+                        >
+                          <div className={styles.actionBtnIcon}>
+                            <Eye size={17} />
+                          </div>
+                        </button>
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => handleEdit(user)}
+                          title="Chỉnh sửa người dùng"
+                        >
+                          <div className={styles.actionBtnIcon}>
+                            <Pencil size={17} />
+                          </div>
+                        </button>
+                        <button 
+                          className={styles.actionBtn} 
+                          title={user.isActive ? "Khóa người dùng" : "Mở khóa người dùng"}
+                          onClick={() => handleToggleStatus(user)}
+                        >
+                          <div className={styles.actionBtnIcon}>
+                            {user.isActive ? <Lock size={18} weight="bold" color="#f43f5e" /> : <LockOpen size={18} weight="bold" color="#10b981" />}
+                          </div>
                         </button>
                         <button
                           className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
                           onClick={() => handleDelete(user.id)}
                           title="Xóa người dùng"
                         >
-                          <Trash size={17} />
+                          <div className={styles.actionBtnIcon}>
+                            <Trash size={17} />
+                          </div>
                         </button>
-                        <button className={styles.actionBtn} title="Thêm hành động">
-                          <DotsThreeVertical size={17} weight="bold" />
+                        <button
+                          className={styles.actionBtn}
+                          title="Thêm hành động"
+                        >
+                          <div className={styles.actionBtnIcon}>
+                            <DotsThreeVertical size={17} weight="bold" />
+                          </div>
                         </button>
                       </div>
                     </td>
@@ -334,7 +435,9 @@ const UsersView: React.FC = () => {
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
             >
-              <CaretLeft size={16} />
+              <div className={styles.actionBtnIcon}>
+                <CaretLeft size={16} />
+              </div>
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
@@ -351,11 +454,25 @@ const UsersView: React.FC = () => {
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
-              <CaretRight size={16} />
+              <div className={styles.actionBtnIcon}><CaretRight size={16} /></div>
             </button>
           </div>
         </div>
       </motion.div>
+      <DetailModal 
+        isOpen={isDetailOpen} 
+        onClose={() => setIsDetailOpen(false)} 
+        id={detailId} 
+        type="user" 
+      />
+      <AddEditModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSave={handleSaveUser}
+        title={editUser ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}
+        type="user"
+        initialData={editUser}
+      />
     </motion.div>
   );
 };
