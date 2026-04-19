@@ -413,7 +413,7 @@ export const getSampleItineraries = async (): Promise<
 > => {
   try {
     return await instance.get<BackendResponse<ItineraryType[]>>(
-      "/sample_itineraries"
+      "/travel/itineraries/demo"
     );
   } catch (error) {
     console.warn("Fake API fallback cho Sample Itineraries");
@@ -436,7 +436,7 @@ export const getSampleItineraryById = async (
 ): Promise<AxiosResponse<BackendResponse<ItineraryType>>> => {
   try {
     return await instance.get<BackendResponse<ItineraryType>>(
-      `/sample_itineraries/${id}`
+      `/travel/itineraries/demo/${id}`
     );
   } catch (error) {
     console.warn(`Fake API fallback cho Sample Itinerary ID: ${id}`);

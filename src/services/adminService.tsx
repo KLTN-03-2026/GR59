@@ -125,6 +125,23 @@ export interface NewsItem {
   authorName?: string;
 }
 
+export interface AdminReview {
+  id: number;
+  userId: number;
+  userName: string;
+  userImage: string;
+  hotelId: number | null;
+  restaurantId: number | null;
+  attractionId: number | null;
+  type: "HOTEL" | "RESTAURANT" | "ATTRACTION" | "WEBSITE" | "TRIP";
+  rating: number;
+  comment: string;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  images: string[];
+}
+
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
@@ -370,6 +387,47 @@ export const removeNews = (
   id: string | number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> =>
   instance.delete<BackendResponse<unknown>>(`/news/${id}`);
+
+// Reviews
+export const fetchAdminReviewsList = (page = 0, size = 10): Promise<
+  AxiosResponse<BackendResponse<{ content: AdminReview[]; page: any }>>
+> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<{ content: AdminReview[]; page: any }>>(
+    `/reviews?page=${page}&size=${size}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
+
+export const fetchReviewDetail = (
+  id: string | number
+): Promise<AxiosResponse<BackendResponse<AdminReview>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<AdminReview>>(`/reviews/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const updateReviewStatus = (
+  id: string | number,
+  isVerified: boolean
+): Promise<AxiosResponse<BackendResponse<AdminReview>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.put<BackendResponse<AdminReview>>(
+    `/reviews/${id}`,
+    { isVerified },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
+
+export const removeReview = (
+  id: string | number,
+): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.delete<BackendResponse<unknown>>(`/reviews/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
 
 
 export const uploadAdminImage = async (

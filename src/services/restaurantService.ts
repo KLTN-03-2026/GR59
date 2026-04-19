@@ -138,25 +138,16 @@ export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant): 
         ],
     services: [], // Sẽ được FE tự động lọc trong DestinationDetail
     reviewsData: {
-      average: rest.rating,
+      average: rest.rating || 0,
       total: rest.reviewCount || 0,
       breakdown: [
-        { stars: 5, percentage: 80 },
-        { stars: 4, percentage: 15 },
-        { stars: 3, percentage: 5 },
+        { stars: 5, percentage: 0 },
+        { stars: 4, percentage: 0 },
+        { stars: 3, percentage: 0 },
         { stars: 2, percentage: 0 },
         { stars: 1, percentage: 0 },
       ],
-      list: [
-        {
-          user: "TravelAi User",
-          avatar: "https://i.pravatar.cc/150?u=restaurant",
-          rating: 5,
-          date: "Vừa xong",
-          tag: "Khách hàng",
-          content: "BE đang thiếu dữ liệu đánh giá chi tiết cho nhà hàng.",
-        }
-      ],
+      list: [],
     },
     travelTips: DEFAULT_TRAVEL_TIPS,
     weatherCurrent: {

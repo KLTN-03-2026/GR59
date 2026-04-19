@@ -36,7 +36,17 @@ const SampleItinerary: React.FC = () => {
       try {
         setIsLoading(true);
         const response = await getSampleItineraries();
-        setItineraries(response.data.DT || response.data.data || []);
+        const resData = response.data.DT || response.data.data;
+        let list = [];
+        if (Array.isArray(resData)) {
+          list = resData;
+        } else if (resData && Array.isArray(resData.content)) {
+          list = resData.content;
+        } else if (resData && typeof resData === 'object') {
+          // In case the API accidentally returns a single object instead of an array
+          list = [resData];
+        }
+        setItineraries(list);
       } catch (err) {
         console.error("Lỗi khi lấy lộ trình mẫu:", err);
         setError("Không thể tải dữ liệu lộ trình. Vui lòng thử lại sau.");
@@ -54,7 +64,7 @@ const SampleItinerary: React.FC = () => {
   }, []);
 
   const filteredData = useMemo(() => {
-    if (!itineraries) return [];
+    if (!itineraries || !Array.isArray(itineraries)) return [];
     return itineraries.filter((item) => {
       const matchLoc = filters.location === "all" || item.location === filters.location;
       const matchPeople = item.maxPeople >= filters.people;

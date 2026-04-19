@@ -135,7 +135,7 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destinati
       }
     ],
     reviewsData: (hotel as any).reviewsData || {
-      average: hotel.rating,
+      average: hotel.rating || 0,
       total: (hotel.reviewCount || 0),
       breakdown: [
         { stars: 5, percentage: 0 },
@@ -144,16 +144,7 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destinati
         { stars: 2, percentage: 0 },
         { stars: 1, percentage: 0 },
       ],
-      list: [
-        {
-          user: "TravelAi User",
-          avatar: "https://i.pravatar.cc/150?u=missing",
-          rating: 5,
-          date: "Vừa xong",
-          tag: "Khách hàng",
-          content: "BE đang thiếu dữ liệu đánh giá chi tiết (reviews list).",
-        }
-      ],
+      list: [],
     },
     travelTips: DEFAULT_TRAVEL_TIPS,
 

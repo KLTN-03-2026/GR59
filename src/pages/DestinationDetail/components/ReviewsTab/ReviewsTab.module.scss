@@ -152,15 +152,159 @@
 .btnLoadMore {
   width: 100%;
   padding: 14px;
-  background: transparent;
-  border: 1px solid #33d7d1;
+  background: white;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  font-weight: 600;
-  color: #1e293b;
+  color: #33d7d1;
+  font-weight: 700;
   cursor: pointer;
+  margin-top: 24px;
+  transition: all 0.3s;
   &:hover {
-    background: #000000;
-    color: #fff;
-    border: 1px solid #ffffff;
+    background: #f8fafc;
+    border-color: #33d7d1;
+  }
+}
+
+.quickReviewForm {
+  margin-top: 48px;
+  background: #f8fafc;
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid #edf2f7;
+
+  .formHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #1e293b;
+      font-weight: 700;
+    }
+
+    .quickStars {
+      display: flex;
+      gap: 6px;
+    }
+  }
+
+  .formBody {
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      margin-bottom: 20px;
+      background-color: white;
+      color: black;
+    
+      &:focus {
+        outline: none;
+        border-color: #33d7d1;
+        box-shadow: 0 0 0 3px rgba(51, 215, 209, 0.1);
+      }
+    }
+
+    .formActions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+
+      .uploadBtnGroup {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .uploadLabel {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 18px;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 100px;
+          color: #64748b;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          &:hover {
+            border-color: #33d7d1;
+            color: #33d7d1;
+          }
+        }
+
+        .miniPreviews {
+          display: flex;
+          gap: 8px;
+          .miniPreviewItem {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              border-radius: 8px;
+            }
+            button {
+              position: absolute;
+              top: -5px;
+              right: -5px;
+              background: #ef4444;
+              color: white;
+              border: none;
+              border-radius: 50%;
+              width: 16px;
+              height: 16px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+
+      .btnSubmit {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 28px;
+        background: #33d7d1;
+        color: white;
+        border: none;
+        border-radius: 100px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        &:hover:not(:disabled) {
+          background: #2cb5b0;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(51, 215, 209, 0.3);
+        }
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .quickReviewForm .formBody .formActions {
+    flex-direction: column;
+    align-items: stretch;
+    .btnSubmit { width: 100%; justify-content: center; }
   }
 }

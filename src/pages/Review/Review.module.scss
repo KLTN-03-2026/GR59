@@ -16,6 +16,7 @@ $white: #ffffff;
 .reviewIntro {
   text-align: center;
   margin-bottom: 60px;
+  margin-top: 100px;
 
   .reviewTitle {
     font-size: 1.75rem;
@@ -162,6 +163,7 @@ $white: #ffffff;
       line-height: 1.4;
       resize: none;
       transition: all 0.2s;
+      color: black;
 
       &:focus {
         outline: none;

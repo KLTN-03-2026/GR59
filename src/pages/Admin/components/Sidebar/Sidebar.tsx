@@ -9,7 +9,8 @@ import {
   Users, 
   Gear, 
   SignOut,
-  Article
+  Article,
+  ChatCircleText
 } from "@phosphor-icons/react";
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {
     { id: 'hotels', label: 'Khách sạn', icon: Bed },
     { id: 'users', label: 'Người dùng', icon: Users },
     { id: 'news', label: 'Bài viết', icon: Article },
+    { id: 'reviews', label: 'Đánh giá', icon: ChatCircleText },
     { id: 'settings', label: 'Cài đặt', icon: Gear },
   ];
 

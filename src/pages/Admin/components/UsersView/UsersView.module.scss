@@ -414,6 +414,20 @@ $slate-400: #94a3b8;
     background: #fef2f2;
     box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
   }
+
+  &.actionBtnSuccess:hover {
+    border-color: #10b981;
+    color: #10b981;
+    background: #ecfdf5;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
+  }
+
+  &.actionBtnWarning:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    background: #fffbeb;
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1);
+  }
 }
 
 .pagination {

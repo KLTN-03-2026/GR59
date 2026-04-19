@@ -6,6 +6,7 @@ import ProfileHeader from "./components/ProfileHeader/ProfileHeader";
 import ProfileTabs from "./components/ProfileTabs/ProfileTabs";
 import ProfileForm from "./components/ProfileForm/ProfileForm";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
+import UserReviews from "./components/UserReviews/UserReviews";
 import { getProfile, getSavedTrips } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
 import { anhmatdinh } from "../../assets/images/img";
@@ -13,6 +14,7 @@ import { anhmatdinh } from "../../assets/images/img";
 const Profile: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
+  const [activeTab, setActiveTab] = useState("info");
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
@@ -163,7 +165,7 @@ const Profile: React.FC = () => {
         </div>
 
         <div data-aos="fade-in" data-aos-delay="200">
-          <ProfileTabs />
+          <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
 
         <div className={styles.profileGrid}>
@@ -172,12 +174,24 @@ const Profile: React.FC = () => {
             data-aos="fade-up"
             data-aos-delay="400"
           >
-            <ProfileForm
-              title="Cập nhật thông tin"
-              mode="info"
-              profile={profile}
-            />
-            <ProfileForm title="Đổi mật khẩu" mode="password" />
+            {activeTab === "info" && (
+              <>
+                <ProfileForm
+                  title="Cập nhật thông tin"
+                  mode="info"
+                  profile={profile}
+                />
+                <ProfileForm title="Đổi mật khẩu" mode="password" />
+              </>
+            )}
+            {activeTab === "reviews" && <UserReviews />}
+            {activeTab === "security" && <ProfileForm title="Đổi mật khẩu" mode="password" />}
+            {activeTab === "trips" && (
+              <div className={styles.emptyTab}>
+                <h3>Lịch trình đã lưu</h3>
+                <p>Bạn có {savedTrips.length} lịch trình đã lưu. Xem chi tiết ở cột bên phải.</p>
+              </div>
+            )}
           </div>
 
           <aside

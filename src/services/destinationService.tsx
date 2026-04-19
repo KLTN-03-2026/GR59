@@ -144,25 +144,16 @@ export const mapBackendAttractionToFullDestination = (att: BackendAttraction): D
         ],
     services: [], // Sẽ được FE tự động lọc trong DestinationDetail
     reviewsData: {
-      average: att.rating,
+      average: att.rating || 0,
       total: att.reviewCount || 0,
       breakdown: [
-        { stars: 5, percentage: 80 },
-        { stars: 4, percentage: 15 },
-        { stars: 3, percentage: 5 },
+        { stars: 5, percentage: 0 },
+        { stars: 4, percentage: 0 },
+        { stars: 3, percentage: 0 },
         { stars: 2, percentage: 0 },
         { stars: 1, percentage: 0 },
       ],
-      list: [
-        {
-          user: "TravelAi User",
-          avatar: "https://i.pravatar.cc/150?u=attraction",
-          rating: 5,
-          date: "Vừa xong",
-          tag: "Khách tham quan",
-          content: "BE đang thiếu dữ liệu đánh giá chi tiết cho địa điểm tham quan.",
-        }
-      ],
+      list: [],
     },
     travelTips: DEFAULT_TRAVEL_TIPS,
     weatherCurrent: {

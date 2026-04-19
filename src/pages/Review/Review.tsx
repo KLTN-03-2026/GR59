@@ -3,8 +3,10 @@ import StarRating from "./component/StarRating";
 import styles from "./Review.module.scss";
 import { X, Camera, PaperPlaneTilt } from "@phosphor-icons/react";
 import AOS from "aos";
-import "aos/dist/aos.css"; // Đảm bảo đã import CSS của AOS
-import { getReviews, postReview, type ReviewItem } from "../../services/reviewService";
+import "aos/dist/aos.css"; 
+import { useLocation, useNavigate } from "react-router-dom";
+import { getReviews, createReview, type ReviewItem } from "../../services/reviewService";
+import { toast } from "react-toastify";
 
 const Review: React.FC = () => {
   // Khởi tạo AOS khi component mount
@@ -14,14 +16,15 @@ const Review: React.FC = () => {
       once: true, // Hiệu ứng chỉ chạy 1 lần khi scroll qua
     });
   }, []);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as { targetId?: string; targetType?: "HOTEL" | "RESTAURANT" | "ATTRACTION" } | null;
+
   // --- States ---
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
-  const [uploadedImages, setUploadedImages] = useState<string[]>([
-    "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80",
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80",
-    "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80",
-  ]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
 
   const [recentReviews, setRecentReviews] = useState<ReviewItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,31 +48,69 @@ const Review: React.FC = () => {
     fetchReviews();
   }, []);
 
-  // --- Handlers ---
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setSelectedFiles(prev => [...prev, ...files]);
+      
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setPreviews(prev => [...prev, ...newPreviews]);
+    }
+  };
+
   const handleRemoveImage = (index: number) => {
-    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      alert("Vui lòng chọn mức độ đánh giá sao!");
+      toast.warn("Vui lòng chọn mức độ đánh giá sao!");
       return;
     }
+    if (!comment.trim()) {
+      toast.warn("Vui lòng nhập nội dung đánh giá!");
+      return;
+    }
+
     try {
-      const res = await postReview({
+      // Lấy thông tin User từ localStorage
+      const userStr = localStorage.getItem("user");
+      if (!userStr) {
+        toast.error("Vui lòng đăng nhập để gửi đánh giá!");
+        navigate("/auth?mode=login");
+        return;
+      }
+      const user = JSON.parse(userStr);
+
+      const payload = {
+        userId: user.id,
         rating,
         comment,
-        images: uploadedImages,
-      });
-      if (res.data && res.data.status === 201) {
-        alert("Cảm ơn bạn đã gửi đánh giá! Ý kiến của bạn đã được ghi nhận.");
+        type: state?.targetType || "ATTRACTION",
+        hotelId: state?.targetType === "HOTEL" ? Number(state.targetId) : null,
+        restaurantId: state?.targetType === "RESTAURANT" ? Number(state.targetId) : null,
+        attractionId: state?.targetType === "ATTRACTION" ? Number(state.targetId) : null,
+      };
+
+      const res = await createReview(payload, selectedFiles);
+      
+      if (res.data && (res.data.status === 201 || res.data.status === 200)) {
+        toast.success("Cảm ơn bạn đã gửi đánh giá!");
         setRating(0);
         setComment("");
-        setUploadedImages([]);
+        setSelectedFiles([]);
+        setPreviews([]);
+        // Có thể navigate về trang trước hoặc tải lại danh sách
+        setTimeout(() => navigate(-1), 1500);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Lỗi khi gửi đánh giá:", err);
-      alert("Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại!");
+      const msg = err.response?.data?.message || "Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại!";
+      toast.error(msg);
     }
   };
 
@@ -149,10 +190,16 @@ const Review: React.FC = () => {
               <label className={styles.uploadBtn}>
                 <Camera size={24} weight="bold" />
                 <span>Tải ảnh lên</span>
-                <input type="file" hidden multiple accept="image/*" />
+                <input 
+                  type="file" 
+                  hidden 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleFileChange}
+                />
               </label>
 
-              {uploadedImages.map((img, index) => (
+              {previews.map((img, index) => (
                 <div
                   key={index}
                   className={styles.uploadThumb}
