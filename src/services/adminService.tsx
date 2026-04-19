@@ -61,13 +61,23 @@ export interface Destination {
 }
 
 export interface DbUser {
-  id: string;
-  username: string;
+  id: number;
   email: string;
-  password?: string;
-  role: string;
-  status: string;
+  fullName: string;
+  address: string | null;
+  phone: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  roleId: number;
+  roleName: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  googleId: string | null;
+  facebookId: string | null;
+  isGoogleLinked: boolean;
+  isFacebookLinked: boolean;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface DashboardStat {
@@ -184,12 +194,25 @@ export const removeRestaurant = (
 // Users
 export const fetchUsersList = (page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: DbUser[]; page: any }>>
-> => instance.get<BackendResponse<{ content: DbUser[]; page: any }>>(`/users?page=${page}&size=${size}`);
+> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<{ content: DbUser[]; page: any }>>(`/admin/users?page=${page}&size=${size}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
 
 export const removeUser = (
   id: string | number,
-): Promise<AxiosResponse<BackendResponse<unknown>>> =>
-  instance.delete<BackendResponse<unknown>>(`/users/${id}`);
+): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.delete<BackendResponse<unknown>>(`/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
 
 // Attractions (Địa điểm)
 export const fetchAttractionsList = (page = 0, size = 10): Promise<

@@ -24,7 +24,7 @@ import { postLogout } from "../../../services/userService";
 
 const Navbar: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     return !!token;
   });
   const [username, setUsername] = useState(() => {
@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
   // Kiểm tra trạng thái đăng nhập mỗi khi đường dẫn (location) thay đổi
   // 2. Cập nhật state khi chuyển hướng trang
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     const storedUsername = localStorage.getItem("username") || "Người dùng";
 
     const hasToken = !!token;

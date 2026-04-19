@@ -34,7 +34,7 @@ const DestinationDetail: React.FC = () => {
 
         // Kiểm tra Token cho trường hợp Khách sạn (yêu cầu từ BE)
         if (id) {
-          const token = localStorage.getItem("token");
+          const token = localStorage.getItem("accessToken");
           if (!token) {
             console.warn("Truy cập trang khách sạn yêu cầu đăng nhập.");
             navigate("/auth?mode=login");

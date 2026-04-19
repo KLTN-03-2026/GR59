@@ -32,7 +32,7 @@ const Home: React.FC = () => {
 
     const fetchUser = async () => {
       // 1. Kiểm tra trạng thái đăng nhập trước (ví dụ lấy token)
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       if (!token) {
         setUserName(null); // Đảm bảo gỡ tên nếu chưa đăng nhập
         return;

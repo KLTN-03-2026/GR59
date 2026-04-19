@@ -16,7 +16,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     NProgress.start();
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     
     // Debug log để kiểm tra token (Bạn có thể xóa sau khi xác nhận)
     // console.log(">>> Axios Intrecept Token:", token ? "Found" : "Not Found");
@@ -76,7 +76,7 @@ instance.interceptors.response.use(
             const data = res.data.data;
 
             // Cập nhật token mới vào storage
-            if (data.accessToken) localStorage.setItem("token", data.accessToken);
+            if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
             if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
 
             // Gắn token mới vào header của request cũ và chạy lại

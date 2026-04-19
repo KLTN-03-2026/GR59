@@ -79,7 +79,7 @@ const Planner: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (!token) {
       toast.error("Vui lòng đăng nhập để truy cập trang lập kế hoạch! 🛡️");
       navigate("/auth");

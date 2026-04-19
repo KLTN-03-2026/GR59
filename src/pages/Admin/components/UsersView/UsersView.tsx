@@ -59,39 +59,27 @@ const UsersView: React.FC = () => {
     }
   };
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return styles.bgEmerald;
-      case "BANNED":
-        return styles.bgRed;
-      default:
-        return styles.bgAmber;
-    }
+  const getStatusStyle = (isActive: boolean) => {
+    return isActive ? styles.bgEmerald : styles.bgAmber;
   };
 
-  const StatusIcon = ({ status }: { status: string }) => {
-    if (status === "ACTIVE") return <CheckCircle size={13} weight="fill" />;
-    if (status === "BANNED") return <XCircle size={13} weight="fill" />;
+  const StatusIcon = ({ isActive }: { isActive: boolean }) => {
+    if (isActive) return <CheckCircle size={13} weight="fill" />;
     return <Clock size={13} weight="fill" />;
   };
 
-  const statusLabel: Record<string, string> = {
-    ACTIVE: "Hoạt động",
-    BANNED: "Bị chặn",
-    INACTIVE: "Không hoạt động",
-  };
+  const getStatusLabel = (isActive: boolean) => isActive ? "Hoạt động" : "Không hoạt động";
 
   // ─── Filtered & Paginated ────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let list = [...users];
     if (activeRoleFilter !== "All")
-      list = list.filter((u) => u.role === activeRoleFilter);
+      list = list.filter((u) => u.roleName === activeRoleFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
         (u) =>
-          (u.username || "").toLowerCase().includes(q) ||
+          (u.fullName || "").toLowerCase().includes(q) ||
           (u.email || "").toLowerCase().includes(q),
       );
     }
@@ -101,7 +89,7 @@ const UsersView: React.FC = () => {
   const totalPages = pagination.totalPages || 1;
   const paged = filtered;
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm("Bạn có chắc muốn xóa người dùng này?")) return;
     try {
       await deleteRecord("users", id);
@@ -149,7 +137,7 @@ const UsersView: React.FC = () => {
           value={
             loading
               ? "..."
-              : String(users.filter((u) => u.status === "ACTIVE").length)
+              : String(users.filter((u) => u.isActive).length)
           }
           footerText="Trong 30 ngày qua"
           icon="UserCheck"
@@ -164,11 +152,11 @@ const UsersView: React.FC = () => {
           colorClass="bgAmber"
         />
         <StatCard
-          label="BỊ CHẶN"
+          label="KHÔNG HOẠT ĐỘNG"
           value={
             loading
               ? "..."
-              : String(users.filter((u) => u.status === "BANNED").length)
+              : String(users.filter((u) => !u.isActive).length)
           }
           trend="-4% tháng trước"
           trendUp={false}
@@ -198,8 +186,8 @@ const UsersView: React.FC = () => {
             >
               Quyền Admin
             </button>
-            <button className={styles.tab} title="Xem người dùng bị chặn">
-              Bị chặn ({users.filter((u) => u.status === "BANNED").length})
+            <button className={styles.tab} title="Xem người dùng không hoạt động">
+              Không hoạt động ({users.filter((u) => !u.isActive).length})
             </button>
           </div>
         </div>
@@ -268,11 +256,11 @@ const UsersView: React.FC = () => {
                   <td>
                     <div className={styles.infoCol}>
                       <img
-                        src={`https://i.pravatar.cc/100?u=${user.id}`}
+                        src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`}
                         alt=""
                       />
                       <div className={styles.textInfo}>
-                        <p>{user.username}</p>
+                        <p>{user.fullName}</p>
                         <div className={styles.emailBox}>
                           <Envelope size={12} color="#cbd5e1" />
                           <span>{user.email}</span>
@@ -282,17 +270,17 @@ const UsersView: React.FC = () => {
                   </td>
                   <td>
                     <span
-                      className={`${styles.badge} ${getRoleStyle(user.role)}`}
+                      className={`${styles.badge} ${getRoleStyle(user.roleName)}`}
                     >
-                      {user.role}
+                      {user.roleName}
                     </span>
                   </td>
                   <td>
                     <span
-                      className={`${styles.badge} ${getStatusStyle(user.status)}`}
+                      className={`${styles.badge} ${getStatusStyle(user.isActive)}`}
                     >
-                      <StatusIcon status={user.status} />
-                      {statusLabel[user.status]}
+                      <StatusIcon isActive={user.isActive} />
+                      {getStatusLabel(user.isActive)}
                     </span>
                   </td>
                   <td>

@@ -88,7 +88,7 @@ const Hero: React.FC<HeroProps> = ({ userName }) => {
   }, []);
 
   const checkAuth = () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (!token) {
       toast.warn("Vui lòng đăng nhập để bắt đầu hành trình của bạn! 👋");
       navigate("/auth");

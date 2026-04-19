@@ -49,7 +49,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
       if (res.data && res.data.status === 200 && res.data.data) {
         const data = res.data.data;
         const user = data.user;
-        if (data.accessToken) localStorage.setItem("token", data.accessToken);
+        if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
         if (data.refreshToken)
           localStorage.setItem("refreshToken", data.refreshToken);
         localStorage.setItem("user", JSON.stringify(user));
@@ -87,7 +87,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
       if (response.data && response.data.status === 200 && response.data.data) {
         const data = response.data.data;
         const user = data.user;
-        if (data.accessToken) localStorage.setItem("token", data.accessToken);
+        if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
         if (data.refreshToken)
           localStorage.setItem("refreshToken", data.refreshToken);
         localStorage.setItem("user", JSON.stringify(user));
@@ -151,7 +151,7 @@ const Login: React.FC<Props> = ({ onToggle }) => {
                   const data = res.data.data;
                   const user = data.user;
                   if (data.accessToken)
-                    localStorage.setItem("token", data.accessToken);
+                    localStorage.setItem("accessToken", data.accessToken);
                   if (data.refreshToken)
                     localStorage.setItem("refreshToken", data.refreshToken);
                   localStorage.setItem("user", JSON.stringify(user));

@@ -45,7 +45,7 @@ const Register: React.FC<Props> = ({ onToggle }) => {
 
   // Helper function to save tokens and user data
   const saveAuthData = (data: AuthResponseData) => {
-    if (data.accessToken) localStorage.setItem("token", data.accessToken);
+    if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
     if (data.refreshToken)
       localStorage.setItem("refreshToken", data.refreshToken);
 
