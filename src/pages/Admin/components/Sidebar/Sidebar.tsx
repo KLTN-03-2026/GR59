@@ -8,7 +8,8 @@ import {
   Bed, 
   Users, 
   Gear, 
-  SignOut 
+  SignOut,
+  Article
 } from "@phosphor-icons/react";
 
 interface SidebarProps {
@@ -23,6 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {
     { id: 'restaurants', label: 'Nhà hàng', icon: ForkKnife },
     { id: 'hotels', label: 'Khách sạn', icon: Bed },
     { id: 'users', label: 'Người dùng', icon: Users },
+    { id: 'news', label: 'Bài viết', icon: Article },
     { id: 'settings', label: 'Cài đặt', icon: Gear },
   ];
 

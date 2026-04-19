@@ -9,6 +9,7 @@ import DestinationsView from './components/DestinationsView/DestinationsView';
 import HotelsView from './components/HotelsView/HotelsView';
 import RestaurantsView from './components/RestaurantsView/RestaurantsView';
 import UsersView from './components/UsersView/UsersView';
+import NewsView from './components/NewsView/NewsView';
 import SettingsView from './components/SettingsView/SettingsView';
 import { AnimatePresence, motion } from 'framer-motion';
 import AOS from 'aos';
@@ -78,6 +79,8 @@ const AdminDashboard: React.FC = () => {
         return <RestaurantsView />;
       case 'users':
         return <UsersView />;
+      case 'news':
+        return <NewsView />;
       case 'settings':
         return <SettingsView />;
       default:
@@ -99,6 +102,7 @@ const AdminDashboard: React.FC = () => {
       hotels: 'Khách sạn',
       restaurants: 'Nhà hàng',
       users: 'Người dùng',
+      news: 'Bài viết',
       settings: 'Cài đặt',
     };
     return titles[activeView] || 'Hệ thống';

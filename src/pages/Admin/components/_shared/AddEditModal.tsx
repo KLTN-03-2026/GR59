@@ -16,7 +16,7 @@ interface AddEditModalProps {
   onClose: () => void;
   onSave: (data: any) => void;
   title: string;
-  type: 'destination' | 'hotel' | 'restaurant' | 'user';
+  type: 'destination' | 'hotel' | 'restaurant' | 'user' | 'news';
   initialData?: any;
 }
 
@@ -65,7 +65,11 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
         roleId: initialData.roleId || 2,
         isEmailVerified: initialData.isEmailVerified ?? false,
         isActive: initialData.isActive ?? true,
-        password: ''
+        password: '',
+        // News fields
+        content: initialData.content || '',
+        isFeatured: initialData.isFeatured ?? false,
+        readTime: initialData.readTime || '5 phút đọc'
       };
       setFormData(unifiedData);
     } else {
@@ -266,6 +270,21 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
       return;
     }
 
+    if (type === 'news') {
+      const newsData = {
+        title: finalData.name,
+        excerpt: finalData.description,
+        content: finalData.content,
+        image: finalData.imageUrl,
+        category: finalData.category,
+        date: initialData?.date || new Date().toISOString().split('T')[0],
+        readTime: finalData.readTime,
+        isFeatured: finalData.isFeatured === true || finalData.isFeatured === 'true'
+      };
+      onSave(newsData);
+      return;
+    }
+
     onSave(finalData);
   };
 
@@ -274,6 +293,115 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ isOpen, onClose, onSave, ti
   const mainImageUrl = type === 'hotel' 
     ? formData.imageUrl 
     : (type === 'destination' ? (formData.img || formData.heroImage) : formData.image);
+
+  // News Layout
+  if (type === 'news') {
+    return (
+      <div className={styles.modalOverlay}>
+        <motion.div 
+          className={`${styles.modalContent} ${styles.largeModal}`}
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+        >
+          <div className={styles.modalHeader}>
+            <div className={styles.headerTitle}>
+              <div className={styles.headerIcon} style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                <Article size={24} weight="fill" />
+              </div>
+              <div>
+                <h3>{title}</h3>
+                <p>Soạn thảo nội dung bài viết mới</p>
+              </div>
+            </div>
+            <button className={styles.closeBtn} onClick={onClose}><X size={24} /></button>
+          </div>
+
+          <div className={styles.modalBody}>
+            <div className={styles.formGrid}>
+              <div className={styles.formSection}>
+                <div className={styles.sectionHeader}>
+                  <Info size={20} weight="bold" />
+                  <h4>Thông tin cơ bản</h4>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Tiêu đề bài viết</label>
+                  <input type="text" name="name" value={formData.name || ''} onChange={handleChange} placeholder="VD: 10 Địa điểm không thể bỏ qua tại Đà Nẵng..." />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Tóm tắt bài viết</label>
+                  <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder="Mô tả ngắn gọn về nội dung bài viết..."></textarea>
+                </div>
+                <div className={styles.row}>
+                  <div className={styles.inputGroup}>
+                    <CustomSelect 
+                      label="Chuyên mục"
+                      options={[
+                        { value: 'Điểm đến', label: 'Điểm đến' },
+                        { value: 'Ẩm thực', label: 'Ẩm thực' },
+                        { value: 'Mẹo du lịch', label: 'Mẹo du lịch' },
+                        { value: 'Sự kiện', label: 'Sự kiện' }
+                      ]}
+                      value={formData.category || 'Điểm đến'}
+                      onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label>Thời gian đọc</label>
+                    <input type="text" name="readTime" value={formData.readTime || ''} onChange={handleChange} placeholder="VD: 5 phút đọc" />
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.formSection}>
+                <div className={styles.sectionHeader}>
+                  <ImageIcon size={20} weight="bold" />
+                  <h4>Hình ảnh & Trạng thái</h4>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Ảnh bìa bài viết (URL)</label>
+                  <div className={styles.imageUploadArea}>
+                    <input type="text" name="imageUrl" value={formData.imageUrl || ''} onChange={handleChange} placeholder="https://images.unsplash.com/..." />
+                  </div>
+                </div>
+                <div className={styles.inputGroup}>
+                  <CustomSelect 
+                    label="Bài viết nổi bật"
+                    options={[
+                      { value: true, label: 'Có, đặt làm nổi bật', icon: <Star size={18} weight="fill" color="#f59e0b" /> },
+                      { value: false, label: 'Không, bài viết thường', icon: <Article size={18} /> }
+                    ]}
+                    value={formData.isFeatured ?? false}
+                    onChange={(val) => setFormData((prev: any) => ({ ...prev, isFeatured: val }))}
+                  />
+                </div>
+              </div>
+
+              <div className={`${styles.formSection} ${styles.fullWidth}`}>
+                <div className={styles.sectionHeader}>
+                  <Article size={20} weight="bold" />
+                  <h4>Nội dung bài viết</h4>
+                </div>
+                <div className={styles.inputGroup}>
+                  <textarea 
+                    name="content" 
+                    value={formData.content || ''} 
+                    onChange={handleChange} 
+                    placeholder="Viết nội dung bài viết tại đây..."
+                    style={{ minHeight: '300px' }}
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.modalFooter}>
+            <button className={styles.btnCancel} onClick={onClose}>Hủy bỏ</button>
+            <button className={styles.btnSave} onClick={handleSaveInternal}>Lưu bài viết</button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence>

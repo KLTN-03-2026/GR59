@@ -9,7 +9,8 @@ export type {
   DashboardStat, 
   RecentActivity, 
   PopularLocation,
-  Destination 
+  Destination,
+  NewsItem
 } from '../../../services/adminService';
 
 // ─── Generic hook ─────────────────────────────────────────────────────────────
@@ -101,6 +102,10 @@ export const useDestinations = () => useCollection<adminService.Destination>((pa
   return adminService.fetchAttractionsList(page, size);
 });
 
+export const useNews = () => useCollection<adminService.NewsItem>((page, size) => {
+  return adminService.fetchNewsList(page, size);
+});
+
 // ─── CRUD helpers (delegating to adminService) ────────────────────────────────
 
 export const deleteRecord = async (endpoint: string, id: string | number): Promise<void> => {
@@ -109,6 +114,7 @@ export const deleteRecord = async (endpoint: string, id: string | number): Promi
     case 'restaurants': return (await adminService.removeRestaurant(id)).data as any;
     case 'users': return (await adminService.removeUser(id)).data as any;
     case 'attractions': return (await adminService.removeAttraction(id)).data as any;
+    case 'news': return (await adminService.removeNews(id)).data as any;
     default: throw new Error(`Endpoint ${endpoint} không hỗ trợ xóa`);
   }
 };
@@ -123,6 +129,8 @@ export const updateRecord = async <T>(endpoint: string, id: string | number, dat
     response = await adminService.updateAttraction(id, data);
   } else if (endpoint === 'users') {
     response = await adminService.updateUser(id, data);
+  } else if (endpoint === 'news') {
+    response = await adminService.updateNews(id, data);
   } else {
     throw new Error(`Endpoint ${endpoint} không hỗ trợ cập nhật`);
   }
@@ -139,6 +147,8 @@ export const createRecord = async <T>(endpoint: string, data: Omit<T, 'id'>): Pr
     response = await adminService.createAttraction(data as any);
   } else if (endpoint === 'users') {
     response = await adminService.createUser(data);
+  } else if (endpoint === 'news') {
+    response = await adminService.createNews(data);
   } else {
     throw new Error(`Endpoint ${endpoint} không hỗ trợ tạo mới`);
   }

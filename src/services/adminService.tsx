@@ -111,6 +111,20 @@ export interface PopularLocation {
   color: string;
 }
 
+export interface NewsItem {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  category: string;
+  date: string;
+  readTime: string;
+  isFeatured: boolean;
+  authorId?: number;
+  authorName?: string;
+}
+
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
@@ -333,6 +347,29 @@ export const fetchAttractionDetail = (
   id: string | number,
 ): Promise<AxiosResponse<BackendResponse<Destination>>> =>
   instance.get<BackendResponse<Destination>>(`/attractions/${id}`);
+
+
+
+// News / Posts
+export const fetchNewsList = (page = 0, size = 10): Promise<
+  AxiosResponse<BackendResponse<{ content: NewsItem[]; page: any }>>
+> => instance.get<BackendResponse<{ content: NewsItem[]; page: any }>>(`/news?page=${page}&size=${size}`);
+
+export const createNews = (
+  data: any,
+): Promise<AxiosResponse<BackendResponse<NewsItem>>> =>
+  instance.post<BackendResponse<NewsItem>>("/news", data);
+
+export const updateNews = (
+  id: string | number,
+  data: any,
+): Promise<AxiosResponse<BackendResponse<NewsItem>>> =>
+  instance.put<BackendResponse<NewsItem>>(`/news/${id}`, data);
+
+export const removeNews = (
+  id: string | number,
+): Promise<AxiosResponse<BackendResponse<unknown>>> =>
+  instance.delete<BackendResponse<unknown>>(`/news/${id}`);
 
 
 export const uploadAdminImage = async (
