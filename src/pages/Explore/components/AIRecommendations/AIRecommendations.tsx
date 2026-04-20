@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./AIRecommendations.module.scss";
 import { getAIRecommendations, type AIRecommendation } from "../../../../services/aiRecommendationService";
+import AnimatedButton from "../../../../components/Ui/AnimatedButton/AnimatedButton";
 
 const AIRecommendations: React.FC = () => {
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
@@ -26,9 +27,7 @@ const AIRecommendations: React.FC = () => {
           <span className={styles.aiIcon}>✨</span>
           <h3>Gợi ý thông minh cho Qlong</h3>
         </div>
-        <button className={styles.viewAllBtn}>
-          Xem tất cả <span>→</span>
-        </button>
+        <AnimatedButton text="XEM TẤT CẢ" />
       </div>
       <div className={styles.scrollWrapper}>
         {recommendations.map((item) => (

@@ -33,10 +33,7 @@ $dark: #1a1717;
     }
 
     .btnExplore {
-      background: #33d7d1;
-      color: white;
-      transform: scale(1.05);
-      svg { transform: translateX(4px); }
+      // Handled by AnimatedButton
     }
   }
 
@@ -97,7 +94,7 @@ $dark: #1a1717;
       color: white;
       text-transform: uppercase;
       backdrop-filter: blur(8px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(172, 171, 171, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       align-items: center;
@@ -110,16 +107,20 @@ $dark: #1a1717;
         border-radius: 50%;
         background: white;
         box-shadow: 0 0 8px white;
+        color: white;
       }
 
       &.active, &.open {
-        background: rgba(16, 185, 129, 0.85);
+        background: rgba(255, 255, 255, 0.4);
+        &::before { background: #020202; box-shadow: 0 0 8px #f9f9f9; }
       }
       &.maintenance {
-        background: rgba(245, 158, 11, 0.85);
+        background: rgba(255, 255, 255, 0.4);
+        &::before { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
       }
       &.closed {
-        background: rgba(239, 68, 68, 0.85);
+        background: rgba(255, 255, 255, 0.4);
+        &::before { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
       }
     }
   }
@@ -128,14 +129,16 @@ $dark: #1a1717;
     position: absolute;
     top: 55px;
     left: 16px;
-    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    background: rgba(255, 65, 108, 0.7);
+    backdrop-filter: blur(8px);
     color: white;
     padding: 3px 10px;
     border-radius: 8px;
     font-size: 0.6rem;
     font-weight: 900;
     z-index: 10;
-    box-shadow: 0 4px 10px rgba(255, 75, 43, 0.3);
+    box-shadow: 0 4px 10px rgba(255, 75, 43, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     letter-spacing: 0.05em;
   }
 
@@ -319,20 +322,7 @@ $dark: #1a1717;
       }
 
       .btnExplore {
-        background: #1e293b;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 14px;
-        font-size: 0.8rem;
-        font-weight: 800;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        svg { transition: transform 0.4s ease; }
+        // Handled by AnimatedButton
       }
     }
   }

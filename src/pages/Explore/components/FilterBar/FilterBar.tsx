@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './FilterBar.module.scss';
 import { CaretDown } from "@phosphor-icons/react";
+import ThreeDSearchInput from '../../../../components/Ui/ThreeDSearchInput/ThreeDSearchInput';
 
 interface FilterBarProps {
   searchTerm: string;
@@ -169,15 +170,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div className={styles.filterBar}>
       <div className={styles.searchSide}>
-        <div className={styles.inputGroup}>
-          <span className={styles.searchIcon}>🔍</span>
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm địa điểm, món ăn..." 
-            value={searchTerm}
-            onChange={onSearchChange}
-          />
-        </div>
+        <ThreeDSearchInput 
+          value={searchTerm} 
+          onChange={onSearchChange} 
+          placeholder="Tìm kiếm địa điểm, món ăn..." 
+        />
       </div>
       
       <div className={styles.selectSide}>

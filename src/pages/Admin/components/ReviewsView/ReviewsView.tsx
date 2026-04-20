@@ -27,6 +27,7 @@ import * as adminService from "../../../../services/adminService";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import DetailModal from "../_shared/DetailModal";
 import ProtectedImage from "../../../../components/ProtectedImage/ProtectedImage";
+import ThreeDSearchInput from "../../../../components/Ui/ThreeDSearchInput/ThreeDSearchInput";
 import { toast } from "react-toastify";
 
 const PAGE_SIZE = 10;
@@ -173,22 +174,12 @@ const ReviewsView: React.FC = () => {
       <motion.div variants={rowVariants} className={styles.filterSection}>
         <div className={styles.filterRow}>
           <div className={styles.searchGroup}>
-            <MagnifyingGlass size={18} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm theo tên người dùng hoặc nội dung..."
-              value={search}
+            <ThreeDSearchInput 
+              value={search} 
               onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm theo tên người dùng hoặc nội dung..."
+              className={styles.adminSearchInput}
             />
-            {search && (
-              <button 
-                className={styles.clearSearchBtn} 
-                onClick={() => setSearch("")}
-                title="Xóa tìm kiếm"
-              >
-                <X size={16} weight="bold" />
-              </button>
-            )}
           </div>
           <select
             className={styles.selectPill}

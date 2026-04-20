@@ -7,9 +7,9 @@ $border-color: #eee;
 $max-width: 1200px;
 
 .explorePage {
-  background: radial-gradient(circle at top right, #f0fbfb 0%, $bg-color 60%);
+  background: #ffffff;
   min-height: 100vh;
-  padding-bottom: 60px; // Tạo khoảng cách ở cuối trang
+  padding-bottom: 60px;
 }
 
 .mainContainer {

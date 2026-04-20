@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { useNews, deleteRecord, updateRecord, createRecord, toggleNewsFeatured } from "../../hooks/useAdminData";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import AddEditModal from "../_shared/AddEditModal";
+import ThreeDSearchInput from "../../../../components/Ui/ThreeDSearchInput/ThreeDSearchInput";
 import { toast } from "react-toastify";
 
 const PAGE_SIZE = 10;
@@ -167,22 +168,12 @@ const NewsView: React.FC = () => {
       <motion.div variants={rowVariants} className={styles.filterSection}>
         <div className={styles.filterRow}>
           <div className={styles.searchGroup}>
-            <MagnifyingGlass size={18} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm theo tiêu đề hoặc nội dung..."
-              value={search}
+            <ThreeDSearchInput 
+              value={search} 
               onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm theo tiêu đề hoặc nội dung..."
+              className={styles.adminSearchInput}
             />
-            {search && (
-              <button 
-                className={styles.clearSearchBtn} 
-                onClick={() => setSearch("")}
-                title="Xóa tìm kiếm"
-              >
-                <X size={16} weight="bold" />
-              </button>
-            )}
           </div>
           <select
             className={styles.selectPill}

@@ -217,6 +217,15 @@ $slate-400: #94a3b8;
   }
 }
 
+.adminSearchInput {
+  width: 100%;
+  max-width: 500px;
+  
+  :global(.SearchInput_input__H7T9i) { // Optional: override if needed
+     height: 48px;
+  }
+}
+
 .tableContainer {
   background: white;
   border-radius: 2rem;

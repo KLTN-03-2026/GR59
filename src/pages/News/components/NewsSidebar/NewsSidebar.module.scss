@@ -26,36 +26,8 @@ $lightText: #718096;
   }
 }
 
-.searchBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #fff;
-  padding: 14px 20px;
-  border-radius: 16px;
-  border: 1px solid #edf2f7;
-  transition: all 0.3s;
-
-  &:focus-within {
-    border-color: $primary;
-    box-shadow: 0 4px 15px rgba($primary, 0.1);
-  }
-
-  input {
-    border: none;
-    outline: none;
-    background: transparent;
-    width: 100%;
-    font-size: 15px;
-    font-weight: 500;
-    color: $dark;
-
-    &::placeholder {
-      color: #a0aec0;
-    }
-  }
-
-  color: #a0aec0;
+.searchSection {
+  margin-bottom: 20px;
 }
 
 .trendingList {

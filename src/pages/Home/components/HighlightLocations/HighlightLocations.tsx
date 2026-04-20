@@ -12,6 +12,7 @@ import {
   Fire,
 } from "phosphor-react";
 import styles from "./HighlightLocations.module.scss";
+import AnimatedButton from "../../../../components/Ui/AnimatedButton/AnimatedButton";
 import {
   getHighlightLocations,
   getHighlightRestaurants,
@@ -266,7 +267,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                           <MapPin size={14} weight="fill" /> {item.location}
                         </div>
                         <div className={styles.viewDetail}>
-                          Xem thêm <ArrowRight size={16} weight="bold" />
+                          <AnimatedButton text="XEM THÊM" size="mini" />
                         </div>
                       </div>
                     </div>
@@ -282,32 +283,18 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
         </div>
 
         <div className={styles.locationsAction} data-aos="fade-up">
-          <button
-            className={styles.btnOutlineBlue}
+          <AnimatedButton 
             onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? (
-              <>Thu Gọn Danh Sách</>
-            ) : (
-              <>
-                Xem Tất Cả{" "}
-                {activeTab === "all" 
-                  ? "Tất Cả Gợi Ý"
-                  : activeTab === "locations"
-                    ? "Địa Điểm"
-                    : activeTab === "hotels"
-                      ? "Khách Sạn"
-                      : "Quán Ăn"}
-              </>
-            )}
-            <ArrowRight
-              weight="bold"
-              style={{
-                transform: isExpanded ? "rotate(-90deg)" : "rotate(0deg)",
-                transition: "transform 0.3s ease",
-              }}
-            />
-          </button>
+            text={isExpanded ? "THU GỌN" : `XEM TẤT CẢ ${
+              activeTab === "all" 
+                ? "GỢI Ý" 
+                : activeTab === "locations" 
+                  ? "ĐỊA ĐIỂM" 
+                  : activeTab === "hotels" 
+                    ? "KHÁCH SẠN" 
+                    : "QUÁN ĂN"
+            }`}
+          />
         </div>
       </div>
     </section>

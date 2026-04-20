@@ -1,6 +1,7 @@
 import React from "react";
 import { Heart, Star, MapPin, Play, X, ArrowRight } from "@phosphor-icons/react";
 import styles from "./TravelCard.module.scss";
+import AnimatedButton from "../../../../components/Ui/AnimatedButton/AnimatedButton";
 
 interface Props {
   image: string;
@@ -163,12 +164,11 @@ const TravelCard: React.FC<Props> = ({
               </button>
             )}
           </div>
-          <button className={styles.btnExplore} onClick={(e) => {
-            e.stopPropagation();
-            if (onDetail) onDetail();
-          }}>
-            Chi tiết <ArrowRight size={18} weight="bold" />
-          </button>
+          <AnimatedButton 
+            text="CHI TIẾT" 
+            size="mini" 
+            onClick={onDetail}
+          />
         </div>
       </div>
     </div>

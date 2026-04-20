@@ -22,6 +22,8 @@ import { useDbUsers, deleteRecord, updateRecord, createRecord } from "../../hook
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import DetailModal from "../_shared/DetailModal";
 import AddEditModal from "../_shared/AddEditModal";
+import ProtectedImage from "../../../../components/ProtectedImage/ProtectedImage";
+import ThreeDSearchInput from "../../../../components/Ui/ThreeDSearchInput/ThreeDSearchInput";
 import { toast } from "react-toastify";
 
 const PAGE_SIZE = 10;
@@ -257,28 +259,15 @@ const UsersView: React.FC = () => {
         <div className={styles.filterRow}>
           <span className={styles.filterLabel}>Tìm:</span>
           <div className={styles.searchGroup}>
-            <MagnifyingGlass size={18} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm theo tên hoặc địa chỉ email..."
-              value={search}
+            <ThreeDSearchInput 
+              value={search} 
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
+              placeholder="Tìm theo tên hoặc địa chỉ email..."
+              className={styles.adminSearchInput}
             />
-            {search && (
-              <button 
-                className={styles.clearSearchBtn} 
-                onClick={() => {
-                  setSearch("");
-                  setPage(1);
-                }}
-                title="Xóa tìm kiếm"
-              >
-                <X size={16} weight="bold" />
-              </button>
-            )}
           </div>
           <select
             className={styles.selectPill}

@@ -187,8 +187,7 @@
     }
 
     .viewDetail {
-      color: #33d7d1;
-      svg { transform: translateX(5px); }
+      // Button handles its own hover
     }
   }
 }
@@ -239,8 +238,8 @@
   z-index: 10;
 
   .ribbon {
-    width: 40px;
-    height: 44px;
+    width: 44px;
+    height: 48px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -251,31 +250,34 @@
     line-height: 1.1;
     color: white;
     text-transform: uppercase;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: none;
     white-space: pre-line;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
     &::after {
       content: "";
       position: absolute;
-      left: 0;
-      bottom: -10px;
+      left: -1px;
+      bottom: -11px;
       width: 0;
       height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
+      border-left: 22px solid transparent;
+      border-right: 22px solid transparent;
     }
 
     &.active, &.open {
-      background: #10b981;
-      &::after { border-top: 10px solid #10b981; }
+      background: rgba(255, 255, 255, 0.4);
+      &::after { border-top: 11px solid rgba(16, 185, 129, 0.8); }
     }
     &.maintenance {
-      background: #f59e0b;
-      &::after { border-top: 10px solid #f59e0b; }
+      background: rgba(255, 255, 255, 0.4);
+      &::after { border-top: 11px solid rgba(245, 158, 11, 0.8); }
     }
     &.closed {
-      background: #ef4444;
-      &::after { border-top: 10px solid #ef4444; }
+      background: rgba(255, 255, 255, 0.4);
+      &::after { border-top: 11px solid rgba(239, 68, 68, 0.8); }
     }
   }
 }
@@ -398,13 +400,7 @@
   .viewDetail {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #0f172a;
     transition: all 0.3s ease;
-
-    svg { transition: transform 0.3s ease; }
   }
 }
 

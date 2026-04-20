@@ -4,6 +4,8 @@ import { MagnifyingGlass, TrendUp,  } from "@phosphor-icons/react";
 import styles from './NewsSidebar.module.scss';
 import type { NewsItem } from '../../types';
 
+import ThreeDSearchInput from '../../../../components/Ui/ThreeDSearchInput/ThreeDSearchInput';
+
 interface Props {
   trendingNews: NewsItem[];
   categories: string[];
@@ -14,22 +16,14 @@ interface Props {
 
 const NewsSidebar: React.FC<Props> = ({ 
   trendingNews, 
- 
   onSearch 
 }) => {
   const navigate = useNavigate();
   return (
     <aside className={styles.sidebar}>
       {/* Search Bar */}
-      <div className={styles.section}>
-        <div className={styles.searchBox}>
-          <MagnifyingGlass size={20} weight="bold" />
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm tin tức..." 
-            onChange={(e) => onSearch(e.target.value)}
-          />
-        </div>
+      <div className={styles.searchSection}>
+        <ThreeDSearchInput onChange={(e) => onSearch(e.target.value)} />
       </div>
 
       {/* Trending News */}

@@ -143,7 +143,8 @@ $accent-light-alpha: rgba(255, 255, 255, 0.8);
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #33d7d1;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   animation: blink 1.6s ease-in-out infinite;
 }
 
