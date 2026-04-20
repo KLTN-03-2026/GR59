@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import styles from "./Explore.module.scss";
 import VideoHome from "../../assets/video/Da_Nang.mp4";
@@ -27,6 +24,7 @@ import {
   removeSavedTrip,
   type SavedTrip,
 } from "../../services/profileService";
+import { getCache, setCache } from "../../utils/DataCache";
 
 const Explore: React.FC = () => {
   const [places, setPlaces] = useState<HighlightItem[]>([]);
@@ -43,58 +41,88 @@ const Explore: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const ITEMS_PER_PAGE = 6;
 
-  // Xử lý Debounce cho ô tìm kiếm
+  // Cơ chế để xử lý Race Condition (Chạy đua dữ liệu)
+  const lastRequestId = React.useRef(0);
+
+  // 1. Xử lý Debounce cho ô tìm kiếm
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const fetchPlaces = async () => {
+  // 2. Lấy danh sách yêu thích một lần duy nhất khi vào trang
+  useEffect(() => {
+    const fetchSavedTrips = async () => {
+      try {
+        const savedRes = await getSavedTrips();
+        if (savedRes.data?.data) setSavedTrips(savedRes.data.data);
+      } catch (e) {
+        console.warn("Lỗi tải saved trips:", e);
+      }
+    };
+    fetchSavedTrips();
+  }, []);
+
+  // 3. Hàm fetch dữ liệu chính (Hotels, Restaurants, Attractions)
+  const fetchPlaces = useCallback(async () => {
+    const requestId = ++lastRequestId.current;
+    const cacheKey = `explore-${activeCategory}-${debouncedSearch}`;
+    const cachedData = getCache(cacheKey);
+
+    // Nếu đã có trong cache, hiển thị ngay lập tức và thoát (không hiện loading)
+    if (cachedData) {
+      setPlaces(cachedData);
+      setIsLoading(false);
+      setError(null);
+      return;
+    }
+
+    // Chỉ reset trạng thái và hiện loading khi KHÔNG có cache
     setIsLoading(true);
+    setPlaces([]);
+    setError(null);
+
+
     try {
       const isSearching = debouncedSearch.trim().length > 0;
-      const limit = 24; 
+      const limit = 8; 
       
       let hotelsRes, restaurantsRes, attractionsRes;
       
       if (activeCategory === "all") {
+        // Tối ưu cực độ: chỉ lấy 4 mục mỗi loại cho tab Tổng hợp
+        const allLimit = 4;
         [hotelsRes, restaurantsRes, attractionsRes] = await Promise.all([
-          isSearching ? getHotelsByKeyword(debouncedSearch, 0, limit) : getHotels(0, limit),
-          isSearching ? getHighlightRestaurantsByKeyword(debouncedSearch, 0, limit) : getHighlightRestaurants(),
-          isSearching ? getHighlightAttractionsByKeyword(debouncedSearch, 0, limit) : getHighlightLocations()
+          isSearching ? getHotelsByKeyword(debouncedSearch, 0, allLimit) : getHotels(0, allLimit),
+          isSearching ? getHighlightRestaurantsByKeyword(debouncedSearch, 0, allLimit) : getHighlightRestaurants(allLimit),
+          isSearching ? getHighlightAttractionsByKeyword(debouncedSearch, 0, allLimit) : getHighlightLocations(allLimit)
         ]);
       } else if (activeCategory === "bed") {
         hotelsRes = isSearching ? await getHotelsByKeyword(debouncedSearch, 0, limit) : await getHotels(0, limit);
       } else if (activeCategory === "food") {
-        restaurantsRes = isSearching ? await getHighlightRestaurantsByKeyword(debouncedSearch, 0, limit) : await getHighlightRestaurants();
+        restaurantsRes = isSearching ? await getHighlightRestaurantsByKeyword(debouncedSearch, 0, limit) : await getHighlightRestaurants(limit);
       } else if (activeCategory === "pin") {
-        attractionsRes = isSearching ? await getHighlightAttractionsByKeyword(debouncedSearch, 0, limit) : await getHighlightLocations();
+        attractionsRes = isSearching ? await getHighlightAttractionsByKeyword(debouncedSearch, 0, limit) : await getHighlightLocations(limit);
       }
+
+
+      // Kiểm tra race condition
+      if (requestId !== lastRequestId.current) return;
 
       let allItems: HighlightItem[] = [];
-
-      // 1. Xử lý Khách sạn
       if (hotelsRes?.data?.data) {
-        const hotelsData = hotelsRes.data.data;
-        const hContent = Array.isArray(hotelsData) ? hotelsData : (hotelsData as any).content;
+        const hContent = Array.isArray(hotelsRes.data.data) ? hotelsRes.data.data : (hotelsRes.data.data as any).content;
         if (Array.isArray(hContent)) allItems = [...allItems, ...hContent];
       }
-
-      // 2. Xử lý Nhà hàng
       if (restaurantsRes?.data?.data) {
-        const restaurantsData = restaurantsRes.data.data;
-        const rContent = Array.isArray(restaurantsData) ? restaurantsData : (restaurantsData as any).content;
+        const rContent = Array.isArray(restaurantsRes.data.data) ? restaurantsRes.data.data : (restaurantsRes.data.data as any).content;
         if (Array.isArray(rContent)) allItems = [...allItems, ...rContent];
       }
-
-      // 3. Xử lý Địa điểm
       if (attractionsRes?.data?.data) {
-        const attractionsData = attractionsRes.data.data;
-        const aContent = Array.isArray(attractionsData) ? attractionsData : (attractionsData as any).content;
+        const aContent = Array.isArray(attractionsRes.data.data) ? attractionsRes.data.data : (attractionsRes.data.data as any).content;
         if (Array.isArray(aContent)) allItems = [...allItems, ...aContent];
       }
 
-      // Đảm bảo ID duy nhất và loại bỏ item null
       const uniqueItems = allItems
         .filter(item => item && item.id)
         .map(item => ({
@@ -102,29 +130,33 @@ const Explore: React.FC = () => {
           uniqueId: `${item.type || 'unknown'}-${item.id}`
         }));
 
-      setPlaces(uniqueItems);
+      setCache(cacheKey, uniqueItems);
 
-      // Lấy danh sách yêu thích
-      try {
-        const savedRes = await getSavedTrips();
-        if (savedRes.data?.data) setSavedTrips(savedRes.data.data);
-      } catch (e) {
-        console.warn("Lỗi tải saved trips:", e);
+      if (activeCategory === "all" && !debouncedSearch) {
+        const hotels = uniqueItems.filter(i => i.type === "bed");
+        const foods = uniqueItems.filter(i => i.type === "food");
+        const pins = uniqueItems.filter(i => i.type === "pin");
+        if (hotels.length > 0) setCache("explore-bed-", hotels);
+        if (foods.length > 0) setCache("explore-food-", foods);
+        if (pins.length > 0) setCache("explore-pin-", pins);
       }
 
+      setPlaces(uniqueItems);
     } catch (err) {
-      console.error("Lỗi fetchPlaces:", err);
-      setError("Không thể tìm kiếm lúc này. Vui lòng thử lại sau.");
+      if (requestId === lastRequestId.current) {
+        console.error("Lỗi fetchPlaces:", err);
+        setError("Không thể tải dữ liệu lúc này.");
+      }
     } finally {
-      setIsLoading(false);
+      if (requestId === lastRequestId.current) {
+        setIsLoading(false);
+      }
     }
-  };
-
+  }, [debouncedSearch, activeCategory]);
 
   useEffect(() => {
     fetchPlaces();
-    AOS.init({ duration: 800, once: true });
-  }, [debouncedSearch, activeCategory]);
+  }, [fetchPlaces]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -133,64 +165,37 @@ const Explore: React.FC = () => {
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    setFilterSubCategory("all"); // Reset lọc chi tiết khi đổi tab chính
+    setFilterSubCategory("all");
     setCurrentPage(1);
   };
 
-  const filteredData = (places || [])
-    .filter((item) => {
-      // 1. Lọc theo danh mục chính (Tab: all, pin, bed, food)
-      const matchesMainCategory =
-        activeCategory === "all" || item.type === activeCategory;
-
-      // 2. Lọc theo danh mục chi tiết (Dropdown)
-      const itemCategory = item.category?.toUpperCase() || "";
-      const subCatUpper = filterSubCategory.toUpperCase();
-      
-      const matchesSubCategory = 
-        filterSubCategory === "all" || 
-        itemCategory === subCatUpper ||
-        itemCategory.includes(subCatUpper);
-
-      // 3. Lọc theo khu vực (Province ID)
-      const itemProvinceId = item.provinceId?.toString() || "0";
-      const matchesProvince = 
-        filterProvince === "all" || itemProvinceId === filterProvince;
-
-      // 4. Lọc theo khoảng giá (Cần kiểm tra kỹ giá trị số)
-      let matchesPrice = true;
-      const itemPrice = Number(item.price) || 0;
-
-      if (filterPriceRange === "budget") {
-        matchesPrice = itemPrice > 0 && itemPrice < 500000;
-      } else if (filterPriceRange === "mid") {
-        matchesPrice = itemPrice >= 500000 && itemPrice <= 2000000;
-      } else if (filterPriceRange === "luxury") {
-        matchesPrice = itemPrice > 2000000;
-      }
-
-      // Lưu ý: matchesSearch đã được xử lý ở tầng API (fetchPlaces)
-      return matchesMainCategory && matchesSubCategory && matchesProvince && matchesPrice;
-    })
-    .sort((a, b) => {
-      // Sắp xếp dữ liệu dựa trên rating hoặc giá
-      const ratingA = Number(a.rating) || 0;
-      const ratingB = Number(b.rating) || 0;
-      const priceA = Number(a.price) || 0;
-      const priceB = Number(b.price) || 0;
-
-      if (sortBy === "rating") return ratingB - ratingA;
-      if (sortBy === "priceAsc") return priceA - priceB;
-      if (sortBy === "priceDesc") return priceB - priceA;
-      return 0;
-    });
+  const filteredData = useMemo(() => {
+    return (places || [])
+      .filter((item) => {
+        const matchesMainCategory = activeCategory === "all" || item.type === activeCategory;
+        const itemCategory = item.category?.toUpperCase() || "";
+        const subCatUpper = filterSubCategory.toUpperCase();
+        const matchesSubCategory = filterSubCategory === "all" || itemCategory.includes(subCatUpper);
+        const itemProvinceId = item.provinceId?.toString() || "0";
+        const matchesProvince = filterProvince === "all" || itemProvinceId === filterProvince;
+        let matchesPrice = true;
+        const itemPrice = Number(item.price) || 0;
+        if (filterPriceRange === "budget") matchesPrice = itemPrice > 0 && itemPrice < 500000;
+        else if (filterPriceRange === "mid") matchesPrice = itemPrice >= 500000 && itemPrice <= 2000000;
+        else if (filterPriceRange === "luxury") matchesPrice = itemPrice > 2000000;
+        return matchesMainCategory && matchesSubCategory && matchesProvince && matchesPrice;
+      })
+      .sort((a, b) => {
+        if (sortBy === "rating") return (Number(b.rating) || 0) - (Number(a.rating) || 0);
+        if (sortBy === "priceAsc") return (Number(a.price) || 0) - (Number(b.price) || 0);
+        if (sortBy === "priceDesc") return (Number(b.price) || 0) - (Number(a.price) || 0);
+        return 0;
+      });
+  }, [places, activeCategory, filterProvince, filterPriceRange, filterSubCategory, sortBy]);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayedData = filteredData.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE,
-  );
+  const displayedData = useMemo(() => filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE), [filteredData, startIndex]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -198,181 +203,74 @@ const Explore: React.FC = () => {
   };
 
   const getPageNumbers = () => {
-    const delta = 1;
     const range = [];
-    for (
-      let i = Math.max(2, currentPage - delta);
-      i <= Math.min(totalPages - 1, currentPage + delta);
-      i++
-    ) {
-      range.push(i);
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) range.push(i);
+      else if (range[range.length - 1] !== "...") range.push("...");
     }
-
-    if (currentPage > 1 + delta + 1) {
-      range.unshift("...");
-    }
-    if (currentPage < totalPages - delta - 1) {
-      range.push("...");
-    }
-
-    range.unshift(1);
-    if (totalPages > 1) range.push(totalPages);
-
     return range;
   };
 
   const handleToggleLike = async (location: HighlightItem) => {
     const savedTrip = savedTrips.find((trip) => trip.id == location.id);
     const originalSavedTrips = [...savedTrips];
-
     if (savedTrip) {
-      // Optimistically remove
       setSavedTrips(savedTrips.filter((trip) => trip.id != location.id));
-      try {
-        await removeSavedTrip(savedTrip.id);
-      } catch (error) {
-        console.error("Lỗi khi bỏ lưu chuyến đi:", error);
-        // Revert on error
-        setSavedTrips(originalSavedTrips);
-      }
+      try { await removeSavedTrip(savedTrip.id); } catch { setSavedTrips(originalSavedTrips); }
     } else {
-      const newTrip: SavedTrip = {
-        id: location.id,
-        title: location.name,
-        image: location.image,
-        timeAgo: "Vừa xong",
-      };
-      // Optimistically add
+      const newTrip: SavedTrip = { id: location.id, title: location.name, image: location.image, timeAgo: "Vừa xong" };
       setSavedTrips([...savedTrips, newTrip]);
-      try {
-        await addSavedTrip(newTrip);
-      } catch (error) {
-        console.error("Lỗi khi lưu chuyến đi:", error);
-        // Revert on error
-        setSavedTrips(originalSavedTrips);
-      }
+      try { await addSavedTrip(newTrip); } catch { setSavedTrips(originalSavedTrips); }
     }
   };
 
   return (
     <div className={styles.explorePage}>
-      <div data-aos="fade-down">
-        <ExploreHero />
-      </div>
-
+      <div data-aos="fade-down"><ExploreHero /></div>
       <main className={styles.mainContainer}>
         <div data-aos="fade-up" data-aos-delay="200" className={styles.filterWrapper}>
-          <CategoryTabs
-            activeCategory={activeCategory}
-            onCategoryChange={handleCategoryChange}
-          />
+          <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
           <FilterBar
-            searchTerm={searchTerm}
-            activeTab={activeCategory}
-            onSearchChange={handleSearchChange}
+            searchTerm={searchTerm} activeTab={activeCategory} onSearchChange={handleSearchChange}
             onProvinceChange={(val) => { setFilterProvince(val); setCurrentPage(1); }}
             onCategoryChange={(val) => { setFilterSubCategory(val); setCurrentPage(1); }}
             onPriceRangeChange={(val) => { setFilterPriceRange(val); setCurrentPage(1); }}
             onSortChange={(val) => { setSortBy(val); setCurrentPage(1); }}
           />
         </div>
-
         <div className={styles.cardGrid}>
           {isLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={`skeleton-${i}`}>
-                <SkeletonCard />
-              </div>
-            ))
+            Array.from({ length: 6 }).map((_, i) => <div key={`skeleton-${i}`}><SkeletonCard /></div>)
           ) : error ? (
-            <div className={styles.errorState}>
-              <p>{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className={styles.retryBtn}
-              >
-                Thử lại
-              </button>
-            </div>
+            <div className={styles.errorState}><p>{error}</p><button onClick={() => fetchPlaces()} className={styles.retryBtn}>Thử lại</button></div>
           ) : displayedData.length > 0 ? (
             displayedData.map((location, index) => (
-              <div
-                key={location.uniqueId || location.id}
-                data-aos="fade-up"
-                data-aos-delay={index * 100}
-              >
+              <div key={location.uniqueId || location.id} data-aos="fade-up" data-aos-delay={index * 50}>
                 <TravelCard
-                  image={location.image}
-                  title={location.name}
-                  rating={Number(location.rating)}
-                  location={location.location}
-                  description={location.desc}
-                  isHot={location.isHot}
-                  previewVideo={location.previewVideo || VideoHome}
-                  isLiked={savedTrips.some((t) => t.id == location.id)}
-                  status={location.status}
-                  price={location.price}
-                  onToggleLike={() => handleToggleLike(location)}
+                  image={location.image} title={location.name} rating={Number(location.rating)}
+                  location={location.location} description={location.desc} isHot={location.isHot}
+                  previewVideo={location.previewVideo || VideoHome} isLiked={savedTrips.some((t) => t.id == location.id)}
+                  status={location.status} price={location.price} onToggleLike={() => handleToggleLike(location)}
                   onDetail={() => {
-                    const path = location.type === 'bed' 
-                      ? `/hotel/${location.id}` 
-                      : location.type === 'food' 
-                        ? `/restaurant/${location.id}` 
-                        : `/attraction/${location.id}`;
+                    const path = location.type === 'bed' ? `/hotel/${location.id}` : location.type === 'food' ? `/restaurant/${location.id}` : `/attraction/${location.id}`;
                     window.location.href = path;
                   }}
                 />
               </div>
             ))
-          ) : (
-            <div className={styles.noResults}>
-              <p>Không tìm thấy kết quả phù hợp với yêu cầu của bạn.</p>
-            </div>
-          )}
+          ) : (<div className={styles.noResults}><p>Không tìm thấy kết quả.</p></div>)}
         </div>
-
         {totalPages > 1 && (
           <div className={styles.paginationContainer} data-aos="fade-up">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={styles.pageNavBtn}
-              aria-label="Trang trước"
-              title="Trang trước"
-            >
-              <CaretLeft size={20} />
-            </button>
+            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className={styles.pageNavBtn}><CaretLeft size={20} /></button>
             <div className={styles.pageNumbers}>
-              {getPageNumbers().map((pageNum, idx) => (
-                pageNum === "..." ? (
-                  <span key={`dots-${idx}`} className={styles.paginationDots}>...</span>
-                ) : (
-                  <button
-                    key={idx}
-                    onClick={() => handlePageChange(pageNum as number)}
-                    className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              ))}
+              {getPageNumbers().map((pageNum, idx) => pageNum === "..." ? <span key={idx}>...</span> : <button key={idx} onClick={() => handlePageChange(pageNum as number)} className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}>{pageNum}</button>)}
             </div>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={styles.pageNavBtn}
-              aria-label="Trang tiếp theo"
-              title="Trang tiếp theo"
-            >
-              <CaretRight size={20} />
-            </button>
+            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className={styles.pageNavBtn}><CaretRight size={20} /></button>
           </div>
         )}
       </main>
-
-      <div data-aos="fade-up" data-aos-delay="200">
-        <AIRecommendations />
-      </div>
+      <div data-aos="fade-up" data-aos-delay="200"><AIRecommendations /></div>
     </div>
   );
 };

@@ -77,10 +77,10 @@ export const getAttractions = async (page = 0, size = 10): Promise<AxiosResponse
 };
 
 /**
- * Lấy danh sách địa điểm tham quan nổi bật (cho trang chủ)
+ * Lấy danh sách địa điểm tham quan nổi bật (cho trang chủ/explore)
  */
-export const getHighlightLocations = async (): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
-  const response = await getAttractions(0, 10);
+export const getHighlightLocations = async (size = 10): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
+  const response = await getAttractions(0, size);
   return {
     ...response,
     data: {
@@ -91,10 +91,10 @@ export const getHighlightLocations = async (): Promise<AxiosResponse<BackendResp
 };
 
 /**
- * Lấy danh sách nhà hàng nổi bật (cho trang chủ)
+ * Lấy danh sách nhà hàng nổi bật (cho trang chủ/explore)
  */
-export const getHighlightRestaurants = async (): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
-  const response = await getRestaurants(0, 10);
+export const getHighlightRestaurants = async (size = 10): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
+  const response = await getRestaurants(0, size);
   
   const mappedContent = (response.data.data?.content || []).map((item: any) => mapBackendToHighlightItem(item, "food"));
 
@@ -106,6 +106,23 @@ export const getHighlightRestaurants = async (): Promise<AxiosResponse<BackendRe
     }
   } as any;
 };
+
+/**
+ * Lấy danh sách địa điểm nổi bật (API mới đã được BE tối ưu)
+ */
+export const getFeaturedAttractions = async (limit = 5): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
+  const response = await instance.get<BackendResponse<any[]>>(`/attractions/featured?limit=${limit}`);
+  const mappedData = (response.data.data || []).map((item: any) => mapBackendToHighlightItem(item, "pin"));
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      data: mappedData
+    }
+  } as any;
+};
+
 /**
  * Tìm kiếm địa điểm theo từ khóa (Tên hoặc Vị trí)
  */

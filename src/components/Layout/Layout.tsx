@@ -1,17 +1,29 @@
 import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar/Navbar";
 import Footer from "./Footer/Footer";
-import AOS from "aos"; // Import AOS
-import "aos/dist/aos.css"; // Import file CSS của AOS
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Layout: React.FC = () => {
+  const location = useLocation();
+
   useEffect(() => {
+    // Chỉ khởi tạo một lần duy nhất
     AOS.init({
-      duration: 1000, // Bạn có thể chỉnh thời gian mặc định ở đây
+      duration: 1000,
+      once: true, // Chỉ chạy animation một lần khi cuộn tới
+      offset: 100, // Khoảng cách từ mép màn hình trước khi bắt đầu chạy animation
     });
-    AOS.refresh(); // Làm mới AOS để đảm bảo nó nhận các phần tử mới
   }, []);
+
+  useEffect(() => {
+    // Làm mới AOS mỗi khi URL thay đổi để nhận các phần tử mới trên trang mới
+    AOS.refresh();
+    
+    // Cuộn lên đầu trang khi chuyển trang (tăng trải nghiệm người dùng)
+    window.scrollTo(0, 0);
+  }, [location]);
 
   return (
     <div className="app-layout">
@@ -25,3 +37,4 @@ const Layout: React.FC = () => {
 };
 
 export default Layout;
+

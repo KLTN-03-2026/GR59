@@ -18,7 +18,7 @@ interface Props {
   price?: number;
 }
 
-const TravelCard: React.FC<Props> = ({
+const TravelCard: React.FC<Props> = React.memo(({
   image,
   title,
   rating,
@@ -70,7 +70,7 @@ const TravelCard: React.FC<Props> = ({
           className={isPlaying ? styles.hideImage : ""}
         />
 
-        {previewVideo && isPlaying && (
+        {previewVideo && (isPlaying || isHovered) && (
           <video
             ref={videoRef}
             src={previewVideo}
@@ -78,7 +78,8 @@ const TravelCard: React.FC<Props> = ({
             muted
             loop
             playsInline
-            autoPlay
+            autoPlay={isPlaying}
+            preload="none"
           />
         )}
 
@@ -173,6 +174,7 @@ const TravelCard: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
 
 export default TravelCard;
+

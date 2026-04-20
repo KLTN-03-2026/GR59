@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AOS from "aos";
-import "aos/dist/aos.css";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 // import { Vietnamese } from "flatpickr/dist/l10n/vn.js";
@@ -19,12 +17,8 @@ const Home: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true, 
-    });
-
     flatpickr("#dates-input", {
+
       mode: "range",
       minDate: "today",
       dateFormat: "d/m/Y",

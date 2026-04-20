@@ -14,11 +14,10 @@ import {
 import styles from "./HighlightLocations.module.scss";
 import AnimatedButton from "../../../../components/Ui/AnimatedButton/AnimatedButton";
 import {
-  getHighlightLocations,
-  getHighlightRestaurants,
+  getFeaturedAttractions,
   type HighlightItem,
 } from "../../../../services/highlightService";
-import { getHotels } from "../../../../services/hotelService";
+
 import SkeletonCard from "../../../../components/Ui/SkeletonCard/SkeletonCard";
 
 // Thêm Interface cho Props
@@ -36,63 +35,60 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
   locationFilter,
   currentId
 }) => {
-  const [activeTab, setActiveTab] = useState<
-    "all" | "locations" | "hotels" | "restaurants"
-  >("all");
   const [items, setItems] = useState<HighlightItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const sliderRef = useRef<HTMLDivElement>(null);
+  
+  // Cơ chế Cache cho trang chủ
+  const cacheRef = useRef<Record<string, HighlightItem[]>>({});
+
+  // Chỉ tải dữ liệu khi component xuất hiện trên màn hình (Intersection Observer)
+  const [hasInView, setHasInView] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+
+
+  useEffect(() => {
+    if (!hasInView) return;
+
+    const controller = new AbortController();
+    
     const fetchData = async () => {
       setLoading(true);
-      setItems([]); // 1. Làm trống danh sách cũ để tránh nhầm lẫn dữ liệu khi chuyển tab
+      setItems([]); 
+
+      if (cacheRef.current["featured"]) {
+        setItems(cacheRef.current["featured"]);
+        setLoading(false);
+        return;
+      }
       
       try {
-        let allFetchedItems: HighlightItem[] = [];
-        
-        if (activeTab === "all") {
-          // Fetch tất cả dữ liệu đồng thời cho Tab "Tất cả"
-          const [locationsRes, hotelsRes, restaurantsRes] = await Promise.all([
-            getHighlightLocations(),
-            getHotels(0, 12),
-            getHighlightRestaurants()
-          ]);
+        const res = await getFeaturedAttractions(10);
+        let allFetchedItems = res.data?.data || [];
 
-          if (locationsRes.data?.data) allFetchedItems = [...allFetchedItems, ...locationsRes.data.data];
-          if (hotelsRes.data?.data?.content) allFetchedItems = [...allFetchedItems, ...hotelsRes.data.data.content];
-          if (restaurantsRes.data?.data) allFetchedItems = [...allFetchedItems, ...restaurantsRes.data.data];
-          
-        } else if (activeTab === "locations") {
-          const res = await getHighlightLocations();
-          const rawData = res.data?.data || [];
-          // 2. Lọc chủ động loại hình 'pin' cho Tab địa điểm
-          allFetchedItems = rawData.filter(item => item.type === 'pin');
-          
-        } else if (activeTab === "hotels") {
-          const res = await getHotels(0, 12);
-          const rawData = res.data?.data?.content || [];
-          // 3. Lọc chủ động loại hình 'bed' cho Tab khách sạn
-          allFetchedItems = rawData.filter(item => item.type === 'bed');
-          
-        } else if (activeTab === "restaurants") {
-          const res = await getHighlightRestaurants();
-          const rawData = res.data?.data || [];
-          // 4. Lọc chủ động loại hình 'food' cho Tab nhà hàng
-          allFetchedItems = rawData.filter(item => item.type === 'food');
-        }
+        if (controller.signal.aborted) return;
 
-        // 5. Áp dụng các bộ lọc chung (Rating, Tỉnh thành, ID hiện tại)
         let filtered = [...allFetchedItems];
-
-        // Chỉ lấy từ 4.5 sao trở lên để đảm bảo là địa điểm "Nổi bật"
-        filtered = filtered.filter(item => Number(item.rating) >= 4.0); // Giảm xuống 4.0 để có nhiều dữ liệu hơn nếu cần
-
-        // Sắp xếp theo rating giảm dần
+        filtered = filtered.filter(item => Number(item.rating) >= 4.0);
         filtered.sort((a, b) => Number(b.rating) - Number(a.rating));
 
-        // Lọc theo tỉnh thành nếu là danh sách dịch vụ lân cận
         if (locationFilter) {
           const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
           const target = normalize(locationFilter);
@@ -101,23 +97,30 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
           );
         }
 
-        // Loại bỏ địa điểm hiện tại nếu đang ở trang chi tiết
         if (currentId) {
           filtered = filtered.filter(item => item.id.toString() !== currentId.toString());
         }
 
+        cacheRef.current["featured"] = filtered;
         setItems(filtered);
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu Highlight:", error);
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error("Lỗi khi tải dữ liệu Highlight:", error);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
-    // Reset expanded state when changing tabs
     setIsExpanded(false);
-  }, [activeTab]);
+
+    return () => controller.abort();
+  }, [locationFilter, currentId, hasInView]);
+
+
 
   const scrollSlider = (direction: "left" | "right") => {
     if (sliderRef.current) {
@@ -136,13 +139,14 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
   };
 
   return (
-    <section className={styles.locations}>
+    <section className={styles.locations} ref={sectionRef}>
+
       <div className={styles.locationsContainer}>
         <div className={styles.headerWrapper} data-aos="fade-up">
           <div className={styles.header}>
             <div className={styles.headerTitle}>
               <h2 className={styles.sectionTitle}>
-                {titlePrimary}
+                <span>{titlePrimary}</span>
                 <span className={styles.highlightUnderline}>
                   {titleHighlight}
                 </span>
@@ -152,56 +156,29 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
           </div>
 
           <div className={styles.controls}>
-            <div className={styles.sliderTabs}>
-              {(["all", "locations", "hotels", "restaurants"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  className={`${styles.sliderTab} ${activeTab === tab ? styles.active : ""}`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab === "all" && <House size={18} weight={activeTab === "all" ? "fill" : "bold"} />}
-                  {tab === "locations" && <MapPin size={18} weight={activeTab === "locations" ? "fill" : "bold"} />}
-                  {tab === "hotels" && <Bed size={18} weight={activeTab === "hotels" ? "fill" : "bold"} />}
-                  {tab === "restaurants" && <ForkKnife size={18} weight={activeTab === "restaurants" ? "fill" : "bold"} />}
-                  <span>
-                    {tab === "all"
-                      ? "Khám phá"
-                      : tab === "locations"
-                        ? "Địa điểm"
-                        : tab === "hotels"
-                          ? "Khách sạn"
-                          : "Quán ăn"}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            {!isExpanded && (
-              <div className={styles.sliderNav}>
-                <button
-                  className={styles.sliderBtn}
-                  title="Cuộn sang trái"
-                  onClick={() => scrollSlider("left")}
-                >
-                  <div className={styles.sliderIcon}>
-                    <CaretLeft weight="bold" />
-                  </div>
-                </button>
-                <button
-                  className={styles.sliderBtn}
-                  title="Cuộn sang phải"
-                  onClick={() => scrollSlider("right")}
-                >
-                  <div className={styles.sliderIcon}>
-                    <CaretRight weight="bold" />
-                  </div>
-                </button>
-              </div>
-            )}
+            {/* Controls now empty as buttons moved to sides */}
           </div>
         </div>
 
         <div className={styles.sliderWrap}>
+          {!isExpanded && (
+            <div className={styles.sliderNav}>
+              <button
+                className={`${styles.sliderBtn} ${styles.prevBtn}`}
+                title="Cuộn sang trái"
+                onClick={() => scrollSlider("left")}
+              >
+                <CaretLeft weight="bold" />
+              </button>
+              <button
+                className={`${styles.sliderBtn} ${styles.nextBtn}`}
+                title="Cuộn sang phải"
+                onClick={() => scrollSlider("right")}
+              >
+                <CaretRight weight="bold" />
+              </button>
+            </div>
+          )}
           <div
             className={`${styles.sliderContent} ${isExpanded ? styles.gridContent : ""}`}
             ref={sliderRef}
@@ -233,8 +210,8 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                       <div className={styles.imageOverlay}></div>
                       <div className={styles.statusBadge}>
                         <span className={`${styles.ribbon} ${styles[item.status?.toLowerCase() || 'active']}`}>
-                          {item.status === 'ACTIVE' || item.status === 'OPEN' ? 'MỞ\nCỬA' : 
-                           item.status === 'MAINTENANCE' ? 'BẢO\nTRÌ' : 'ĐÓNG\nCỬA'}
+                          {item.status === 'ACTIVE' || item.status === 'OPEN' ? 'Đang mở cửa' : 
+                           item.status === 'MAINTENANCE' ? 'Đang bảo trì' : 'Đã đóng cửa'}
                         </span>
                       </div>
                       {item.isHot && (
@@ -285,15 +262,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
         <div className={styles.locationsAction} data-aos="fade-up">
           <AnimatedButton 
             onClick={() => setIsExpanded(!isExpanded)}
-            text={isExpanded ? "THU GỌN" : `XEM TẤT CẢ ${
-              activeTab === "all" 
-                ? "GỢI Ý" 
-                : activeTab === "locations" 
-                  ? "ĐỊA ĐIỂM" 
-                  : activeTab === "hotels" 
-                    ? "KHÁCH SẠN" 
-                    : "QUÁN ĂN"
-            }`}
+            text={isExpanded ? "THU GỌN" : "XEM TẤT CẢ GỢI Ý"}
           />
         </div>
       </div>
