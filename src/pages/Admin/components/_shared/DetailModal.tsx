@@ -482,7 +482,13 @@ const DetailModal: React.FC<DetailModalProps> = ({
                         : "Địa điểm"}
               </h3>
             </div>
-            <button className={styles.closeBtn} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Đóng"
+              title="Đóng"
+            >
               <div style={{ fontSize: "12px" }}>
                 <X size={20} weight="bold" />
               </div>
@@ -492,7 +498,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
           <div className={styles.body}>{renderContent()}</div>
 
           <div className={styles.footer}>
-            <button className={styles.btnClose} onClick={onClose}>
+            <button type="button" className={styles.btnClose} onClick={onClose}>
               Đóng
             </button>
           </div>

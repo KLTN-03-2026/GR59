@@ -484,7 +484,13 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                 <p>Soạn thảo nội dung bài viết mới</p>
               </div>
             </div>
-            <button className={styles.closeBtn} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Đóng"
+              title="Đóng"
+            >
               <div style={{ fontSize: "12px" }}>
                 <X size={24} />
               </div>
@@ -605,10 +611,18 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
           </div>
 
           <div className={styles.modalFooter}>
-            <button className={styles.btnCancel} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.btnCancel}
+              onClick={onClose}
+            >
               Hủy bỏ
             </button>
-            <button className={styles.btnSave} onClick={handleSaveInternal}>
+            <button
+              type="button"
+              className={styles.btnSave}
+              onClick={handleSaveInternal}
+            >
               Lưu bài viết
             </button>
           </div>
@@ -630,7 +644,13 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
         >
           <div className={styles.header}>
             <h3>{title}</h3>
-            <button className={styles.closeBtn} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Đóng"
+              title="Đóng"
+            >
               <X size={20} weight="bold" />
             </button>
           </div>
@@ -994,6 +1014,8 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                             className={styles.removeBtn}
                             onClick={() => removeArrayItem("gallery", index)}
                             style={{ padding: "8px" }}
+                            aria-label="Xóa ảnh"
+                            title="Xóa ảnh"
                           >
                             <Trash size={18} />
                           </button>
@@ -1155,10 +1177,18 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
           </div>
 
           <div className={styles.footer}>
-            <button className={styles.btnCancel} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.btnCancel}
+              onClick={onClose}
+            >
               Hủy bỏ
             </button>
-            <button className={styles.btnSave} onClick={handleSaveInternal}>
+            <button
+              type="button"
+              className={styles.btnSave}
+              onClick={handleSaveInternal}
+            >
               Lưu thay đổi
             </button>
           </div>

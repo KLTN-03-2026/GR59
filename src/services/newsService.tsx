@@ -99,6 +99,18 @@ const MOCK_NEWS: NewsItem[] = [
   },
 ];
 
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface NewsResponse {
+  content: NewsItem[];
+  page: PageInfo;
+}
+
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
@@ -106,19 +118,143 @@ export interface BackendResponse<T = unknown> {
   DT?: T;
 }
 
-export const getNewsList = async (): Promise<AxiosResponse<BackendResponse<NewsItem[]>>> => {
+// Helper to format date
+const formatDate = (isoString: string) => {
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return isoString;
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day} Th${month}, ${year}`;
+};
+
+export const getNewsList = async (page = 0, size = 100, category?: string, keyword?: string): Promise<AxiosResponse<BackendResponse<NewsResponse>>> => {
   try {
-    const response = await instance.get<BackendResponse<NewsItem[]>>("/news");
+    let url = `/news?page=${page}&size=${size}`;
+    
+    if (keyword && keyword.trim() !== "") {
+      url = `/news/search?keyword=${encodeURIComponent(keyword)}&page=${page}&size=${size}`;
+    } else if (category && category !== "Tất cả") {
+      url = `/news/category/${encodeURIComponent(category)}?page=${page}&size=${size}`;
+    }
+    
+    const response = await instance.get<BackendResponse<NewsResponse>>(url);
+    
+    // Map dates and fallback images if needed
+    if (response.data && response.data.data && response.data.data.content) {
+      response.data.data.content = response.data.data.content.map(item => ({
+        ...item,
+        date: item.createdAt ? formatDate(item.createdAt) : "",
+        image: item.image || "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=800"
+      }));
+    }
+    
     return response;
   } catch (error) {
     // Fallback if API fails
     console.warn("Fake API fallback cho News");
+    const mockContent = MOCK_NEWS.map(item => ({
+      ...item,
+      content: item.excerpt,
+      createdAt: new Date().toISOString(),
+      isFeatured: !!item.isFeatured
+    }));
     return {
       data: {
         status: 200,
         message: "Lấy dữ liệu mock thành công",
-        DT: MOCK_NEWS,
-        data: MOCK_NEWS,
+        data: {
+          content: mockContent,
+          page: {
+            size: 100,
+            number: 0,
+            totalElements: mockContent.length,
+            totalPages: 1
+          }
+        }
+      },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config: {} as any,
+    };
+  }
+};
+
+export const getFeaturedNewsList = async (page = 0, size = 5): Promise<AxiosResponse<BackendResponse<NewsResponse>>> => {
+  try {
+    const response = await instance.get<BackendResponse<NewsResponse>>(`/news/featured?page=${page}&size=${size}`);
+    
+    // Map dates and fallback images if needed
+    if (response.data && response.data.data && response.data.data.content) {
+      response.data.data.content = response.data.data.content.map(item => ({
+        ...item,
+        date: item.createdAt ? formatDate(item.createdAt) : "",
+        image: item.image || "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=800"
+      }));
+    }
+    
+    return response;
+  } catch (error) {
+    // Fallback if API fails
+    console.warn("Fake API fallback cho Featured News");
+    const mockContent = MOCK_NEWS.filter(item => item.isFeatured).map(item => ({
+      ...item,
+      content: item.excerpt,
+      createdAt: new Date().toISOString(),
+      isFeatured: !!item.isFeatured
+    }));
+    return {
+      data: {
+        status: 200,
+        message: "Lấy dữ liệu mock thành công",
+        data: {
+          content: mockContent.slice(0, size),
+          page: {
+            size,
+            number: page,
+            totalElements: mockContent.length,
+            totalPages: Math.ceil(mockContent.length / size) || 1
+          }
+        }
+      },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config: {} as any,
+    };
+  }
+};
+
+export const getNewsDetail = async (id: number | string): Promise<AxiosResponse<BackendResponse<NewsItem>>> => {
+  try {
+    const response = await instance.get<BackendResponse<NewsItem>>(`/news/${id}`);
+    
+    if (response.data && response.data.data) {
+      const item = response.data.data;
+      response.data.data = {
+        ...item,
+        date: item.createdAt ? formatDate(item.createdAt) : "",
+        image: item.image || "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=800"
+      };
+    }
+    
+    return response;
+  } catch (error) {
+    console.warn(`Fake API fallback cho News Detail id: ${id}`);
+    const mockItem = MOCK_NEWS.find(n => n.id.toString() === id.toString()) || MOCK_NEWS[0];
+    const detailItem = {
+      ...mockItem,
+      content: mockItem.excerpt,
+      createdAt: new Date().toISOString(),
+      isFeatured: !!mockItem.isFeatured
+    };
+    
+    return {
+      data: {
+        status: 200,
+        message: "Lấy chi tiết mock thành công",
+        data: detailItem
       },
       status: 200,
       statusText: "OK",

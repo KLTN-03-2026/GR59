@@ -9,7 +9,7 @@ interface Props {
 
 const CategoryTabs: React.FC<Props> = ({ categories, activeCategory, onCategoryChange }) => {
   return (
-    <nav className={styles.tabsContainer} data-aos="fade-up">
+    <nav className={styles.tabsContainer}>
       {categories.map((cat) => (
         <button 
           key={cat}

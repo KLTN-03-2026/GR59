@@ -11,7 +11,7 @@ import CategoryTabs from "./components/CategoryTabs/CategoryTabs";
 import NewsSidebar from "./components/NewsSidebar/NewsSidebar";
 import type { NewsItem } from "./types";
 
-import { getNewsList } from "../../services/newsService";
+import { getNewsList, getFeaturedNewsList } from "../../services/newsService";
 
 
 
@@ -19,7 +19,9 @@ const News: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Tất cả");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
+  const [featuredNewsData, setFeaturedNewsData] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const ITEMS_PER_PAGE = 6;
   const categories = [
@@ -30,6 +32,15 @@ const News: React.FC = () => {
     "Sự kiện",
   ];
 
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1); // Reset page on search
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   useEffect(() => {
     AOS.init({
       duration: 1000,
@@ -37,12 +48,38 @@ const News: React.FC = () => {
       easing: "ease-out-quad",
     });
 
+    const fetchFeaturedNews = async () => {
+      try {
+        const featuredRes = await getFeaturedNewsList();
+        if (featuredRes.data && featuredRes.data.status === 200 && featuredRes.data.data) {
+          if ('content' in featuredRes.data.data) {
+            setFeaturedNewsData(featuredRes.data.data.content as NewsItem[]);
+          } else {
+            setFeaturedNewsData(featuredRes.data.data as any);
+          }
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải tin nổi bật:", error);
+      }
+    };
+
+    fetchFeaturedNews();
+  }, []);
+
+  useEffect(() => {
     const fetchNews = async () => {
       setIsLoading(true);
       try {
-        const res = await getNewsList();
-        if (res.data && res.data.status === 200) {
-          setNewsData(res.data.data);
+        const res = await getNewsList(0, 100, activeTab, debouncedSearchQuery);
+        
+        if (res.data && res.data.status === 200 && res.data.data) {
+          // If the backend returns { content: NewsItem[], page: ... }
+          if ('content' in res.data.data) {
+            setNewsData(res.data.data.content as NewsItem[]);
+          } else {
+            // Fallback for old mock data format
+            setNewsData(res.data.data as any);
+          }
         }
       } catch (error) {
         console.error("Lỗi khi tải tin tức:", error);
@@ -52,22 +89,22 @@ const News: React.FC = () => {
     };
 
     fetchNews();
-  }, []);
+  }, [activeTab, debouncedSearchQuery]);
 
   const featured = useMemo(() => newsData.find((n) => n.isFeatured), [newsData]);
   
   const trendingNews = useMemo(() => 
-    newsData.slice(0, 5) // Mock trending as first 5 items
-  , [newsData]);
+    featuredNewsData.length > 0 ? featuredNewsData : newsData.slice(0, 5)
+  , [featuredNewsData, newsData]);
 
   const filteredNews = useMemo(() => {
     return newsData.filter((n) => {
-      const matchesTab = activeTab === "Tất cả" || n.category === activeTab;
-      const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           n.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-      return !n.isFeatured && matchesTab && matchesSearch;
+      // Backend already filters by category and search, so we only need to exclude featured if desired.
+      // But if there is a search query, we might want to show all results including featured ones in the grid.
+      if (debouncedSearchQuery) return true;
+      return !n.isFeatured;
     });
-  }, [activeTab, searchQuery, newsData]);
+  }, [newsData, debouncedSearchQuery]);
 
   const totalPages = Math.ceil(filteredNews.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

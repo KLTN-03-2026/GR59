@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Clock } from "@phosphor-icons/react";
 import styles from './FeaturedPost.module.scss';
 import type { NewsItem } from '../../types';
@@ -8,8 +9,9 @@ interface Props {
 }
 
 const FeaturedPost: React.FC<Props> = ({ data }) => {
+  const navigate = useNavigate();
   return (
-    <section className={styles.container} data-aos="fade-up">
+    <section className={styles.container} onClick={() => navigate(`/news/${data.id}`)} style={{ cursor: 'pointer' }} data-aos="fade-up">
       <div className={styles.imageBox}>
         <img src={data.image} alt={data.title} />
         <div className={styles.tagOverlay}>{data.category}</div>

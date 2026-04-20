@@ -10,6 +10,7 @@ import Review from "./pages/Review/Review";
 import SampleItinerary from "./pages/SampleItinerary/SampleItinerary";
 import DestinationDetail from "./pages/DestinationDetail/DestinationDetail";
 import News from "./pages/News/News";
+import NewsDetail from "./pages/NewsDetail/NewsDetail";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Planner from "./pages/Planner/Planner";
 import Profile from "./pages/Profile/Profile";
@@ -33,6 +34,7 @@ function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/sample" element={<SampleItinerary />} />
             <Route path="/news" element={<News />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
             <Route path="/planner" element={<Planner />} />
             <Route path="/profile" element={<Profile />} />
 

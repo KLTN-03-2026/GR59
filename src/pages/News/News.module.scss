@@ -56,7 +56,10 @@ $bg: #f0f7f9;
 }
 
 .contentSection {
+  margin-top: 80px;
   padding-bottom: 100px;
+  position: relative;
+  z-index: 2;
 }
 
 .layoutWrapper {

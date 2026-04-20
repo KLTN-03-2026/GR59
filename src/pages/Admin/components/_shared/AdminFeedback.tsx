@@ -1,5 +1,5 @@
-import React from 'react';
-import styles from './AdminFeedback.module.scss';
+import React from "react";
+import styles from "./AdminFeedback.module.scss";
 
 // ─── Loading skeleton ──────────────────────────────────────────────────────────
 
@@ -9,12 +9,12 @@ export const LoadingRows: React.FC<{ count?: number }> = ({ count = 4 }) => (
       <tr key={i} className={styles.loadingRow}>
         {Array.from({ length: 5 }).map((_, j) => (
           <td key={j}>
-            <div 
-              className={styles.skeletonBar} 
-              style={{ 
+            <div
+              className={styles.skeletonBar}
+              style={{
                 animationDelay: `${i * 0.1}s`,
-                width: j === 0 ? '60%' : j === 4 ? '40%' : '80%',
-              }} 
+                width: j === 0 ? "60%" : j === 4 ? "40%" : "80%",
+              }}
             />
           </td>
         ))}
@@ -25,7 +25,10 @@ export const LoadingRows: React.FC<{ count?: number }> = ({ count = 4 }) => (
 
 // ─── Error banner ──────────────────────────────────────────────────────────────
 
-export const ErrorBanner: React.FC<{ message: string; onRetry?: () => void }> = ({ message, onRetry }) => (
+export const ErrorBanner: React.FC<{
+  message: string;
+  onRetry?: () => void;
+}> = ({ message, onRetry }) => (
   <div className={styles.errorBanner}>
     <div className={styles.errorContent}>
       <div className={styles.errorIconBox}>⚠️</div>
@@ -35,7 +38,7 @@ export const ErrorBanner: React.FC<{ message: string; onRetry?: () => void }> = 
       </div>
     </div>
     {onRetry && (
-      <button onClick={onRetry} className={styles.retryBtn}>
+      <button type="button" onClick={onRetry} className={styles.retryBtn}>
         Thử lại
       </button>
     )}
@@ -48,16 +51,15 @@ export const SkeletonCards: React.FC<{ count?: number }> = ({ count = 4 }) => (
   <>
     {Array.from({ length: count }).map((_, i) => (
       <div key={i} className={styles.skeletonCard}>
-        <div 
-          className={styles.skeletonTitle} 
-          style={{ animationDelay: `${i * 0.1}s` }} 
+        <div
+          className={styles.skeletonTitle}
+          style={{ animationDelay: `${i * 0.1}s` }}
         />
-        <div 
-          className={styles.skeletonValue} 
-          style={{ animationDelay: `${i * 0.1}s` }} 
+        <div
+          className={styles.skeletonValue}
+          style={{ animationDelay: `${i * 0.1}s` }}
         />
       </div>
     ))}
   </>
 );
-

@@ -181,6 +181,8 @@ const ReviewsView: React.FC = () => {
             className={styles.selectPill}
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
+            aria-label="Lọc theo loại"
+            title="Lọc theo loại"
           >
             <option value="All">Loại: Tất cả</option>
             <option value="HOTEL">Khách sạn</option>

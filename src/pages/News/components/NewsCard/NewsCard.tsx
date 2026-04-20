@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, CalendarBlank, ArrowRight } from "@phosphor-icons/react";
 import styles from './NewsCard.module.scss';
 import type { NewsItem } from '../../types';
@@ -8,8 +9,9 @@ interface Props {
 }
 
 const NewsCard: React.FC<Props> = ({ item }) => {
+  const navigate = useNavigate();
   return (
-    <article className={styles.card} data-aos="fade-up">
+    <article className={styles.card} onClick={() => navigate(`/news/${item.id}`)} style={{ cursor: 'pointer' }} data-aos="fade-up">
       <div className={styles.thumb}>
         <img src={item.image} alt={item.title} />
         <span className={styles.badge}>{item.category}</span>

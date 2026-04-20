@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MagnifyingGlass, TrendUp,  } from "@phosphor-icons/react";
 import styles from './NewsSidebar.module.scss';
 import type { NewsItem } from '../../types';
@@ -16,10 +17,11 @@ const NewsSidebar: React.FC<Props> = ({
  
   onSearch 
 }) => {
+  const navigate = useNavigate();
   return (
     <aside className={styles.sidebar}>
       {/* Search Bar */}
-      <div className={styles.section} data-aos="fade-left">
+      <div className={styles.section}>
         <div className={styles.searchBox}>
           <MagnifyingGlass size={20} weight="bold" />
           <input 
@@ -31,13 +33,13 @@ const NewsSidebar: React.FC<Props> = ({
       </div>
 
       {/* Trending News */}
-      <div className={styles.section} data-aos="fade-left" data-aos-delay="100">
+      <div className={styles.section}>
         <h3 className={styles.title}>
           <TrendUp size={24} weight="bold" /> Xu hướng
         </h3>
         <div className={styles.trendingList}>
           {trendingNews.map((news, index) => (
-            <div key={news.id} className={styles.trendingItem}>
+            <div key={news.id} className={styles.trendingItem} onClick={() => navigate(`/news/${news.id}`)} style={{ cursor: 'pointer' }}>
               <span className={styles.index}>{index + 1}</span>
               <div className={styles.info}>
                 <h4>{news.title}</h4>
@@ -67,7 +69,7 @@ const NewsSidebar: React.FC<Props> = ({
       </div> */}
 
       {/* Ad/Promo Placeholder */}
-      <div className={styles.promoBanner} data-aos="fade-left" data-aos-delay="300">
+      <div className={styles.promoBanner}>
         <h4>Bắt đầu hành trình của bạn</h4>
         <p>Để AI thiết kế lịch trình du lịch hoàn hảo cho bạn chỉ trong 30 giây.</p>
         <button>Thử ngay</button>
