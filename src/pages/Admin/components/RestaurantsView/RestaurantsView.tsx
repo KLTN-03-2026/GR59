@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styles from './RestaurantsView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, MagnifyingGlass, Trash, CaretLeft, CaretRight, FileArrowDown, Check, Eye } from "@phosphor-icons/react";
+import { MapPin, Star, Pencil, Plus, MagnifyingGlass, Trash, CaretLeft, CaretRight, FileArrowDown, Check, Eye, X } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRestaurants, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
@@ -188,6 +188,15 @@ const RestaurantsView: React.FC = () => {
               onChange={e => { setSearch(e.target.value); setPage(1); }}
               placeholder="Tìm theo tên hoặc địa điểm..."
             />
+            {search && (
+              <button 
+                className={styles.clearSearchBtn} 
+                onClick={() => { setSearch(""); setPage(1); }}
+                title="Xóa tìm kiếm"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            )}
           </div>
         </div>
       </motion.div>

@@ -18,6 +18,7 @@ import {
   type HighlightItem,
 } from "../../../../services/highlightService";
 import { getHotels } from "../../../../services/hotelService";
+import SkeletonCard from "../../../../components/Ui/SkeletonCard/SkeletonCard";
 
 // Thêm Interface cho Props
 interface HighlightLocationsProps {
@@ -54,7 +55,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
           // Fetch tất cả dữ liệu đồng thời cho Tab "Tất cả"
           const [locationsRes, hotelsRes, restaurantsRes] = await Promise.all([
             getHighlightLocations(),
-            getHotels(0, 50),
+            getHotels(0, 12),
             getHighlightRestaurants()
           ]);
 
@@ -69,7 +70,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
           allFetchedItems = rawData.filter(item => item.type === 'pin');
           
         } else if (activeTab === "hotels") {
-          const res = await getHotels(0, 50);
+          const res = await getHotels(0, 12);
           const rawData = res.data?.data?.content || [];
           // 3. Lọc chủ động loại hình 'bed' cho Tab khách sạn
           allFetchedItems = rawData.filter(item => item.type === 'bed');
@@ -205,16 +206,11 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
             ref={sliderRef}
           >
             {loading ? (
-              <div
-                style={{
-                  padding: "40px",
-                  textAlign: "center",
-                  width: "100%",
-                  color: "var(--primary-color)",
-                }}
-              >
-                Đang tải dữ liệu...
-              </div>
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={`skeleton-home-${i}`} style={{ minWidth: '320px', flex: '0 0 auto' }}>
+                  <SkeletonCard />
+                </div>
+              ))
             ) : items && items.length > 0 ? (
               items.map((item, idx) => (
                 <Link
@@ -232,7 +228,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
                 >
                   <div className={styles.locationCard}>
                     <div className={styles.imageContainer}>
-                      <img src={item.image} alt={item.name} />
+                      <img src={item.image} alt={item.name} loading="lazy" />
                       <div className={styles.imageOverlay}></div>
                       <div className={styles.statusBadge}>
                         <span className={`${styles.ribbon} ${styles[item.status?.toLowerCase() || 'active']}`}>

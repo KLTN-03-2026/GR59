@@ -19,6 +19,7 @@ import {
   LockOpen,
   ShieldCheck,
   Eye,
+  X
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 import { useAdminReviews, deleteRecord } from "../../hooks/useAdminData";
@@ -72,7 +73,9 @@ const ReviewsView: React.FC = () => {
       list = list.filter(
         (r) =>
           r.userName.toLowerCase().includes(s) ||
-          r.comment.toLowerCase().includes(s),
+          r.comment.toLowerCase().includes(s) ||
+          (r.nameService && r.nameService.toLowerCase().includes(s)) ||
+          (r.provinceName && r.provinceName.toLowerCase().includes(s)),
       );
     }
     return list;
@@ -91,11 +94,12 @@ const ReviewsView: React.FC = () => {
     }
   };
 
-  const handleToggleVerify = async (id: number, currentStatus: boolean) => {
+  const handleToggleVerify = async (id: number, currentStatus: string) => {
     try {
-      await adminService.updateReviewStatus(id, !currentStatus);
+      const nextStatus = currentStatus === "ACTIVE" ? "HIDDEN" : "ACTIVE";
+      await adminService.updateReviewStatus(id, nextStatus as "ACTIVE" | "HIDDEN");
       toast.success(
-        currentStatus ? "Đã gỡ trạng thái duyệt!" : "Đã duyệt đánh giá!",
+        nextStatus === "ACTIVE" ? "Đã duyệt đánh giá!" : "Đã gỡ trạng thái duyệt!",
       );
       refetch();
     } catch {
@@ -176,6 +180,15 @@ const ReviewsView: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            {search && (
+              <button 
+                className={styles.clearSearchBtn} 
+                onClick={() => setSearch("")}
+                title="Xóa tìm kiếm"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            )}
           </div>
           <select
             className={styles.selectPill}
@@ -200,10 +213,8 @@ const ReviewsView: React.FC = () => {
             <tr>
               <th style={{ width: "60px" }}>STT</th>
               <th>NGƯỜI DÙNG</th>
-              <th>NỘI DUNG</th>
+              <th>DỊCH VỤ / TỈNH THÀNH</th>
               <th>ĐÁNH GIÁ</th>
-              <th>ĐỐI TƯỢNG</th>
-              <th>NGÀY GỬI</th>
               <th>TRẠNG THÁI</th>
               <th className={styles.thActions}>THAO TÁC</th>
             </tr>
@@ -214,7 +225,7 @@ const ReviewsView: React.FC = () => {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className={styles.emptyState}>
+                  <td colSpan={6} className={styles.emptyState}>
                     Không tìm thấy đánh giá nào
                   </td>
                 </tr>
@@ -240,22 +251,6 @@ const ReviewsView: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td style={{ maxWidth: "300px" }}>
-                      <p
-                        className={styles.commentText}
-                        style={{
-                          fontSize: "0.85rem",
-                          color: "#475569",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
-                        {item.comment}
-                      </p>
-                    </td>
                     <td>
                       <div style={{ display: "flex", color: "#f59e0b" }}>
                         {Array.from({ length: item.rating }).map((_, i) => (
@@ -264,25 +259,15 @@ const ReviewsView: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      <div
-                        className={styles.typeTag}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                          color: "#64748b",
-                        }}
-                      >
-                        {getTargetIcon(item.type)}
-                        <span>{item.type}</span>
+                      <div className={styles.serviceCol}>
+                        <p style={{ fontWeight: 700, fontSize: "0.85rem", color: "#1e293b", margin: 0 }}>
+                          {item.nameService || "N/A"}
+                        </p>
+                        <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "2px 0 0 0", display: "flex", alignItems: "center", gap: "4px" }}>
+                          <MapPin size={12} weight="fill" color="#38bdf8" />
+                          {item.provinceName || "N/A"}
+                        </p>
                       </div>
-                    </td>
-                    <td>
-                      <p style={{ fontSize: "0.8rem", color: "#64748b" }}>
-                        {new Date(item.createdAt).toLocaleDateString("vi-VN")}
-                      </p>
                     </td>
                     <td>
                       <div
@@ -294,19 +279,19 @@ const ReviewsView: React.FC = () => {
                           fontSize: "0.75rem",
                           padding: "4px 8px",
                           borderRadius: "100px",
-                          backgroundColor: item.isVerified
+                          backgroundColor: item.status === "ACTIVE"
                             ? "#ecfdf5"
                             : "#fef2f2",
-                          color: item.isVerified ? "#10b981" : "#ef4444",
+                          color: item.status === "ACTIVE" ? "#10b981" : "#ef4444",
                           width: "fit-content",
                         }}
                       >
-                        {item.isVerified ? (
+                        {item.status === "ACTIVE" ? (
                           <ShieldCheck size={14} weight="fill" />
                         ) : (
                           <Lock size={14} weight="fill" />
                         )}
-                        <span>{item.isVerified ? "Đã duyệt" : "Đã khóa"}</span>
+                        <span>{item.status === "ACTIVE" ? "Đã duyệt" : "Đã khóa"}</span>
                       </div>
                     </td>
                     <td>
@@ -321,17 +306,17 @@ const ReviewsView: React.FC = () => {
                           </div>
                         </button>
                         <button
-                          className={`${styles.actionBtn} ${item.isVerified ? styles.actionBtnWarning : styles.actionBtnSuccess}`}
+                          className={`${styles.actionBtn} ${item.status === "ACTIVE" ? styles.actionBtnWarning : styles.actionBtnSuccess}`}
                           onClick={() =>
-                            handleToggleVerify(item.id, item.isVerified)
+                            handleToggleVerify(item.id, item.status)
                           }
                           title={
-                            item.isVerified
+                            item.status === "ACTIVE"
                               ? "Mở khóa (Gỡ duyệt)"
                               : "Khóa (Duyệt)"
                           }
                         >
-                          {item.isVerified ? (
+                          {item.status === "ACTIVE" ? (
                             <div className={styles.actionBtnIcon}>
                               {" "}
                               <LockOpen size={17} />

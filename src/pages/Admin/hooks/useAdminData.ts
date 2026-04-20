@@ -103,51 +103,9 @@ export const useDestinations = () => useCollection<adminService.Destination>((pa
   return adminService.fetchAttractionsList(page, size);
 });
 
-export const useNews = () => {
-  const [data, setData] = useState<adminService.NewsItem[]>([
-    {
-      id: 1,
-      title: "10 Địa điểm không thể bỏ qua tại Đà Nẵng năm 2026",
-      excerpt: "Khám phá những điểm đến mới lạ và hấp dẫn nhất tại thành phố đáng sống...",
-      content: "Nội dung chi tiết bài viết 1",
-      image: "https://images.unsplash.com/photo-1559592481-74488ea01937?auto=format&fit=crop&q=80&w=800",
-      category: "Điểm đến",
-      date: "2026-04-19",
-      readTime: "5 phút đọc",
-      isFeatured: true
-    },
-    {
-      id: 2,
-      title: "Hành trình ẩm thực: 24h càn quét chợ Cồn",
-      excerpt: "Những món ăn vặt trứ danh mà bạn nhất định phải thử khi đến với Đà Nẵng...",
-      content: "Nội dung chi tiết bài viết 2",
-      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800",
-      category: "Ẩm thực",
-      date: "2026-04-18",
-      readTime: "3 phút đọc",
-      isFeatured: false
-    },
-    {
-      id: 3,
-      title: "Mẹo tiết kiệm chi phí khi đi du lịch tự túc",
-      excerpt: "Làm sao để có một chuyến đi tuyệt vời mà vẫn tối ưu được ngân sách...",
-      content: "Nội dung chi tiết bài viết 3",
-      image: "https://images.unsplash.com/photo-1454165833767-131ef24896c3?auto=format&fit=crop&q=80&w=800",
-      category: "Mẹo du lịch",
-      date: "2026-04-17",
-      readTime: "7 phút đọc",
-      isFeatured: false
-    }
-  ]);
-
-  return { 
-    data, 
-    pagination: { totalPages: 1, totalElements: 3, currentPage: 0 }, 
-    loading: false, 
-    error: null, 
-    refetch: () => {} 
-  };
-};
+export const useNews = () => useCollection<adminService.NewsItem>((page, size) => {
+  return adminService.fetchNewsList(page, size);
+});
 
 export const useAdminReviews = () => useCollection<adminService.AdminReview>((page, size) => {
   return adminService.fetchAdminReviewsList(page, size);
@@ -201,4 +159,8 @@ export const createRecord = async <T>(endpoint: string, data: Omit<T, 'id'>): Pr
     throw new Error(`Endpoint ${endpoint} không hỗ trợ tạo mới`);
   }
   return (response.data.DT || response.data.data) as T;
+};
+
+export const toggleNewsFeatured = async (id: string | number): Promise<void> => {
+  await adminService.toggleNewsFeatured(id);
 };

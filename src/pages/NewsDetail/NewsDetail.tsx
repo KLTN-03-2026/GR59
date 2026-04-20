@@ -93,7 +93,10 @@ const NewsDetail: React.FC = () => {
               </div>
             )}
             <div className={styles.metaItem}>
-              <CalendarBlank size={18} weight="bold" /> {newsItem.date || newsItem.createdAt}
+              <CalendarBlank size={18} weight="bold" /> 
+              {newsItem.createdAt 
+                ? new Date(newsItem.createdAt).toLocaleDateString('vi-VN')
+                : newsItem.date || "---"}
             </div>
             <div className={styles.metaItem}>
               <Clock size={18} weight="bold" /> {newsItem.readTime}

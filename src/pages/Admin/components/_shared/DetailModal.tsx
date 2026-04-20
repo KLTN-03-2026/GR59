@@ -29,6 +29,7 @@ import {
   fetchRestaurantDetail,
   fetchAttractionDetail,
   fetchReviewDetail,
+  fetchReviewsByTarget,
 } from "../../../../services/adminService";
 import ProtectedImage from "../../../../components/ProtectedImage/ProtectedImage";
 
@@ -46,7 +47,9 @@ const DetailModal: React.FC<DetailModalProps> = ({
   type,
 }) => {
   const [data, setData] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(false);
 
   useEffect(() => {
     if (isOpen && id) {
@@ -62,8 +65,29 @@ const DetailModal: React.FC<DetailModalProps> = ({
           else if (type === "review") res = await fetchReviewDetail(id);
 
           if (res && res.data) {
-            const resData = res.data.data || (res.data as any).DT;
+            // Robust data extraction: data.data -> data.DT -> data (if it has expected fields) -> data
+            const resBody = res.data;
+            const resData = resBody.data !== undefined ? resBody.data : (resBody.DT !== undefined ? resBody.DT : resBody);
+            
             if (resData) setData(resData);
+          }
+
+          // Fetch reviews for places
+          if (type === "hotel" || type === "restaurant" || type === "destination") {
+            setLoadingReviews(true);
+            try {
+              const targetType = type === "destination" ? "attraction" : type;
+              const revRes = await fetchReviewsByTarget(targetType, id);
+              if (revRes.data) {
+                const revData = revRes.data.data?.content || revRes.data.data || revRes.data.DT?.content;
+                setReviews(Array.isArray(revData) ? revData : []);
+              }
+            } catch (err) {
+              console.error("Lỗi khi lấy reviews:", err);
+              setReviews([]);
+            } finally {
+              setLoadingReviews(false);
+            }
           }
         } catch (error) {
           console.error("Lỗi khi lấy chi tiết:", error);
@@ -74,6 +98,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
       fetchData();
     } else {
       setData(null);
+      setReviews([]);
     }
   }, [isOpen, id, type]);
 
@@ -224,6 +249,20 @@ const DetailModal: React.FC<DetailModalProps> = ({
                   <span>{data.rating}/5</span>
                 </div>
                 <div className={styles.categoryTag}>{data.type}</div>
+                {(data.nameService || data.provinceName) && (
+                  <div className={styles.targetInfo}>
+                    {data.nameService && (
+                      <span className={styles.serviceName}>
+                        <Buildings size={14} weight="fill" /> {data.nameService}
+                      </span>
+                    )}
+                    {data.provinceName && (
+                      <span className={styles.provinceTag}>
+                        <MapPin size={14} weight="fill" /> {data.provinceName}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -279,10 +318,10 @@ const DetailModal: React.FC<DetailModalProps> = ({
               <label>Trạng thái</label>
               <p
                 className={
-                  data.isVerified ? styles.statusActive : styles.statusMaint
+                  data.status === "ACTIVE" ? styles.statusActive : styles.statusMaint
                 }
               >
-                {data.isVerified ? "Đã duyệt" : "Bị khóa/Chờ duyệt"}
+                {data.status === "ACTIVE" ? "Đã duyệt" : "Bị khóa/Ẩn"}
               </p>
             </div>
             <div className={styles.techItem}>
@@ -442,6 +481,61 @@ const DetailModal: React.FC<DetailModalProps> = ({
             <code className={styles.urlCode}>
               {data.imageUrl || data.heroImage}
             </code>
+          </div>
+
+          <div className={styles.reviewsSection}>
+            <div className={styles.descHeader}>
+              <h5>Đánh giá từ khách hàng ({reviews.length})</h5>
+              <ChatCircleText size={20} weight="fill" color="#f59e0b" />
+            </div>
+
+            {loadingReviews ? (
+              <div className={styles.reviewsLoading}>
+                <div className={styles.spinnerSmall}></div>
+                <span>Đang tải đánh giá...</span>
+              </div>
+            ) : reviews.length > 0 ? (
+              <div className={styles.reviewsList}>
+                {reviews.map((rev) => (
+                  <div key={rev.id} className={styles.reviewItem}>
+                    <div className={styles.revHeader}>
+                      <ProtectedImage
+                        src={rev.userImage}
+                        fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(rev.userName)}&background=random`}
+                        alt=""
+                        className={styles.revAvatar}
+                      />
+                      <div className={styles.revMeta}>
+                        <strong>{rev.userName}</strong>
+                        <div className={styles.revStars}>
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              size={12}
+                              weight={i < rev.rating ? "fill" : "regular"}
+                              color={i < rev.rating ? "#f59e0b" : "#cbd5e1"}
+                            />
+                          ))}
+                          <span>{new Date(rev.createdAt).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className={styles.revComment}>{rev.comment}</p>
+                    {rev.images && rev.images.length > 0 && (
+                      <div className={styles.revGallery}>
+                        {rev.images.map((img: string, i: number) => (
+                          <ProtectedImage key={i} src={img} alt="" />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.noReviews}>
+                Chưa có đánh giá nào cho địa điểm này.
+              </div>
+            )}
           </div>
         </div>
       </div>

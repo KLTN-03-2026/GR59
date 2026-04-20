@@ -226,6 +226,15 @@ const UserReviews: React.FC = () => {
                 transition={{ delay: index * 0.05 }}
                 className={styles.reviewCard}
               >
+                <div className={styles.serviceTag}>
+                  <span className={styles.serviceName}>{rev.nameService || "Travel AI Service"}</span>
+                  {rev.provinceName && (
+                    <span className={styles.location}>
+                      <MapPin size={10} weight="fill" />
+                      {rev.provinceName}
+                    </span>
+                  )}
+                </div>
                 <div className={styles.cardHeader}>
                   <div className={styles.categoryBadge} style={{ color: tag.color, backgroundColor: tag.bg }}>
                     {tag.icon}

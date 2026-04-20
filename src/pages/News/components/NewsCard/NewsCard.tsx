@@ -21,7 +21,9 @@ const NewsCard: React.FC<Props> = ({ item }) => {
         <div className={styles.meta}>
           <span>
             <CalendarBlank size={16} weight="bold" />
-            {item.date}
+            {item.createdAt 
+              ? new Date(item.createdAt).toLocaleDateString('vi-VN')
+              : item.date || "---"}
           </span>
           <span>
             <Clock size={16} weight="bold" />

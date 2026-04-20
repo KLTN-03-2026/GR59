@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Star, CaretLeft, CaretRight } from "phosphor-react";
+import { Star, CaretLeft, CaretRight, MapPin } from "phosphor-react";
 import styles from "./Testimonials.module.scss";
 import {
   getTestimonials,
@@ -82,6 +82,18 @@ const Testimonials: React.FC = () => {
                 data-aos="fade-up"
                 data-aos-delay={rev.delay}
               >
+                <div className={styles.serviceTag}>
+                  <span className={styles.serviceName}>
+                    {rev.nameService || "Travel AI Service"}
+                  </span>
+                  {rev.provinceName && (
+                    <span className={styles.location}>
+                      <MapPin size={10} weight="fill" />
+                      {rev.provinceName}
+                    </span>
+                  )}
+                </div>
+
                 <div className={styles.stars}>
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} weight="fill" />
@@ -98,6 +110,7 @@ const Testimonials: React.FC = () => {
                       <img 
                         src={rev.avatarUrl} 
                         alt={rev.name} 
+                        loading="lazy"
                         style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
@@ -106,9 +119,11 @@ const Testimonials: React.FC = () => {
                     ) : null}
                     <span style={{ display: rev.avatarUrl ? 'none' : 'block' }}>{rev.initial}</span>
                   </div>
-                  <div>
+                  <div className={styles.userText}>
                     <h4>{rev.name}</h4>
-                    <span>{rev.role}</span>
+                    <div className={styles.userMeta}>
+                      <span className={styles.role}>{rev.role}</span>
+                    </div>
                   </div>
                 </div>
               </div>

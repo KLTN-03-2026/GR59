@@ -11,6 +11,8 @@ export interface TestimonialItem {
   text: string;
   delay: string;
   avatarUrl?: string;
+  nameService?: string;
+  provinceName?: string;
 }
 
 export interface BackendReview {
@@ -28,6 +30,8 @@ export interface BackendReview {
   createdAt: string;
   updatedAt: string;
   images: string[];
+  nameService?: string;
+  provinceName?: string;
 }
 
 export interface PaginatedData<T> {
@@ -62,6 +66,8 @@ const mapBackendToTestimonial = (review: BackendReview, index: number): Testimon
   const name = review.userName || "Khách hàng";
   const role = review.type === "HOTEL" ? "Khách lưu trú" : review.type === "RESTAURANT" ? "Thực khách" : "Khách tham quan";
   
+  console.log(`Mapping review ${review.id}:`, { nameService: review.nameService, provinceName: review.provinceName });
+
   return {
     id: review.id.toString(),
     name: name,
@@ -70,7 +76,9 @@ const mapBackendToTestimonial = (review: BackendReview, index: number): Testimon
     color: COLORS[index % COLORS.length],
     text: review.comment || "Không có nội dung đánh giá",
     delay: ((index % 3) * 200 + 100).toString(),
-    avatarUrl: review.userImage
+    avatarUrl: review.userImage,
+    nameService: review.nameService,
+    provinceName: review.provinceName
   };
 };
 
@@ -81,7 +89,7 @@ export const getTestimonials = async (page = 0, size = 6): Promise<AxiosResponse
   const response = await instance.get<BackendResponse<PaginatedData<BackendReview>>>(`/reviews?page=${page}&size=${size}`);
   
   // Chúng ta ánh xạ sang TestimonialItem ngay tại đây để UI sử dụng luôn
-  const rawData = response.data.data;
+  const rawData = response.data.data || response.data.DT;
   let mappedContent: TestimonialItem[] = [];
   
   if (rawData?.content) {

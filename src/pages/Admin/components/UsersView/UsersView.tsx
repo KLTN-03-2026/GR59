@@ -15,6 +15,7 @@ import {
   Eye,
   Lock,
   LockOpen,
+  X
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 import { useDbUsers, deleteRecord, updateRecord, createRecord } from "../../hooks/useAdminData";
@@ -266,6 +267,18 @@ const UsersView: React.FC = () => {
                 setPage(1);
               }}
             />
+            {search && (
+              <button 
+                className={styles.clearSearchBtn} 
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                }}
+                title="Xóa tìm kiếm"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            )}
           </div>
           <select
             className={styles.selectPill}

@@ -48,12 +48,14 @@ const ExpertItinerary: React.FC = () => {
             <img
               src="https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&q=80&w=800"
               alt="Hồ nước xanh thiên nhiên"
+              loading="lazy"
             />
           </div>
           <div className={styles.imageOverlay}>
             <img
               src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=600"
               alt="Bãi biển hoàng hôn"
+              loading="lazy"
             />
           </div>
         </div>

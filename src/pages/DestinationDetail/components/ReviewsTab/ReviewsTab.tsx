@@ -4,7 +4,7 @@ import styles from "./ReviewsTab.module.scss";
 import type { Destination } from "../../../../services/destinationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { getReviewsByTarget, createReview } from "../../../../services/reviewService";
-import { Camera, X, PaperPlaneTilt } from "@phosphor-icons/react";
+import { Camera, X, PaperPlaneTilt, MapPin } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 
 interface ReviewsTabProps {
@@ -201,6 +201,17 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ reviews: initialReviews }) => {
             {/* 1. Hiển thị đánh giá thật từ BE */}
             {realReviews.map((rev) => (
               <div key={rev.id} className={styles.reviewItem}>
+                {(rev.nameService || rev.provinceName) && (
+                  <div className={styles.serviceTag}>
+                    {rev.nameService && <span className={styles.serviceName}>{rev.nameService}</span>}
+                    {rev.provinceName && (
+                      <span className={styles.location}>
+                        <MapPin size={10} weight="fill" />
+                        {rev.provinceName}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div className={styles.reviewerHeader}>
                   <img src={rev.userImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(rev.userName)}&background=random`} className={styles.avatar} alt="" />
                   <div className={styles.reviewerInfo}>

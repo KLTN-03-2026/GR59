@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styles from './DestinationsView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, Globe, FileArrowDown, Check, Eye } from "@phosphor-icons/react";
+import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, Globe, FileArrowDown, Check, Eye, X } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDestinations, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
@@ -184,6 +184,15 @@ const DestinationsView: React.FC = () => {
               onChange={e => { setSearch(e.target.value); setPage(1); }}
               placeholder="Tìm tên địa điểm hoặc tỉnh thành..."
             />
+            {search && (
+              <button 
+                className={styles.clearSearchBtn} 
+                onClick={() => { setSearch(""); setPage(1); }}
+                title="Xóa tìm kiếm"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            )}
           </div>
         </div>
       </motion.div>

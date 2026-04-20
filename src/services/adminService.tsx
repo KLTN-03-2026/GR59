@@ -136,10 +136,12 @@ export interface AdminReview {
   type: "HOTEL" | "RESTAURANT" | "ATTRACTION" | "WEBSITE" | "TRIP";
   rating: number;
   comment: string;
-  isVerified: boolean;
+  status: "ACTIVE" | "HIDDEN";
   createdAt: string;
   updatedAt: string;
   images: string[];
+  provinceName?: string;
+  nameService?: string;
 }
 
 export interface BackendResponse<T = unknown> {
@@ -370,23 +372,51 @@ export const fetchAttractionDetail = (
 // News / Posts
 export const fetchNewsList = (page = 0, size = 10): Promise<
   AxiosResponse<BackendResponse<{ content: NewsItem[]; page: any }>>
-> => instance.get<BackendResponse<{ content: NewsItem[]; page: any }>>(`/news?page=${page}&size=${size}`);
+> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<{ content: NewsItem[]; page: any }>>(`/news/admin/all?page=${page}&size=${size}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
 
 export const createNews = (
-  data: any,
-): Promise<AxiosResponse<BackendResponse<NewsItem>>> =>
-  instance.post<BackendResponse<NewsItem>>("/news", data);
+  formData: FormData,
+): Promise<AxiosResponse<BackendResponse<NewsItem>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.post<BackendResponse<NewsItem>>("/news", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
 
 export const updateNews = (
   id: string | number,
-  data: any,
-): Promise<AxiosResponse<BackendResponse<NewsItem>>> =>
-  instance.put<BackendResponse<NewsItem>>(`/news/${id}`, data);
+  formData: FormData,
+): Promise<AxiosResponse<BackendResponse<NewsItem>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.put<BackendResponse<NewsItem>>(`/news/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
 
 export const removeNews = (
   id: string | number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> =>
   instance.delete<BackendResponse<unknown>>(`/news/${id}`);
+
+export const toggleNewsFeatured = (
+  id: string | number,
+): Promise<AxiosResponse<BackendResponse<unknown>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.patch<BackendResponse<unknown>>(`/news/${id}/featured`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
 
 // Reviews
 export const fetchAdminReviewsList = (page = 0, size = 10): Promise<
@@ -394,7 +424,7 @@ export const fetchAdminReviewsList = (page = 0, size = 10): Promise<
 > => {
   const token = localStorage.getItem("accessToken");
   return instance.get<BackendResponse<{ content: AdminReview[]; page: any }>>(
-    `/reviews?page=${page}&size=${size}`,
+    `/admin/reviews?page=${page}&size=${size}`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
@@ -403,20 +433,23 @@ export const fetchReviewDetail = (
   id: string | number
 ): Promise<AxiosResponse<BackendResponse<AdminReview>>> => {
   const token = localStorage.getItem("accessToken");
-  return instance.get<BackendResponse<AdminReview>>(`/reviews/${id}`, {
+  return instance.get<BackendResponse<AdminReview>>(`/admin/reviews/${id}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 };
 
 export const updateReviewStatus = (
   id: string | number,
-  isVerified: boolean
+  status: "ACTIVE" | "HIDDEN"
 ): Promise<AxiosResponse<BackendResponse<AdminReview>>> => {
   const token = localStorage.getItem("accessToken");
-  return instance.put<BackendResponse<AdminReview>>(
-    `/reviews/${id}`,
-    { isVerified },
-    { headers: { Authorization: `Bearer ${token}` } }
+  return instance.patch<BackendResponse<AdminReview>>(
+    `/admin/reviews/${id}/status`,
+    null,
+    { 
+      params: { status },
+      headers: { Authorization: `Bearer ${token}` } 
+    }
   );
 };
 
@@ -424,11 +457,24 @@ export const removeReview = (
   id: string | number,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   const token = localStorage.getItem("accessToken");
-  return instance.delete<BackendResponse<unknown>>(`/reviews/${id}`, {
+  return instance.delete<BackendResponse<unknown>>(`/admin/reviews/${id}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 };
 
+
+export const fetchReviewsByTarget = (
+  type: "hotel" | "restaurant" | "attraction",
+  id: string | number,
+  page = 0,
+  size = 10
+): Promise<AxiosResponse<BackendResponse<{ content: AdminReview[]; page: any }>>> => {
+  const token = localStorage.getItem("accessToken");
+  return instance.get<BackendResponse<{ content: AdminReview[]; page: any }>>(
+    `/admin/reviews/${type}/${id}?page=${page}&size=${size}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
 
 export const uploadAdminImage = async (
   file: File,

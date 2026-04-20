@@ -33,6 +33,7 @@ import {
   Wrench,
   Clock,
   MapPin,
+  Article
 } from "@phosphor-icons/react";
 import CustomSelect from "./CustomSelect";
 import { uploadAdminImage } from "../../../../services/adminService";
@@ -118,6 +119,8 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
         password: "",
         // News fields
         content: initialData.content || "",
+        excerpt: initialData.excerpt || "",
+        description: initialData.description || "",
         isFeatured: initialData.isFeatured ?? false,
         readTime: initialData.readTime || "5 phút đọc",
       };
@@ -194,7 +197,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    if (type === "hotel" || type === "restaurant" || type === "destination") {
+    if (type === "hotel" || type === "restaurant" || type === "destination" || type === "news") {
       const newFiles = Array.from(files);
       const newPreviews = newFiles.map((file) => {
         const url = URL.createObjectURL(file);
@@ -435,18 +438,39 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
     }
 
     if (type === "news") {
-      const newsData = {
+      const newsData: any = {
         title: finalData.name,
-        excerpt: finalData.description,
+        excerpt: finalData.excerpt,
         content: finalData.content,
-        image: finalData.imageUrl,
+        // Bỏ qua image vì sẽ gửi qua imageFile. Có thể truyền imageUrl nếu không có file mới.
+        // Nhưng backend thường không cần imageUrl nếu gửi file, hoặc chỉ gửi khi không có file.
+        // Ta cứ giữ lại nếu backend cần, nhưng ở form-data sẽ không có imageFile nếu không upload
         category: finalData.category,
-        date: initialData?.date || new Date().toISOString().split("T")[0],
         readTime: finalData.readTime,
         isFeatured:
           finalData.isFeatured === true || finalData.isFeatured === "true",
       };
-      onSave(newsData);
+      
+      const fd = new FormData();
+      const jsonBlob = new Blob([JSON.stringify(newsData)], {
+        type: "application/json",
+      });
+      fd.append("news", jsonBlob);
+
+      if (mainImageFile) {
+        fd.append("imageFile", mainImageFile);
+      } else if (finalData.imageUrl && typeof finalData.imageUrl === 'string' && !finalData.imageUrl.startsWith("blob:")) {
+        // Backend có thể không cần imageUrl, nhưng cứ thêm vào json nếu cần.
+        // Ta đã có trong json blob ở trên (nhưng bỏ đi trong định nghĩa, nên add lại)
+        newsData.image = finalData.imageUrl;
+        // Phải cập nhật lại Blob vì đã thay đổi newsData
+        const updatedJsonBlob = new Blob([JSON.stringify(newsData)], {
+          type: "application/json",
+        });
+        fd.set("news", updatedJsonBlob);
+      }
+
+      onSave(fd);
       return;
     }
 
@@ -465,46 +489,78 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
   // News Layout
   if (type === "news") {
     return (
-      <div className={styles.modalOverlay}>
-        <motion.div
-          className={`${styles.modalContent} ${styles.largeModal}`}
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-        >
-          <div className={styles.modalHeader}>
-            <div className={styles.headerTitle}>
-              <div
-                className={styles.headerIcon}
-                style={{ background: "#eff6ff", color: "#3b82f6" }}
+      <AnimatePresence>
+        <div className={styles.overlay} onClick={onClose}>
+          <motion.div
+            className={styles.modal}
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <div className={styles.header}>
+              <h3>{title}</h3>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={onClose}
+                aria-label="Đóng"
+                title="Đóng"
               >
-                <Article size={24} weight="fill" />
-              </div>
-              <div>
-                <h3>{title}</h3>
-                <p>Soạn thảo nội dung bài viết mới</p>
-              </div>
+                <X size={20} weight="bold" />
+              </button>
             </div>
-            <button
-              type="button"
-              className={styles.closeBtn}
-              onClick={onClose}
-              aria-label="Đóng"
-              title="Đóng"
-            >
-              <div style={{ fontSize: "12px" }}>
-                <X size={24} />
-              </div>
-            </button>
-          </div>
 
-          <div className={styles.modalBody}>
-            <div className={styles.formGrid}>
-              <div className={styles.formSection}>
-                <div className={styles.sectionHeader}>
-                  <Info size={20} weight="bold" />
-                  <h4>Thông tin cơ bản</h4>
+            <div className={styles.body}>
+              <div className={styles.formGrid}>
+                <div className={styles.sectionTitle}>
+                  <Info size={18} weight="fill" /> Thông tin cơ bản
                 </div>
-                <div className={styles.inputGroup}>
+
+                <div
+                  className={`${styles.inputGroup} ${styles.fullWidth}`}
+                  style={{ marginBottom: "32px" }}
+                >
+                  <div className={styles.mainImageHeader}>
+                    <div className={styles.mainPreviewWrapper}>
+                      {formData.imageUrl ? (
+                        <img src={formData.imageUrl} alt="Preview" />
+                      ) : (
+                        <div className={styles.placeholderIcon}>
+                          <ImageIcon size={48} weight="thin" />
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className={styles.uploadBtnOverlay}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <UploadSimple size={20} weight="bold" />
+                        <span>{formData.imageUrl ? "Đổi ảnh" : "Tải ảnh lên"}</span>
+                      </button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, "main")}
+                      />
+                    </div>
+                    <div className={styles.imageMetaInfo}>
+                      <label>Ảnh bìa bài viết (URL hoặc Tải lên)</label>
+                      <input
+                        type="text"
+                        name="imageUrl"
+                        value={formData.imageUrl || ""}
+                        onChange={handleChange}
+                        placeholder="Dán URL hình ảnh tại đây hoặc nhấn nút Tải lên bên cạnh..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                   <label>Tiêu đề bài viết</label>
                   <input
                     type="text"
@@ -512,64 +568,49 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     value={formData.name || ""}
                     onChange={handleChange}
                     placeholder="VD: 10 Địa điểm không thể bỏ qua tại Đà Nẵng..."
+                    style={{ fontSize: "1.25rem", fontWeight: "800", color: "#0EA5E9" }}
                   />
                 </div>
-                <div className={styles.inputGroup}>
+
+                <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                   <label>Tóm tắt bài viết</label>
                   <textarea
-                    name="description"
-                    value={formData.description || ""}
+                    name="excerpt"
+                    value={formData.excerpt || ""}
                     onChange={handleChange}
                     placeholder="Mô tả ngắn gọn về nội dung bài viết..."
+                    style={{ minHeight: "80px" }}
                   ></textarea>
                 </div>
-                <div className={styles.row}>
-                  <div className={styles.inputGroup}>
-                    <CustomSelect
-                      label="Chuyên mục"
-                      options={[
-                        { value: "Điểm đến", label: "Điểm đến" },
-                        { value: "Ẩm thực", label: "Ẩm thực" },
-                        { value: "Mẹo du lịch", label: "Mẹo du lịch" },
-                        { value: "Sự kiện", label: "Sự kiện" },
-                      ]}
-                      value={formData.category || "Điểm đến"}
-                      onChange={(val) =>
-                        setFormData((prev: any) => ({ ...prev, category: val }))
-                      }
-                    />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label>Thời gian đọc</label>
-                    <input
-                      type="text"
-                      name="readTime"
-                      value={formData.readTime || ""}
-                      onChange={handleChange}
-                      placeholder="VD: 5 phút đọc"
-                    />
-                  </div>
-                </div>
-              </div>
 
-              <div className={styles.formSection}>
-                <div className={styles.sectionHeader}>
-                  <ImageIcon size={20} weight="bold" />
-                  <h4>Hình ảnh & Trạng thái</h4>
-                </div>
                 <div className={styles.inputGroup}>
-                  <label>Ảnh bìa bài viết (URL)</label>
-                  <div className={styles.imageUploadArea}>
-                    <input
-                      type="text"
-                      name="imageUrl"
-                      value={formData.imageUrl || ""}
-                      onChange={handleChange}
-                      placeholder="https://images.unsplash.com/..."
-                    />
-                  </div>
+                  <CustomSelect
+                    label="Chuyên mục"
+                    options={[
+                      { value: "Điểm đến", label: "Điểm đến", icon: <MapPin size={18} /> },
+                      { value: "Ẩm thực", label: "Ẩm thực", icon: <BowlFood size={18} /> },
+                      { value: "Mẹo du lịch", label: "Mẹo du lịch", icon: <Airplane size={18} /> },
+                      { value: "Sự kiện", label: "Sự kiện", icon: <Star size={18} /> },
+                    ]}
+                    value={formData.category || "Điểm đến"}
+                    onChange={(val) =>
+                      setFormData((prev: any) => ({ ...prev, category: val }))
+                    }
+                  />
                 </div>
+
                 <div className={styles.inputGroup}>
+                  <label>Thời gian đọc</label>
+                  <input
+                    type="text"
+                    name="readTime"
+                    value={formData.readTime || ""}
+                    onChange={handleChange}
+                    placeholder="VD: 5 phút đọc"
+                  />
+                </div>
+
+                <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                   <CustomSelect
                     label="Bài viết nổi bật"
                     options={[
@@ -590,44 +631,42 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     }
                   />
                 </div>
-              </div>
 
-              <div className={`${styles.formSection} ${styles.fullWidth}`}>
-                <div className={styles.sectionHeader}>
-                  <Article size={20} weight="bold" />
-                  <h4>Nội dung bài viết</h4>
+                <div className={styles.sectionTitle}>
+                  <Article size={18} weight="fill" /> Nội dung chi tiết
                 </div>
-                <div className={styles.inputGroup}>
+
+                <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                   <textarea
                     name="content"
                     value={formData.content || ""}
                     onChange={handleChange}
-                    placeholder="Viết nội dung bài viết tại đây..."
-                    style={{ minHeight: "300px" }}
+                    placeholder="Viết nội dung HTML hoặc văn bản bài viết tại đây..."
+                    style={{ minHeight: "300px", fontFamily: "monospace" }}
                   ></textarea>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className={styles.modalFooter}>
-            <button
-              type="button"
-              className={styles.btnCancel}
-              onClick={onClose}
-            >
-              Hủy bỏ
-            </button>
-            <button
-              type="button"
-              className={styles.btnSave}
-              onClick={handleSaveInternal}
-            >
-              Lưu bài viết
-            </button>
-          </div>
-        </motion.div>
-      </div>
+            <div className={styles.footer}>
+              <button
+                type="button"
+                className={styles.btnCancel}
+                onClick={onClose}
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                className={styles.btnSave}
+                onClick={handleSaveInternal}
+              >
+                Lưu bài viết
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </AnimatePresence>
     );
   }
 

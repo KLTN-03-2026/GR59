@@ -191,9 +191,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         <CustomSelect options={priceOptions} defaultValue="all" onChange={onPriceRangeChange} />
         <CustomSelect options={sortOptions} defaultValue="rating" onChange={onSortChange} />
         
-        <button className={styles.btnAdvance}>
-          <span>🛠</span> Lọc
-        </button>
+       
       </div>
     </div>
   );

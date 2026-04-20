@@ -12,10 +12,11 @@ import {
   Article,
   CheckCircle,
   Clock,
-  Star
+  Star,
+  X
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
-import { useNews, deleteRecord, updateRecord, createRecord } from "../../hooks/useAdminData";
+import { useNews, deleteRecord, updateRecord, createRecord, toggleNewsFeatured } from "../../hooks/useAdminData";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import AddEditModal from "../_shared/AddEditModal";
 import { toast } from "react-toastify";
@@ -78,7 +79,7 @@ const NewsView: React.FC = () => {
     try {
       await deleteRecord("news", id);
       toast.success("Xóa bài viết thành công!");
-      refetch();
+      refetch(page - 1, PAGE_SIZE);
     } catch {
       toast.error("Xóa thất bại!");
     }
@@ -99,9 +100,19 @@ const NewsView: React.FC = () => {
         toast.success("Thêm bài viết thành công!");
       }
       setIsEditOpen(false);
-      refetch();
+      refetch(page - 1, PAGE_SIZE);
     } catch (err: any) {
       toast.error("Thao tác thất bại!");
+    }
+  };
+
+  const handleToggleFeatured = async (id: number) => {
+    try {
+      await toggleNewsFeatured(id);
+      toast.success("Cập nhật trạng thái nổi bật thành công!");
+      refetch(page - 1, PAGE_SIZE);
+    } catch (err) {
+      toast.error("Cập nhật trạng thái thất bại!");
     }
   };
 
@@ -128,7 +139,7 @@ const NewsView: React.FC = () => {
         </div>
       </motion.div>
 
-      {error && <ErrorBanner message={error} onRetry={refetch} />}
+      {error && <ErrorBanner message={error} onRetry={() => refetch(page - 1, PAGE_SIZE)} />}
 
       <motion.div variants={rowVariants} className={styles.statsGrid}>
         <StatCard
@@ -163,6 +174,15 @@ const NewsView: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            {search && (
+              <button 
+                className={styles.clearSearchBtn} 
+                onClick={() => setSearch("")}
+                title="Xóa tìm kiếm"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            )}
           </div>
           <select
             className={styles.selectPill}
@@ -214,21 +234,25 @@ const NewsView: React.FC = () => {
                         {item.category}
                       </span>
                     </td>
-                    <td>{item.date}</td>
                     <td>
+                      {item.createdAt 
+                        ? new Date(item.createdAt).toLocaleDateString('vi-VN')
+                        : item.date || "---"}
+                    </td>
+                    <td style={{ textAlign: "center", cursor: "pointer" }} onClick={() => handleToggleFeatured(item.id)}>
                       {item.isFeatured ? (
-                        <Star size={18} weight="fill" color="#f59e0b" />
+                        <Star size={20} weight="fill" color="#f59e0b" style={{ transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
                       ) : (
-                        <Star size={18} color="#cbd5e1" />
+                        <Star size={20} color="#cbd5e1" style={{ transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
                       )}
                     </td>
                     <td>
                       <div className={styles.actionGroup}>
                         <button className={styles.actionBtn} onClick={() => handleEdit(item)} title="Chỉnh sửa">
-                          <Pencil size={17} />
+                         <div style={{fontSize: "12px"}}> <Pencil size={17} /></div>
                         </button>
                         <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => handleDelete(item.id)} title="Xóa">
-                          <Trash size={17} />
+                          <div style={{fontSize: "12px"}}> <Trash size={17} /></div>
                         </button>
                       </div>
                     </td>
@@ -243,7 +267,7 @@ const NewsView: React.FC = () => {
           <div className={styles.pagination}>
             <div className={styles.paginationBtns}>
               <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className={styles.pageBtn}>
-                <CaretLeft size={16} />
+               <div style={{fontSize: "12px"}}> <CaretLeft size={16} /></div>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
                 <button key={p} className={`${styles.pageBtn} ${p === page ? styles.pageBtnActive : ""}`} onClick={() => setPage(p)}>
@@ -251,7 +275,7 @@ const NewsView: React.FC = () => {
                 </button>
               ))}
               <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className={styles.pageBtn}>
-                <CaretRight size={16} />
+                <div style={{fontSize: "12px"}}> <CaretRight size={16} /></div>
               </button>
             </div>
           </div>

@@ -11,6 +11,7 @@ import CategoryTabs from "./components/CategoryTabs/CategoryTabs";
 import FilterBar from "./components/FilterBar/FilterBar";
 import TravelCard from "./components/TravelCard/TravelCard";
 import AIRecommendations from "./components/AIRecommendations/AIRecommendations";
+import SkeletonCard from "../../components/Ui/SkeletonCard/SkeletonCard";
 
 import { 
   getHighlightLocations, 
@@ -52,39 +53,43 @@ const Explore: React.FC = () => {
     setIsLoading(true);
     try {
       const isSearching = debouncedSearch.trim().length > 0;
+      const limit = 24; 
       
-      // Gọi đồng thời 3 API
-      const [hotelsRes, restaurantsRes, attractionsRes] = await Promise.all([
-        isSearching 
-          ? getHotelsByKeyword(debouncedSearch, 0, 50) 
-          : getHotels(0, 50),
-        isSearching 
-          ? getHighlightRestaurantsByKeyword(debouncedSearch, 0, 50) 
-          : getHighlightRestaurants(),
-        isSearching 
-          ? getHighlightAttractionsByKeyword(debouncedSearch, 0, 50) 
-          : getHighlightLocations()
-      ]);
+      let hotelsRes, restaurantsRes, attractionsRes;
+      
+      if (activeCategory === "all") {
+        [hotelsRes, restaurantsRes, attractionsRes] = await Promise.all([
+          isSearching ? getHotelsByKeyword(debouncedSearch, 0, limit) : getHotels(0, limit),
+          isSearching ? getHighlightRestaurantsByKeyword(debouncedSearch, 0, limit) : getHighlightRestaurants(),
+          isSearching ? getHighlightAttractionsByKeyword(debouncedSearch, 0, limit) : getHighlightLocations()
+        ]);
+      } else if (activeCategory === "bed") {
+        hotelsRes = isSearching ? await getHotelsByKeyword(debouncedSearch, 0, limit) : await getHotels(0, limit);
+      } else if (activeCategory === "food") {
+        restaurantsRes = isSearching ? await getHighlightRestaurantsByKeyword(debouncedSearch, 0, limit) : await getHighlightRestaurants();
+      } else if (activeCategory === "pin") {
+        attractionsRes = isSearching ? await getHighlightAttractionsByKeyword(debouncedSearch, 0, limit) : await getHighlightLocations();
+      }
 
       let allItems: HighlightItem[] = [];
 
-      // 1. Xử lý Khách sạn (An toàn)
-      const hotelsData = hotelsRes.data?.data;
-      if (hotelsData) {
+      // 1. Xử lý Khách sạn
+      if (hotelsRes?.data?.data) {
+        const hotelsData = hotelsRes.data.data;
         const hContent = Array.isArray(hotelsData) ? hotelsData : (hotelsData as any).content;
         if (Array.isArray(hContent)) allItems = [...allItems, ...hContent];
       }
 
-      // 2. Xử lý Nhà hàng (An toàn)
-      const restaurantsData = restaurantsRes.data?.data;
-      if (restaurantsData) {
+      // 2. Xử lý Nhà hàng
+      if (restaurantsRes?.data?.data) {
+        const restaurantsData = restaurantsRes.data.data;
         const rContent = Array.isArray(restaurantsData) ? restaurantsData : (restaurantsData as any).content;
         if (Array.isArray(rContent)) allItems = [...allItems, ...rContent];
       }
 
-      // 3. Xử lý Địa điểm (An toàn)
-      const attractionsData = attractionsRes.data?.data;
-      if (attractionsData) {
+      // 3. Xử lý Địa điểm
+      if (attractionsRes?.data?.data) {
+        const attractionsData = attractionsRes.data.data;
         const aContent = Array.isArray(attractionsData) ? attractionsData : (attractionsData as any).content;
         if (Array.isArray(aContent)) allItems = [...allItems, ...aContent];
       }
@@ -119,7 +124,7 @@ const Explore: React.FC = () => {
   useEffect(() => {
     fetchPlaces();
     AOS.init({ duration: 800, once: true });
-  }, [debouncedSearch]);
+  }, [debouncedSearch, activeCategory]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -274,10 +279,11 @@ const Explore: React.FC = () => {
 
         <div className={styles.cardGrid}>
           {isLoading ? (
-            <div className={styles.loadingState}>
-              <div className={styles.spinner}></div>
-              <p>Đang tải dữ liệu khám phá...</p>
-            </div>
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={`skeleton-${i}`}>
+                <SkeletonCard />
+              </div>
+            ))
           ) : error ? (
             <div className={styles.errorState}>
               <p>{error}</p>
