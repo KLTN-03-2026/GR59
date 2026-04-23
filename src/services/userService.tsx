@@ -2,33 +2,44 @@ import type { AxiosResponse } from "axios";
 import instance from "../utils/AxiosCustomize";
 
 // --- Interfaces ---
+
+/**
+ * Cấu trúc sở thích du lịch của người dùng (Travel Survey)
+ */
 export interface UserPreferences {
-  travelStyles: string[];
-  allergies: string[];
-  diet: string;
-  taste: string;
-  transport: string;
-  travelPace: string;
+  travelStyles: string[]; // Các gu du lịch (Chill, Mạo hiểm, Văn hóa...)
+  allergies: string[];    // Các dị ứng thực phẩm
+  diet: string;          // Chế độ ăn uống (Chay, mặn...)
+  taste: string;         // Khẩu vị (Cay, ngọt...)
+  transport: string;     // Phương tiện di chuyển yêu thích
+  travelPace: string;    // Tốc độ di chuyển (Nhanh/Chậm)
 }
 
+/**
+ * Thông tin chi tiết của người dùng
+ */
 export interface UserData {
   id: number | string;
-  username?: string;
-  fullName?: string;
   email: string;
-  password?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  createdAt?: string;
-  role?: string;
-  roleId?: number;
-  roleName?: string;
-  status?: string;
-  avatarUrl?: string | null;
-  isActive?: boolean;
+  fullName: string;
+  avatarUrl: string | null;
+  role: string;
+  isActive: boolean;
+  address: string | null;
+  createdAt: string;
+  phone: string | null;
+  bio: string | null;
+  googleId: string | null;
+  facebookId: string | null;
+  isGoogleLinked: boolean;
+  isFacebookLinked: boolean;
+  isEmailVerified: boolean;
   preferences?: UserPreferences;
 }
 
+/**
+ * Dữ liệu trả về sau khi xác thực thành công (Login/Register)
+ */
 export interface AuthResponseData {
   accessToken: string;
   refreshToken: string;
@@ -36,44 +47,52 @@ export interface AuthResponseData {
   user: UserData;
 }
 
+/**
+ * Cấu trúc phản hồi chuẩn từ Backend
+ */
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
   data?: T;
-  DT?: T;
 }
 
-// 1. Đăng ký (Thay API thật)
+/**
+ * 1. Đăng ký tài khoản mới bằng Email
+ */
 export const postSignUp = (
-  username: string,
+  fullname: string,
   email: string,
-  pass: string,
+  password: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>(
     "/auth/register",
     {
-      full_name: username,
-      email: email,
-      password: pass,
+      fullname,
+      email,
+      password,
     },
   );
 };
 
-// 2. Đăng nhập (Thay API thật)
+/**
+ * 2. Đăng nhập bằng Email và Mật khẩu
+ */
 export const postLogin = (
   email: string,
-  pass: string,
+  password: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
   return instance.post<BackendResponse<AuthResponseData>>(
     "/auth/login",
     {
-      email: email,
-      password: pass,
+      email,
+      password,
     },
   );
 };
 
-// 3. Đăng nhập Google (Thay API thật)
+/**
+ * 3. Đăng nhập bằng tài khoản Google
+ */
 export const postLoginGoogle = (
   token: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
@@ -85,7 +104,9 @@ export const postLoginGoogle = (
   );
 };
 
-// 3.1. Đăng nhập Facebook
+/**
+ * 3.1. Đăng nhập bằng tài khoản Facebook
+ */
 export const postLoginFacebook = (
   accessToken: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
@@ -97,10 +118,12 @@ export const postLoginFacebook = (
   );
 };
 
-// 4. Quên mật khẩu & Cập nhật mật khẩu mới (Đã chuẩn hóa Type)
+/**
+ * 4. Cập nhật mật khẩu mới thông qua Email (Dùng trong luồng quên mật khẩu)
+ */
 export const updatePasswordByEmail = async (
   email: string,
-  newPass: string,
+  password: string,
 ): Promise<AxiosResponse<BackendResponse<UserData | null>>> => {
   const res = await instance.get<BackendResponse<UserData[]>>(
     `/users?email=${email}`,
@@ -110,7 +133,7 @@ export const updatePasswordByEmail = async (
   if (users && users.length > 0) {
     const user = users[0];
     return instance.patch<BackendResponse<UserData>>(`/users/${user.id}`, {
-      password: newPass,
+      password,
     });
   } else {
     return {
@@ -123,7 +146,9 @@ export const updatePasswordByEmail = async (
   }
 };
 
-// 5. Đăng xuất
+/**
+ * 5. Đăng xuất và vô hiệu hóa Refresh Token
+ */
 export const postLogout = (
   refreshToken: string,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
@@ -132,7 +157,9 @@ export const postLogout = (
   });
 };
 
-// 6. Refresh Token
+/**
+ * 6. Làm mới Access Token bằng Refresh Token
+ */
 export const postRefreshToken = (
   refreshToken: string,
 ): Promise<AxiosResponse<BackendResponse<AuthResponseData>>> => {
@@ -150,7 +177,9 @@ export interface SendOtpResponseData {
   status: string;
 }
 
-// 7. Gửi mã OTP
+/**
+ * 7. Gửi mã OTP về Email người dùng
+ */
 export const postSendOTP = (
   email: string,
 ): Promise<AxiosResponse<BackendResponse<SendOtpResponseData>>> => {
@@ -162,7 +191,9 @@ export const postSendOTP = (
   );
 };
 
-// 8. Xác minh OTP - Trả về BackendResponse chung hoặc cụ thể nếu cần
+/**
+ * 8. Xác minh mã OTP đã gửi
+ */
 export const postVerifyOTP = (
   email: string,
   otp: number,
@@ -173,21 +204,26 @@ export const postVerifyOTP = (
   });
 };
 
-// 9. Đặt lại mật khẩu mới sau khi OTP thành công
+/**
+ * 9. Đặt lại mật khẩu mới sau khi xác thực OTP thành công
+ */
 export const postResetPassword = (
   email: string,
-  newPass: string,
+  new_password: string,
 ): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   return instance.post<BackendResponse<unknown>>(
     "/auth/reset-password-otp",
     {
-      email: email,
-      new_password: newPass,
+      email,
+      new_password,
     },
   );
 };
 
-// 10. Cập nhật sở thích người dùng
+/**
+ * 10. Cập nhật sở thích (Preferences) của người dùng sau khảo sát
+ * Có cơ chế Fallback nếu Backend chưa sẵn sàng API
+ */
 export const updateUserPreferences = async (
   userId: number | string,
   preferences: UserPreferences,
@@ -196,13 +232,12 @@ export const updateUserPreferences = async (
     return await instance.put<BackendResponse<UserData>>(`/users/${userId}/preferences`, preferences);
   } catch (error) {
     console.warn("API updateUserPreferences chưa sẵn sàng, sử dụng fallback:", error);
-    // Trả về mock response để FE không bị chặn
+    // Trả về mock response để FE không bị chặn nếu lỗi 403/404 từ BE
     return {
       data: {
         status: 200,
         message: "Fallback success",
         data: { id: userId, email: "", preferences } as UserData,
-        DT: { id: userId, email: "", preferences } as UserData
       },
       status: 200,
       statusText: "OK",

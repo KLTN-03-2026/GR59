@@ -9,10 +9,11 @@
     text-align: left;
 
     h2 {
-      font-size: 1.75rem;
+      font-size: 1.5rem; // Giảm từ 1.75
       font-weight: 800;
+      margin-bottom: 2px;
       letter-spacing: -0.01em;
-      background: linear-gradient(135deg, #ff4c94 0%, #ff8a3d 100%);
+      background: vars.$auth-gradient;
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -21,27 +22,26 @@
 
     p {
       color: #64748b;
-      font-size: 0.8rem;
+      font-size: 0.75rem; // Giảm từ 0.8
       font-weight: 500;
     }
   }
-}
 
   .socialButtons {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 12px; // Giảm từ 16
+    margin-bottom: 12px; // Giảm từ 24
     width: 100%;
 
     .googleButtonWrap,
     .facebookButtonWrap {
-      height: 48px;
+      height: 40px; // Giảm từ 48
       display: flex;
       align-items: center;
       overflow: hidden;
       border-radius: 40px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       transition: all 0.3s ease;
 
       &:hover {
@@ -106,8 +106,8 @@
   }
 
   span {
-    padding: 0 12px;
-    margin: 10px 0;
+    padding: 0 10px;
+    margin: 5px 0; // Giảm từ 10
   }
 }
 
@@ -169,11 +169,11 @@
 
         &:focus {
           outline: none;
-          border-color: #ff4c94;
-          box-shadow: 0 0 15px rgba(255, 77, 148, 0.08);
+          border-color: vars.$auth-primary;
+          box-shadow: 0 0 15px rgba(vars.$auth-primary, 0.08);
 
           & + .icon {
-            color: #ff4c94;
+            color: vars.$auth-primary;
           }
         }
       }
@@ -214,8 +214,8 @@
     flex-shrink: 0;
 
     &:checked {
-      background: #ff4c94;
-      border-color: #ff4c94;
+      background: vars.$auth-primary;
+      border-color: vars.$auth-primary;
 
       &::after {
         content: "✓";
@@ -237,55 +237,31 @@
   }
 }
 
-.btnSubmit {
-  width: 100%;
-  padding: 12px;
-  margin-top: 4px;
-  background: linear-gradient(135deg, #ff4c94 0%, #ff8a3d 100%);
-  color: white;
-  border: none;
-  border-radius: 30px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 8px 25px rgba(255, 76, 148, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(255, 76, 148, 0.4);
-    filter: brightness(1.02);
-  }
-}
+/* btnSubmit cũ đã được thay thế bằng PremiumButton */
 
 .footer {
   text-align: center;
-  margin-top: 20px;
-  font-size: 0.9rem;
+  margin-top: 10px; // Giảm từ 20
+  font-size: 0.85rem; // Giảm từ 0.9
   font-weight: 500;
   color: #64748b;
 
   button {
     background: none;
     border: none;
-    color: #ff4c94;
+    color: vars.$auth-primary;
     font-weight: 700;
     cursor: pointer;
     padding: 0 4px;
     font-size: inherit;
 
     &:hover {
-      color: #ff8a3d;
+      color: vars.$auth-secondary;
       text-decoration: underline;
     }
   }
 }
-.btnSubmit {
-  &:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
+  /* btnSubmit:disabled đã được xử lý trong PremiumButton */
 }
 
 @include Register.mobile-styles();

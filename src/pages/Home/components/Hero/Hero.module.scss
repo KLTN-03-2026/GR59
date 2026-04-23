@@ -1,104 +1,419 @@
 @use "../../../../components/styles/variables.scss" as vars;
 
+/* General Utilities for Hero */
+.container {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin: 0 auto;
+  padding: 0 20px;
+  max-width: 1100px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+}
+
+.btnPrimary {
+  background: vars.$bg-white;
+  color: vars.$text-dark;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: vars.$shadow-lg;
+  }
+}
+
+.btnSecondary {
+  background: transparent;
+  color: vars.$bg-white;
+  border: 1px solid vars.$glass-border;
+  backdrop-filter: blur(12px);
+  &:hover {
+    border-color: vars.$brand-cyan;
+    background: rgba(vars.$bg-white, 0.1);
+  }
+}
+
+/* ====================
+   Hero Section 
+==================== */
 .hero {
   position: relative;
+  min-height: 100vh;
   width: 100%;
-  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-
-  .video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 0;
-  }
+  z-index: 10;
+  padding-top: 100px;
+  background: url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070")
+    center/cover no-repeat;
+  background-attachment: fixed;
 }
 
-.container {
-  position: relative;
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
   z-index: 1;
-  margin: 0 auto;
-  padding: 0 20px;
-  max-width: 1068px;
-  text-align: center;
 }
 
 .heroBadge {
-  display: inline-block;
-  padding: 8px 16px;
-  background: rgba(170, 59, 255, 0.1);
-  border: 1px solid rgba(170, 59, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 100px;
-  color: #1e293b;
-  font-weight: 600;
-  font-size: 0.8rem;
-  -webkit-backdrop-filter: blur(10px);
+  color: vars.$bg-white;
+  font-weight: 700;
+  font-size: 0.7rem;
   backdrop-filter: blur(10px);
+  letter-spacing: 1.5px;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+
+  .badgeIcon {
+    margin-right: 8px;
+    font-size: 1rem;
+  }
 }
 
 .heroTitle {
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: 3.2rem;
+  font-weight: 800;
   line-height: 1.1;
-  margin-top: 14px;
-  color: #1e293b;
-  letter-spacing: 0.1rem; // Chỉnh lại cho đỡ bị thưa quá
+  color: vars.$bg-white;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 800px; // Thu hẹp tiêu đề
+  margin: 0 auto 20px;
 }
 
-.gradientText {
-  background: vars.$primary-gradient;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
+.heroDescription {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px; // Thu hẹp mô tả
+  margin: 0 auto 40px;
+  line-height: 1.6;
+  font-weight: 500;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+.heroButtons {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Hero Search Widget */
 .heroSearchWrapper {
-  background: rgba(255, 255, 255, 0.85);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border-radius: 60px;
-  padding: 20px;
-  max-width: 800px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 100px;
+  padding: 8px 8px 8px 50px; // Tăng thêm một chút padding
+  max-width: 1200px; // Kéo dài tối đa
   margin: 0 auto;
-  box-shadow: vars.$shadow-lg;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    transform: translateY(-12px);
-    background: rgba(250, 246, 246, 0.9);
-  }
+  position: relative;
+  z-index: 1000;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
 }
 
 .premiumSearchWidget {
   display: flex;
   align-items: center;
-  gap: 20px;
-  
+  width: 100%;
 }
 
-.btnSearchSubmit {
-  background: linear-gradient(135deg, #33d7d1 0%, #00ced1 50%, #008b8b 100%);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 999px;
+.searchField {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 700;
+  gap: 15px;
+  background: transparent;
   border: none;
-  cursor: pointer;
+  padding: 12px 0;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(51, 215, 209, 0.3);
+  .fieldIcon {
+    color: vars.$brand-cyan;
+    font-size: 1.3rem;
   }
 }
 
-// Thêm các class con như searchField, fieldInfo từ file gốc của bạn vào đây...
+.fieldInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  flex: 1;
+
+  label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: vars.$brand-cyan;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: vars.$bg-white;
+    outline: none;
+    padding: 0;
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  .customSelectTrigger {
+    width: 100%;
+    cursor: pointer;
+    color: vars.$bg-white;
+    font-weight: 600;
+    .activeValue {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: vars.$bg-white;
+    }
+    .placeholderValue {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+.searchDivider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 40px; // Nới rộng khoảng cách giữa các mục
+}
+
+.btnSearchSubmit {
+  background: vars.$primary-cyan-gradient;
+  color: vars.$bg-white;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 15px rgba(51, 215, 209, 0.3);
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 20px rgba(51, 215, 209, 0.4);
+  }
+}
+
+/* Hero Stats Section */
+.heroStats {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+  margin-top: 50px;
+}
+
+.statBox {
+  text-align: center;
+  color: vars.$bg-white;
+  span {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  p {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+}
+
+/* Dropdown styling - COMPACT VERSION */
+.suggestionsDropdown {
+  position: absolute;
+  top: calc(100% + 20px);
+  left: 0;
+  width: 400px;
+  background: vars.$bg-white;
+  border-radius: 20px;
+  box-shadow: vars.$shadow-2xl;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+.dropdownGuests {
+  width: 280px;
+  left: auto;
+  right: 0;
+}
+
+.suggestionsList {
+  max-height: 180px; // Thấp hơn
+  overflow-y: auto;
+  display: grid;
+  gap: 6px; // Khít hơn
+  padding-right: 6px;
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: vars.$border-color;
+    border-radius: 10px;
+  }
+}
+
+.suggestionsHeader {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: vars.$text-light;
+  margin-bottom: 8px;
+  margin-left: 10px;
+  text-transform: uppercase;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: vars.$text-dark;
+  }
+  &:hover {
+    background: vars.$bg-main;
+    transform: translateX(4px);
+  }
+  &.active {
+    background: rgba(vars.$brand-cyan, 0.1);
+    border-color: vars.$brand-cyan;
+  }
+  .optionIcon {
+    width: 32px;
+    height: 32px;
+    background: vars.$bg-main;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .optionText {
+    display: flex;
+    flex-direction: column;
+    .optionTitle {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: vars.$text-dark;
+    }
+    .optionDesc {
+      font-size: 0.7rem;
+      color: vars.$text-gray;
+    }
+  }
+}
+
+.guestCounter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 5px;
+}
+.guestInfo .guestTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: vars.$text-dark;
+}
+
+.counterControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  .counterBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid vars.$border-color;
+    background: vars.$bg-main;
+    color: vars.$text-dark;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    &:hover:not(:disabled) {
+      background: vars.$brand-cyan;
+      color: vars.$bg-white;
+      border-color: vars.$brand-cyan;
+    }
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .counterBtnInner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 20px;
+      width: 20px;
+    }
+  }
+  .counterValue {
+    font-size: 1rem;
+    font-weight: 700;
+    color: vars.$text-dark;
+    min-width: 20px;
+    text-align: center;
+  }
+}

@@ -1,279 +1,328 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./Hero.module.scss";
 import {
-  RocketLaunch,
-  Compass,
   MapPin,
+  Wallet,
   Users,
-  Sparkle,
-  CurrencyCircleDollar,
+  MagnifyingGlass,
   Minus,
   Plus,
 } from "phosphor-react";
 
 import { toast } from "react-toastify";
-import VideoHome from "../../../../assets/video/Da_Nang.mp4";
-import styles from "../../Home.module.scss";
-
-const VIETNAM_PROVINCES = [
-  "Hà Nội", "TP Hồ Chí Minh", "Đà Nẵng", "Quảng Nam", "Thừa Thiên Huế"
-];
-
-const BUDGET_OPTIONS = [
-  {
-    label: "Tiết kiệm",
-    value: "Dưới 5 triệu",
-    desc: "< 5 Triệu VNĐ",
-    icon: <Sparkle size={18} weight="duotone" color="#10b981" />,
-  },
-  {
-    label: "Tiêu chuẩn",
-    value: "5 - 10 triệu",
-    desc: "5 - 10 Triệu VNĐ",
-    icon: <RocketLaunch size={18} weight="duotone" color="#0ea5e9" />,
-  },
-  {
-    label: "Thoải mái",
-    value: "10 - 20 triệu",
-    desc: "10 - 20 Triệu VNĐ",
-    icon: <Compass size={18} weight="duotone" color="#8b5cf6" />,
-  },
-  {
-    label: "Đẳng cấp",
-    value: "Trên 20 triệu",
-    desc: "> 20 Triệu VNĐ",
-    icon: <Sparkle size={18} weight="fill" color="#f59e0b" />,
-  },
-];
+import SearchField from "./SearchField";
+import DropdownContent from "./DropdownContent";
+import { VIETNAM_PROVINCES, BUDGET_OPTIONS } from "./Hero.constants";
 
 interface HeroProps {
-  userName: string | null;
+  userName?: string | null;
 }
 
-const Hero: React.FC<HeroProps> = ({ userName }) => {
+const normalizeText = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const Hero: React.FC<HeroProps> = () => {
   const navigate = useNavigate();
   const [dest, setDest] = useState("");
   const [budget, setBudget] = useState("");
   const [guests, setGuests] = useState(1);
-  const [showDestDropdown, setShowDestDropdown] = useState(false);
-  const [showBudgetDropdown, setShowBudgetDropdown] = useState(false);
-  const [showGuestsDropdown, setShowGuestsDropdown] = useState(false);
-  
+  const [activeDropdown, setActiveDropdown] = useState<
+    "dest" | "budget" | "guests" | null
+  >(null);
+
   const destRef = useRef<HTMLDivElement>(null);
   const budgetRef = useRef<HTMLDivElement>(null);
   const guestsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (destRef.current && !destRef.current.contains(event.target as Node)) {
-        setShowDestDropdown(false);
-      }
-      if (budgetRef.current && !budgetRef.current.contains(event.target as Node)) {
-        setShowBudgetDropdown(false);
-      }
-      if (guestsRef.current && !guestsRef.current.contains(event.target as Node)) {
-        setShowGuestsDropdown(false);
-      }
+      const target = event.target as Node;
+      if (
+        destRef.current?.contains(target) ||
+        budgetRef.current?.contains(target) ||
+        guestsRef.current?.contains(target)
+      )
+        return;
+      setActiveDropdown(null);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const checkAuth = () => {
+  const filteredProvinces = useMemo(() => {
+    if (dest.trim() === "") return VIETNAM_PROVINCES;
+    const searchStr = normalizeText(dest);
+    return VIETNAM_PROVINCES.filter((p) =>
+      normalizeText(p.name).includes(searchStr),
+    );
+  }, [dest]);
+
+  const selectedBudgetLabel = useMemo(
+    () =>
+      BUDGET_OPTIONS.find((opt) => opt.value === budget)?.label ||
+      "Chọn ngân sách...",
+    [budget],
+  );
+
+  const performSearch = useCallback(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       toast.warn("Vui lòng đăng nhập để bắt đầu hành trình của bạn! 👋");
-      navigate("/auth");
-      return false;
+      return navigate("/auth");
     }
-    return true;
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!checkAuth()) return;
+    if (!dest) {
+      toast.info("Vui lòng chọn điểm đến bạn muốn khám phá! 📍");
+      return setActiveDropdown("dest");
+    }
     navigate("/planner", {
       state: {
         destination: dest,
-        budget: budget,
+        budget,
         totalGuests: guests,
         searchAt: new Date().toISOString(),
       },
     });
-  };
-
-  const handleStartJourney = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!checkAuth()) return;
-    navigate("/planner", {
-      state: {
-        destination: dest,
-        budget: budget,
-        totalGuests: guests,
-        searchAt: new Date().toISOString(),
-      },
-    });
-  };
-
-  const normalizeText = (text: string) =>
-    text
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/Đ/g, "D")
-      .toLowerCase()
-      .trim();
-
-  const filteredProvinces = dest.trim() === ""
-    ? []
-    : VIETNAM_PROVINCES.filter((province) =>
-        normalizeText(province).includes(normalizeText(dest))
-      ).slice(0, 5);
-
-  const selectedBudgetLabel = BUDGET_OPTIONS.find((opt) => opt.value === budget)?.label || "Chọn ngân sách...";
+  }, [navigate, dest, budget, guests]);
 
   return (
     <section className={styles.hero}>
-      <video autoPlay loop muted className={styles.video}>
-        <source src={VideoHome} type="video/mp4" />
-      </video>
+      <div className={styles.heroOverlay} />
+
       <div className={styles.container} data-aos="zoom-in">
-        <div className={styles.heroBadge} data-aos="fade-up" data-aos-delay="200">
-          <span className={styles.badgeIcon}>✨</span>
-          <span>MỚI: TRẢI NGHIỆM AI LÊN KẾ HOẠCH</span>
-        </div>
-        <h1 className={styles.heroTitle} data-aos="fade-up" data-aos-delay="400">
-          {userName ? (
-            <>Chào mừng trở lại, <br /> <span className={styles.gradientText}>{userName}!</span></>
-          ) : (
-            <>Hành trình Du lịch <br /> <span className={styles.gradientText}>Thông minh với AI</span></>
-          )}
-        </h1>
-        <p className={styles.heroDescription} data-aos="fade-up" data-aos-delay="600">
-          Khám phá thế giới theo cách riêng của bạn với sự trợ giúp từ trí tuệ nhân tạo.
-        </p>
-        <div className={styles.heroButtons} data-aos="fade-up" data-aos-delay="800">
-          <Link to="/planner" onClick={handleStartJourney} className={`${styles.btn} ${styles.btnPrimary}`}>
-            <RocketLaunch weight="fill" /> Bắt đầu hành trình
-          </Link>
-          <Link to="/explore" className={`${styles.btn} ${styles.btnSecondary}`}>
-            <Compass weight="bold" /> Khám phá ngay
-          </Link>
+        <div
+          className={styles.heroBadge}
+          data-aos="fade-up"
+          data-aos-delay="200"
+        >
+          <span className={styles.badgeIcon}>🏔️</span>
+          <span>KHÁM PHÁ THIÊN NHIÊN HÙNG VĨ</span>
         </div>
 
-        <div className={styles.heroSearchWrapper} data-aos="zoom-in-up" data-aos-delay="1000">
-          <form className={styles.premiumSearchWidget} onSubmit={handleSearch}>
-            {/* Field: Điểm đến */}
-            <div className={styles.searchField} ref={destRef}>
-              <div className={styles.fieldIcon}><MapPin weight="duotone" /></div>
-              <div className={styles.fieldInfo}>
-                <label htmlFor="destination">Điểm đến</label>
+        <h1
+          className={styles.heroTitle}
+          data-aos="fade-up"
+          data-aos-delay="400"
+        >
+          Khám phá điểm đến <br /> Tuyệt vời & Tận hưởng
+        </h1>
+
+        <p
+          className={styles.heroDescription}
+          data-aos="fade-up"
+          data-aos-delay="600"
+        >
+          Lên kế hoạch cho chuyến đi mơ ước của bạn tại Đà Nẵng, Huế, Quảng Nam{" "}
+          <br />
+          với sự trợ giúp hoàn hảo từ trí tuệ nhân tạo.
+        </p>
+
+        <div
+          className={styles.heroButtons}
+          data-aos="fade-up"
+          data-aos-delay="800"
+        >
+          <button
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={performSearch}
+          >
+            Bắt đầu hành trình
+          </button>
+          <button className={`${styles.btn} ${styles.btnSecondary}`}>
+            Khám phá ngay
+          </button>
+        </div>
+
+        <div
+          className={styles.heroSearchWrapper}
+          data-aos="fade-up"
+          data-aos-delay="1000"
+        >
+          <form
+            className={styles.premiumSearchWidget}
+            onSubmit={(e) => {
+              e.preventDefault();
+              performSearch();
+            }}
+          >
+            {/* Điểm đến */}
+            <SearchField
+              label="Điểm đến"
+              icon={<MapPin weight="bold" />}
+              innerRef={destRef}
+              onClick={() => setActiveDropdown("dest")}
+            >
+              <div className={styles.customSelectTrigger}>
                 <input
-                  id="destination"
                   type="text"
                   placeholder="Bạn muốn đi đâu?"
-                  autoComplete="off"
-                  required
                   value={dest}
-                  onChange={(e) => {
-                    setDest(e.target.value);
-                    setShowDestDropdown(true);
-                  }}
-                  onFocus={() => setShowDestDropdown(true)}
+                  onChange={(e) => setDest(e.target.value)}
+                  onFocus={() => setActiveDropdown("dest")}
                 />
-                <div className={`${styles.suggestionsDropdown} ${showDestDropdown && filteredProvinces.length > 0 ? styles.show : ""}`}>
-                  <div className={styles.suggestionsHeader}>GỢI Ý ĐIỂM ĐẾN</div>
-                  <div className={styles.suggestionsList}>
-                    {filteredProvinces.map((province) => (
-                      <div key={province} className={styles.suggestionItem} onClick={() => { setDest(province); setShowDestDropdown(false); }}>
-                        <MapPin size={18} weight="duotone" color="#94a3b8" />
-                        <span>{province}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
-            </div>
-
-            <div className={styles.searchDivider}></div>
-
-            {/* Field: Ngân sách */}
-            <div className={styles.searchField} ref={budgetRef}>
-              <div className={styles.fieldIcon}><CurrencyCircleDollar weight="duotone" /></div>
-              <div className={styles.fieldInfo}>
-                <label>Ngân sách</label>
-                <div className={styles.customSelectTrigger} onClick={() => setShowBudgetDropdown(!showBudgetDropdown)}>
-                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: budget ? "#0f172a" : "#94a3b8" }}>
-                    {selectedBudgetLabel}
-                  </span>
+              <DropdownContent show={activeDropdown === "dest"}>
+                <div className={styles.suggestionsHeader}>
+                  Gợi ý điểm đến phổ biến
                 </div>
-                <div className={`${styles.suggestionsDropdown} ${showBudgetDropdown ? styles.show : ""}`}>
-                  <div className={styles.suggestionsHeader}>MỨC CHI TIÊU DỰ KIẾN</div>
-                  <div className={styles.suggestionsList}>
-                    {BUDGET_OPTIONS.map((opt) => (
-                      <div key={opt.value} className={`${styles.suggestionItem} ${budget === opt.value ? styles.active : ""}`} onClick={() => { setBudget(opt.value); setShowBudgetDropdown(false); }}>
-                        <div className={styles.optionIcon}>{opt.icon}</div>
+                <div className={styles.suggestionsList}>
+                  {filteredProvinces.length > 0 ? (
+                    filteredProvinces.map((p) => (
+                      <div
+                        key={p.name}
+                        className={`${styles.suggestionItem} ${dest === p.name ? styles.active : ""}`}
+                        onClick={() => {
+                          setDest(p.name);
+                          setActiveDropdown(null);
+                        }}
+                      >
+                        <div className={styles.optionIcon}>{p.icon}</div>
                         <div className={styles.optionText}>
-                          <span className={styles.optionTitle}>{opt.label}</span>
-                          <span className={styles.optionDesc}>{opt.desc}</span>
+                          <span className={styles.optionTitle}>{p.name}</span>
+                          <span className={styles.optionDesc}>{p.desc}</span>
                         </div>
                       </div>
-                    ))}
+                    ))
+                  ) : (
+                    <div className={styles.noResult}>
+                      Không tìm thấy điểm đến
+                    </div>
+                  )}
+                </div>
+              </DropdownContent>
+            </SearchField>
+
+            <div className={styles.searchDivider} />
+
+            {/* Ngân sách */}
+            <SearchField
+              label="Ngân sách"
+              icon={<Wallet weight="bold" />}
+              innerRef={budgetRef}
+              onClick={() => setActiveDropdown("budget")}
+            >
+              <div className={styles.customSelectTrigger}>
+                <span
+                  className={
+                    budget ? styles.activeValue : styles.placeholderValue
+                  }
+                >
+                  {selectedBudgetLabel}
+                </span>
+              </div>
+              <DropdownContent show={activeDropdown === "budget"}>
+                <div className={styles.suggestionsHeader}>
+                  Mức ngân sách dự kiến
+                </div>
+                <div className={styles.suggestionsList}>
+                  {BUDGET_OPTIONS.map((opt) => (
+                    <div
+                      key={opt.value}
+                      className={`${styles.suggestionItem} ${budget === opt.value ? styles.active : ""}`}
+                      onClick={() => {
+                        setBudget(opt.value);
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      <div className={styles.optionIcon}>{opt.icon}</div>
+                      <div className={styles.optionText}>
+                        <span className={styles.optionTitle}>{opt.label}</span>
+                        <span className={styles.optionDesc}>{opt.desc}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </DropdownContent>
+            </SearchField>
+
+            <div className={styles.searchDivider} />
+
+            {/* Số khách */}
+            <SearchField
+              label="Số khách"
+              icon={<Users weight="bold" />}
+              innerRef={guestsRef}
+              onClick={() => setActiveDropdown("guests")}
+            >
+              <div className={styles.customSelectTrigger}>
+                <span className={styles.activeValue}>{guests} khách</span>
+              </div>
+              <DropdownContent
+                show={activeDropdown === "guests"}
+                className={styles.dropdownGuests}
+              >
+                <div className={styles.suggestionsHeader}>
+                  Số lượng thành viên
+                </div>
+                <div className={styles.guestCounter}>
+                  <div className={styles.guestInfo}>
+                    <span className={styles.guestTitle}>Người đi cùng</span>
+                  </div>
+                  <div className={styles.counterControls}>
+                    <button
+                      type="button"
+                      className={styles.counterBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (guests > 1) setGuests(guests - 1);
+                      }}
+                      disabled={guests <= 1}
+                    >
+                      <div className={styles.counterBtnInner}>
+                        {" "}
+                        <Minus weight="bold" size={16} />
+                      </div>
+                    </button>
+                    <span className={styles.counterValue}>{guests}</span>
+                    <button
+                      type="button"
+                      className={styles.counterBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setGuests(guests + 1);
+                      }}
+                    >
+                      <div className={styles.counterBtnInner}>
+                        <Plus weight="bold" size={16} />
+                      </div>{" "}
+                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <div className={styles.searchDivider}></div>
-
-            {/* Field: Số khách */}
-            <div className={styles.searchField} ref={guestsRef}>
-              <div className={styles.fieldIcon}><Users weight="duotone" /></div>
-              <div className={styles.fieldInfo}>
-                <label>Số khách</label>
-                <div className={styles.customSelectTrigger} onClick={() => setShowGuestsDropdown(!showGuestsDropdown)}>
-                  <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#0f172a" }}>
-                    {guests} khách
-                  </span>
-                </div>
-                
-                <div className={`${styles.suggestionsDropdown} ${showGuestsDropdown ? styles.show : ""}`}>
-                  <div className={styles.suggestionsHeader}>SỐ LƯỢNG KHÁCH</div>
-                  <div className={styles.guestCounter}>
-                    <div className={styles.guestInfo}>
-                      <span className={styles.guestTitle}>Người lớn & Trẻ em</span>
-                    </div>
-                    <div className={styles.counterControls}>
-                      <button
-                        type="button"
-                        className={styles.counterBtn}
-                        onClick={() => setGuests(Math.max(1, guests - 1))}
-                        disabled={guests <= 1}
-                        aria-label="Giảm số lượng khách"
-                        title="Giảm số lượng khách"
-                      >
-                        <Minus size={14} weight="bold" />
-                      </button>
-                      <span className={styles.counterValue}>{guests}</span>
-                      <button
-                        type="button"
-                        className={styles.counterBtn}
-                        onClick={() => setGuests(guests + 1)}
-                        aria-label="Tăng số lượng khách"
-                        title="Tăng số lượng khách"
-                      >
-                        <Plus size={14} weight="bold" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              </DropdownContent>
+            </SearchField>
 
             <button type="submit" className={styles.btnSearchSubmit}>
-              <Sparkle weight="fill" /> <span>Tạo lịch trình</span>
+              <MagnifyingGlass weight="bold" size={24} />
             </button>
           </form>
+        </div>
+
+        <div
+          className={styles.heroStats}
+          data-aos="fade-up"
+          data-aos-delay="1200"
+        >
+          <div className={styles.statBox}>
+            <span>150K+</span>
+            <p>Chuyến đi</p>
+          </div>
+          <div className={styles.statBox}>
+            <span>100K+</span>
+            <p>Khách hàng</p>
+          </div>
+          <div className={styles.statBox}>
+            <span>4.9</span>
+            <p>Đánh giá</p>
+          </div>
         </div>
       </div>
     </section>

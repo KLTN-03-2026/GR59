@@ -9,12 +9,11 @@
     text-align: left;
 
     h2 {
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: 800;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
       letter-spacing: -0.01em;
-
-      background: linear-gradient(135deg, #ff4c94 0%, #ff8a3d 100%);
+      background: vars.$auth-gradient;
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -23,7 +22,7 @@
 
     p {
       color: #64748b;
-      font-size: 0.95rem;
+      font-size: 0.75rem;
       font-weight: 500;
     }
   }
@@ -31,17 +30,17 @@
   .socialButtons {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 12px;
     width: 100%;
 
     .googleButtonWrap,
     .facebookButtonWrap {
-      height: 48px;
+      height: 40px;
       display: flex;
       align-items: center;
       overflow: hidden;
-      border-radius: 40px; // Bo góc mạnh mẽ
+      border-radius: 40px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       transition: all 0.3s ease;
 
@@ -52,20 +51,12 @@
     }
 
     .googleButtonWrap {
-      // Container cho Google iframe
       & > div {
         width: 100% !important;
         iframe {
           width: 100% !important;
           margin: 0 auto;
         }
-      }
-
-      &.disabled {
-        opacity: 0.5;
-        pointer-events: none;
-        filter: grayscale(1);
-        cursor: not-allowed;
       }
     }
 
@@ -123,148 +114,63 @@
   .form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
 
-    .group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .passwordGroupWrap {
+      margin-bottom: 8px;
+      width: 100%;
 
       .labelRow {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
+        padding: 0 4px;
+        width: 100%;
 
         label {
-          font-size: 0.72rem;
-          font-weight: 700;
-          color: #64748b;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          padding-left: 4px;
-          margin-bottom: 0;
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: vars.$text-dark;
+          margin: 0;
         }
 
         .forgotPass {
-          font-size: 0.72rem;
-          color: #94a3b8;
+          font-size: 0.75rem;
+          color: vars.$auth-primary !important;
           text-decoration: none;
-          font-weight: 600;
+          font-weight: 700;
           transition: all 0.2s ease;
 
           &:hover {
-            color: #ff4c94;
-          }
-        }
-      }
-
-      .inputWrap {
-        position: relative;
-        display: flex;
-        align-items: center;
-
-        .icon {
-          position: absolute;
-          left: 20px;
-          color: #94a3b8;
-          font-size: 1.25rem;
-          transition: color 0.3s ease;
-        }
-
-        input {
-          width: 100%;
-          padding: 12px 20px 12px 52px;
-          border: 1.5px solid #e2e8f0;
-          border-radius: 30px;
-          font-size: 0.95rem;
-          font-weight: 500;
-          background: white;
-          transition: all 0.3s ease;
-          color: #1e293b;
-
-          &:-webkit-autofill,
-          &:-webkit-autofill:hover,
-          &:-webkit-autofill:focus,
-          &:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0px 1000px white inset !important;
-            -webkit-text-fill-color: #1e293b !important;
-            transition: background-color 5000s ease-in-out 0s;
-          }
-
-          &::placeholder {
-            color: #cbd5e1;
-            font-weight: 400;
-          }
-
-          &:focus {
-            outline: none;
-            border-color: #ff4c94;
-            box-shadow: 0 0 15px rgba(255, 77, 148, 0.08);
-
-            & + .icon {
-              color: #ff4c94;
-            }
-          }
-        }
-
-        .eye {
-          position: absolute;
-          right: 20px;
-          color: #94a3b8;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          font-size: 1.15rem;
-          transition: color 0.3s ease;
-
-          &:hover {
-            color: #ff4c94;
+            color: vars.$auth-secondary !important;
+            text-decoration: underline;
           }
         }
       }
     }
-  }
 
-  .btnSubmit {
-    width: 100%;
-    padding: 14px;
-    margin-top: 8px;
-    background: linear-gradient(135deg, #ff4c94 0%, #ff8a3d 100%);
-    color: white;
-    border: none;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 8px 25px rgba(255, 76, 148, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(255, 76, 148, 0.4);
-      filter: brightness(1.02);
-    }
+    /* btnSubmit cũ đã được thay thế bằng PremiumButton */
   }
 
   .footer {
     text-align: center;
-    margin-top: 24px;
-    font-size: 0.95rem;
+    margin-top: 15px;
+    font-size: 0.85rem;
     font-weight: 500;
     color: #64748b;
 
     button {
       background: none;
       border: none;
-      color: #ff4c94;
+      color: vars.$auth-primary;
       font-weight: 700;
       cursor: pointer;
       padding: 0 4px;
       font-size: inherit;
 
       &:hover {
-        color: #ff8a3d;
+        color: vars.$auth-secondary;
         text-decoration: underline;
       }
     }

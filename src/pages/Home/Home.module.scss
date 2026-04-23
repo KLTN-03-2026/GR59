@@ -24,8 +24,8 @@ vars.$bg-main */
 .gradientText {
   background: linear-gradient(
     to right,
-    #33d7d1,
-    #00a8a2
+    vars.$primary-cyan,
+    vars.$primary-cyan-dark
   ); /* Thay cho var(...) */
   -webkit-background-clip: text;
   background-clip: text;
@@ -95,388 +95,6 @@ vars.$bg-main */
   width: 100%;
 }
 
-/* ====================
-   Hero Section 
-==================== */
-.hero {
-  position: relative;
-  width: 100%;
-  height: 100vh; // Ép chiều cao bằng đúng 100% màn hình người dùng
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10; 
-  padding: 0; 
-
-  .video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; // Video sẽ lấp đầy diện tích mà không bị méo
-    z-index: 0; // Nằm dưới cùng
-  }
-}
-
-.heroBadge {
-  display: inline-block;
-  padding: 8px 16px;
-  background: rgba(170, 59, 255, 0.1);
-  border: 1px solid rgba(170, 59, 255, 0.2);
-  border-radius: 100px;
-  color: #1e293b;
-  font-weight: 600;
-  font-size: 0.8rem;
-  /* margin-bottom: 24px; */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.heroBadge .badgeIcon {
-  margin-right: 8px;
-}
-
-.heroTitle {
-  font-size: 3rem;
-  font-weight: 700;
-  line-height: 1.1;
-  margin-top: 14px;
-  /*   color: #1e293b;
- */
-  color: #fff;
-  letter-spacing: 0.4rem;
-}
-
-.heroDescription {
-  font-size: 1rem;
-  color: #fff;
-  max-width: 600px;
-  margin: 10px auto 30px;
-  line-height: 1.4;
-  text-align: center;
-  font-weight: 500;
-}
-
-.heroButtons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-bottom: 40px;
-}
-
-/* Hero Search Widget */
-.heroSearchWrapper {
-  // 1. Hiệu ứng kính thực thụ (Cần có rgba để thấy blur)
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px); // Hỗ trợ Safari
-
-  border: 1px solid rgba(255, 255, 255, 0.5); // Viền trắng mảnh giúp khối nổi bật hơn
-  border-radius: 40px;
-  padding: 12px 16px;
-  max-width: 850px; // Tăng nhẹ một chút để không bị chật
-  margin: 0 auto;
-  color: #1e293b;
-
-  // 2. Shadow đa lớp (Loại bỏ !important nếu có thể)
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.05),
-    0 20px 40px -10px rgba(0, 0, 0, 0.1);
-
-  // 3. Hiệu ứng trượt cao cấp
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    // Trượt lên nhẹ nhàng (10-15px là vừa đẹp, 20px hơi cao có thể che mất chữ phía trên)
-    transform: translateY(-12px);
-
-    background: rgba(250, 246, 246, 0.794); // Khi hover thì nền đậm hơn chút
-
-    box-shadow:
-      0 20px 25px -5px rgba(0, 0, 0, 0.1),
-      0 40px 60px -15px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.premiumSearchWidget {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.searchField {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-  border-radius: 16px;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  transition: all 0.25s ease;
-
-  .fieldIcon {
-    color: #0ea5e9;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
-  }
-
-  svg {
-    font-size: 1.2rem;
-    color: #06b6d4;
-  }
-}
-
-.fieldInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  flex: 1;
-  position: relative;
-
-  label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: #334155;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  input {
-    width: 100%;
-    border: none;
-    background: transparent;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #0f172a;
-    outline: none;
-    padding: 0;
-
-    &::placeholder {
-      color: #94a3b8;
-    }
-  }
-
-  .customSelectTrigger {
-    width: 100%;
-    cursor: pointer;
-    min-height: 24px;
-    display: flex;
-    align-items: center;
-
-    .placeholder {
-      color: #94a3b8;
-    }
-  }
-}
-
-.searchDivider {
-  width: 1px;
-  height: 36px;
-  background: rgba(15, 23, 42, 0.1);
-}
-
-.btnSearchSubmit {
-  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 50%, #0f766e 100%);
-  color: #ffffff;
-  padding: 12px 20px;
-  border-radius: 30px;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-
-  span {
-    font-size: 0.85rem;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 32px rgba(6, 182, 212, 0.25);
-  }
-}
-
-.suggestionsDropdown {
-  position: absolute;
-  top: calc(100% + 14px);
-  left: 50%;
-  transform: translateX(-50%) translateY(12px);
-  width: 100%;
-  min-width: 280px;
-  background: #ffffff;
-  border-radius: 20px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 22px 70px rgba(15, 23, 42, 0.12);
-  padding: 18px;
-  margin-top: 4px;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-  transform: translateY(12px);
-  z-index: 1000; // Tăng z-index lên cao hơn hẳn
-  
-  // Tự động điều chỉnh vị trí và layer
-  pointer-events: auto;
-
-  &.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-.suggestionsList {
-  max-height: 180px;
-  overflow-y: auto;
-  display: grid;
-  gap: 10px;
-  padding-right: 4px;
-}
-
-.suggestionsHeader {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #475569;
-  margin-bottom: 8px;
-  padding-left: 0;
-}
-
-.suggestionItem {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 16px;
-  border-radius: 16px;
-  cursor: pointer;
-  background: white;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-
-  span {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #0f172a;
-  }
-
-  &:hover {
-    background: #f1f5f9;
-    border-color: rgba(15, 23, 42, 0.05);
-    transform: translateX(4px);
-  }
-
-  &.active {
-    background: #eff6ff;
-    border-color: #3b82f6;
-  }
-
-  .optionIcon {
-    width: 36px;
-    height: 36px;
-    background: #f8fafc;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-  }
-
-  .optionText {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-
-    .optionTitle {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .optionDesc {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #64748b;
-    }
-  }
-
-  &:hover .optionIcon {
-    background: white;
-    transform: scale(1.1);
-  }
-}
-
-.guestCounter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0 0;
-  gap: 20px;
-}
-
-.guestInfo {
-  display: flex;
-  flex-direction: column;
-
-  .guestTitle {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #334155;
-  }
-}
-
-.counterControls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  .counterBtn {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #475569;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 0;
-
-    &:hover:not(:disabled) {
-      border-color: #0ea5e9;
-      color: white;
-      background: #0ea5e9;
-    }
-
-    &:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-  }
-
-  .counterValue {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #0f172a;
-    min-width: 16px;
-    text-align: center;
-  }
-}
 
 /* ====================
    Timeline Section 
@@ -604,7 +222,7 @@ vars.$bg-main */
   gap: 20px;
 
   .gradientText {
-    color: #00ffff;
+    color: vars.$primary-cyan;
     font-size: 1.2rem;
     font-weight: 700;
   }
@@ -652,7 +270,7 @@ vars.$bg-main */
   .glassIcon {
     width: 50px;
     height: 50px;
-    background: vars.$primary-gradient;
+    background: vars.$primary-cyan-gradient;
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -697,7 +315,7 @@ vars.$bg-main */
 
   .subHeading {
     display: inline-block;
-    color: vars.$primary-blue; // Màu xanh chuẩn từ ảnh bạn gửi
+    color: vars.$primary-cyan; // Màu xanh chuẩn từ ảnh bạn gửi
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -745,7 +363,7 @@ vars.$bg-main */
 .btnPrimary {
   display: inline-block;
   padding: 14px 28px;
-  background: vars.$primary-gradient; // Dùng gradient xanh turquoise
+  background: vars.$primary-cyan-gradient; // Dùng gradient xanh turquoise
   color: white;
   border-radius: 50px;
   text-decoration: none;

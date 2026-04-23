@@ -2,26 +2,27 @@ import React, { useState } from "react";
 import {
   EnvelopeSimple,
   LockKey,
-  Eye,
-  EyeSlash,
   FacebookLogo,
-  
 } from "phosphor-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./Login.module.scss";
 import { GoogleLogin } from "@react-oauth/google";
-import type { CredentialResponse } from "@react-oauth/google";
 import FacebookLoginExport from "@greatsumini/react-facebook-login";
-const FacebookLogin =
-  (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
-  FacebookLoginExport;
 import {
   postLogin,
   postLoginGoogle,
   postLoginFacebook,
+  type AuthResponseData,
+  type BackendResponse,
 } from "../../../services/userService";
 import axios from "axios";
+import InputGroup from "../../../components/Ui/InputGroup/InputGroup";
+import PremiumButton from "../../../components/Ui/PremiumButton/PremiumButton";
+
+const FacebookLogin =
+  (FacebookLoginExport as { default?: typeof FacebookLoginExport }).default ||
+  FacebookLoginExport;
 
 interface Props {
   onToggle: () => void;
@@ -34,36 +35,31 @@ const Login: React.FC<Props> = ({ onToggle }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Logic xử lý khi đăng nhập Google thành công
-  const handleGoogleSuccess = async (response: CredentialResponse) => {
-    if (!response.credential) {
-      toast.error("Đăng nhập Google thất bại (Không có ID Token)!");
-      return;
-    }
+  const saveAuthData = (data: AuthResponseData) => {
+    const { user, accessToken, refreshToken } = data;
+    if (accessToken) localStorage.setItem("accessToken", accessToken);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("user", JSON.stringify(user));
+    if (user.fullName) localStorage.setItem("username", user.fullName);
+    if (user.email) localStorage.setItem("email", user.email);
+    if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
+  };
 
+  const handleSocialSuccess = async (provider: 'google' | 'facebook', token: string) => {
     try {
       setIsLoading(true);
-      // Gửi Credential (ID Token JWT) lên backend
-      const res = await postLoginGoogle(response.credential);
-
+      const fetcher = provider === 'google' ? postLoginGoogle : postLoginFacebook;
+      const res = await fetcher(token);
       if (res.data && res.data.status === 200 && res.data.data) {
-        const data = res.data.data;
-        const user = data.user;
-        if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
-        if (data.refreshToken)
-          localStorage.setItem("refreshToken", data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(user));
-        if (user.fullName) localStorage.setItem("username", user.fullName);
-        if (user.email) localStorage.setItem("email", user.email);
-        if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
-        toast.success("Đăng nhập Google thành công! 🚀");
+        saveAuthData(res.data.data);
+        toast.success(`Đăng nhập ${provider === 'google' ? 'Google' : 'Facebook'} thành công! 🚀`);
         navigate("/");
       } else {
-        toast.error(res.data?.message || "Đăng nhập Google thất bại!");
+        toast.error(res.data?.message || `Đăng nhập ${provider} thất bại!`);
       }
     } catch (error) {
-      console.error("Google Login Error:", error);
-      toast.error("Lỗi đăng nhập Google!");
+      console.error(`${provider} Login Error:`, error);
+      toast.error(`Lỗi đăng nhập ${provider}!`);
     } finally {
       setIsLoading(false);
     }
@@ -72,49 +68,25 @@ const Login: React.FC<Props> = ({ onToggle }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim();
-    const isValidEmail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
-
-    if (!cleanEmail || !password) {
-      return toast.error("Vui lòng nhập đầy đủ thông tin!");
-    }
-    if (!isValidEmail.test(cleanEmail)) {
-      return toast.error("Email không đúng định dạng!");
-    }
+    if (!cleanEmail || !password) return toast.error("Vui lòng nhập đầy đủ thông tin!");
 
     setIsLoading(true);
     try {
       const response = await postLogin(cleanEmail, password);
       if (response.data && response.data.status === 200 && response.data.data) {
-        const data = response.data.data;
-        const user = data.user;
-        if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
-        if (data.refreshToken)
-          localStorage.setItem("refreshToken", data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(user));
-        if (user.fullName) localStorage.setItem("username", user.fullName);
-        if (user.email) localStorage.setItem("email", user.email);
-        if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
-        toast.success(`Chào mừng ${user.fullName || user.email} trở lại! 👋`);
+        saveAuthData(response.data.data);
+        toast.success(`Chào mừng ${response.data.data.user.fullName || cleanEmail} trở lại! 👋`);
         navigate("/");
       } else {
-        toast.error(
-          response.data?.message || "Email hoặc mật khẩu không chính xác!",
-        );
+        toast.error(response.data?.message || "Email hoặc mật khẩu không chính xác!");
       }
     } catch (error: unknown) {
+      let msg = "Đã xảy ra lỗi không xác định!";
       if (axios.isAxiosError(error)) {
-        const serverError = error.response?.data as {
-          EM?: string;
-          message?: string;
-        };
-        toast.error(
-          serverError?.EM ||
-            serverError?.message ||
-            "Tài khoản hoặc mật khẩu không đúng!",
-        );
-      } else {
-        toast.error("Đã xảy ra lỗi không xác định!");
+        const errorData = error.response?.data as BackendResponse;
+        msg = errorData?.message || msg;
       }
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -130,54 +102,16 @@ const Login: React.FC<Props> = ({ onToggle }) => {
       <div className={styles.socialButtons}>
         <div className={styles.googleButtonWrap}>
           <GoogleLogin
-            onSuccess={handleGoogleSuccess}
+            onSuccess={(resp) => resp.credential && handleSocialSuccess('google', resp.credential)}
             onError={() => toast.error("Đăng nhập Google thất bại!")}
-            theme="outline"
-            shape="pill"
-            text="signin"
-            logo_alignment="center"
+            theme="outline" shape="pill" text="signin" logo_alignment="center"
+            width="100%"
           />
         </div>
         <div className={styles.facebookButtonWrap}>
           <FacebookLogin
             appId={import.meta.env.VITE_FACEBOOK_APP_ID || "1493682952374744"}
-            fields="name,email,picture"
-            scope="public_profile email"
-            onSuccess={async (response: { accessToken: string }) => {
-              try {
-                setIsLoading(true);
-                const res = await postLoginFacebook(response.accessToken);
-                if (res.data && res.data.status === 200 && res.data.data) {
-                  const data = res.data.data;
-                  const user = data.user;
-                  if (data.accessToken)
-                    localStorage.setItem("accessToken", data.accessToken);
-                  if (data.refreshToken)
-                    localStorage.setItem("refreshToken", data.refreshToken);
-                  localStorage.setItem("user", JSON.stringify(user));
-                  if (user.fullName)
-                    localStorage.setItem("username", user.fullName);
-                  if (user.email) localStorage.setItem("email", user.email);
-                  if (user.createdAt)
-                    localStorage.setItem("createdAt", user.createdAt);
-                  toast.success("Đăng nhập Facebook thành công! 🚀");
-                  navigate("/");
-                } else {
-                  toast.error(
-                    res.data?.message || "Đăng nhập Facebook thất bại!",
-                  );
-                }
-              } catch (error: unknown) {
-                console.error("Facebook Login Error:", error);
-                toast.error("Lỗi đăng nhập Facebook!");
-              } finally {
-                setIsLoading(false);
-              }
-            }}
-            onFail={(error: unknown) => {
-              console.error("Facebook Login Failed:", error);
-              toast.error("Đăng nhập Facebook không thành công. Vui lòng thử lại!");
-            }}
+            onSuccess={(resp: { accessToken: string }) => handleSocialSuccess('facebook', resp.accessToken)}
             render={({ onClick }: { onClick?: () => void }) => (
               <button
                 type="button"
@@ -192,68 +126,36 @@ const Login: React.FC<Props> = ({ onToggle }) => {
         </div>
       </div>
 
-      <div className={styles.divider}>
-        <span>Hoặc đăng nhập bằng email</span>
-      </div>
+      <div className={styles.divider}><span>Hoặc đăng nhập bằng email</span></div>
 
       <form onSubmit={handleLogin} className={styles.form}>
-        <div className={styles.group}>
-          <div className={styles.labelRow}>
-            <label>Email của bạn</label>
-          </div>
-          <div className={styles.inputWrap}>
-            <EnvelopeSimple className={styles.icon} weight="duotone" />
-            <input
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-        </div>
+        <InputGroup
+          label="Email của bạn" name="email" type="email" placeholder="name@example.com"
+          value={email} onChange={(e) => setEmail(e.target.value)}
+          icon={<EnvelopeSimple weight="duotone" />} disabled={isLoading}
+        />
 
-        <div className={styles.group}>
+        <div className={styles.passwordGroupWrap}>
           <div className={styles.labelRow}>
             <label>Mật khẩu</label>
-            <Link to="/forgot-password" className={styles.forgotPass}>
-              Quên mật khẩu?
-            </Link>
+            <Link to="/forgot-password" className={styles.forgotPass}>Quên mật khẩu?</Link>
           </div>
-          <div className={styles.inputWrap}>
-            <LockKey className={styles.icon} weight="duotone" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Nhập mật khẩu"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-            <span
-              className={styles.eye}
-              onClick={() => !isLoading && setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeSlash weight="duotone" />
-              ) : (
-                <Eye weight="duotone" />
-              )}
-            </span>
-          </div>
+          <InputGroup
+            label="" name="password" type="password" placeholder="Nhập mật khẩu"
+            value={password} onChange={(e) => setPassword(e.target.value)}
+            icon={<LockKey weight="duotone" />} disabled={isLoading}
+            showToggle isShown={showPassword} onToggleShow={() => setShowPassword(!showPassword)}
+          />
         </div>
 
-        <button type="submit" className={styles.btnSubmit} disabled={isLoading}>
-          {isLoading ? "Đang kiểm tra..." : "Đăng nhập"}
-        </button>
+        <PremiumButton type="submit" loading={isLoading} variant="sunset">
+          Đăng nhập
+        </PremiumButton>
       </form>
 
       <div className={styles.footer}>
         Bạn chưa có tài khoản?{" "}
-        <button type="button" onClick={onToggle}>
-          Đăng ký ngay
-        </button>
+        <button type="button" onClick={onToggle}>Đăng ký ngay</button>
       </div>
     </div>
   );
