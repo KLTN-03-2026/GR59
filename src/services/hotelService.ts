@@ -72,7 +72,7 @@ export interface PaginatedData<T> {
  * Mapper chuyển đổi dữ liệu từ BackendHotel sang định dạng Destination đầy đủ (dùng cho DestinationDetail)
  * Các trường thiếu sẽ được điền giá trị mặc định "Đang cập nhật"
  */
-export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destination => {
+export const mapBackendHotelToFullDestination = (hotel: BackendHotel | any): Destination => {
   if (!hotel) {
     return {
       id: "error",
@@ -179,7 +179,7 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel): Destinati
  */
 export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
   const response = await instance.get<BackendResponse<PaginatedData<BackendHotel>>>(`/hotels?page=${page}&size=${size}`);
-  const data = response.data.data || (response.data as any).DT;
+  const data = response.data.data;
 
   // Thực hiện mapping dữ liệu ngay tại service để FE dễ sử dụng
   const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
@@ -215,7 +215,7 @@ export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<Back
  */
 export const getHotelDetail = async (id: string | number): Promise<AxiosResponse<BackendResponse<Destination>>> => {
   const response = await instance.get<BackendResponse<BackendHotel>>(`/hotels/${id}`);
-  const hotelData = response.data.data || (response.data as any).DT;
+  const hotelData = response.data.data;
   
   // Chuyển đổi dữ liệu đơn giản từ BE thành dữ liệu phức tạp cho UI DestinationDetail
   const fullData = mapBackendHotelToFullDestination(hotelData);
@@ -233,7 +233,7 @@ export const getHotelDetail = async (id: string | number): Promise<AxiosResponse
  */
 export const getHotelsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
   const response = await instance.get<BackendResponse<PaginatedData<BackendHotel>>>(`/hotels/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
-  const data = response.data.data || (response.data as any).DT;
+  const data = response.data.data;
 
   const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
     id: hotel.id.toString(),

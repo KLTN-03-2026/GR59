@@ -1,13 +1,31 @@
-import React, { useState, useMemo } from 'react';
-import styles from './RestaurantsView.module.scss';
-import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, MagnifyingGlass, Trash, CaretLeft, CaretRight, FileArrowDown, Check, Eye, X } from "@phosphor-icons/react";
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRestaurants, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
-import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
-import AddEditModal from '../_shared/AddEditModal';
-import DetailModal from '../_shared/DetailModal';
-import { toast } from 'react-toastify';
+import React, { useState, useMemo } from "react";
+import styles from "./RestaurantsView.module.scss";
+import StatCard from "../StatCard/StatCard";
+import {
+  MapPin,
+  Star,
+  Pencil,
+  Plus,
+  MagnifyingGlass,
+  Trash,
+  CaretLeft,
+  CaretRight,
+  FileArrowDown,
+  Eye,
+  X,
+} from "@phosphor-icons/react";
+import { motion } from "framer-motion";
+import {
+  useRestaurants,
+  deleteRecord,
+  createRecord,
+  updateRecord,
+  type Restaurant,
+} from "../../hooks/useAdminData";
+import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
+import AddEditModal from "../_shared/AddEditModal";
+import DetailModal from "../_shared/DetailModal";
+import { toast } from "react-toastify";
 
 const PAGE_SIZE = 10;
 
@@ -17,18 +35,28 @@ const containerVariants = {
 } as const;
 const rowVariants = {
   hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.35, ease: "easeOut" },
+  },
 } as const;
 
 const RestaurantsView: React.FC = () => {
   const [page, setPage] = useState(1);
-  const { data: restaurants, pagination, loading, error, refetch } = useRestaurants();
+  const {
+    data: restaurants,
+    pagination,
+    loading,
+    error,
+    refetch,
+  } = useRestaurants();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   // Debounce search để tránh gọi API quá nhiều
   const [debouncedSearch, setDebouncedSearch] = useState(search);
-  
+
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -42,21 +70,31 @@ const RestaurantsView: React.FC = () => {
     refetch(page - 1, PAGE_SIZE, debouncedSearch);
   }, [page, debouncedSearch]);
 
-  const [activeTab, setActiveTab] = useState<'all' | 'OPENING' | 'CLOSED'>('all');
+  const [activeTab, setActiveTab] = useState<"all" | "OPENING" | "CLOSED">(
+    "all",
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<Restaurant | undefined>(
+    undefined,
+  );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | number | null>(null);
 
   // ─── derived stats ──────────────────────────────────────────────────────────
-  const totalOpen = restaurants.filter(r => r.status === 'OPENING' || r.status === 'ĐANG MỞ' || r.status === 'HOẠT ĐỘNG').length;
-  const totalClosed = restaurants.filter(r => r.status === 'CLOSED' || r.status === 'TẠM ĐÓNG').length;
+  const totalOpen = restaurants.filter(
+    (r) =>
+      r.status === "OPENING" ||
+      r.status === "ĐANG MỞ" ||
+      r.status === "HOẠT ĐỘNG",
+  ).length;
+  const totalClosed = restaurants.filter(
+    (r) => r.status === "CLOSED" || r.status === "TẠM ĐÓNG",
+  ).length;
 
   // ─── filtered & paginated ───────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let list = [...restaurants];
-    if (activeTab !== 'all') list = list.filter(r => r.status === activeTab);
-    // Search đã được thực hiện ở Server, không cần lọc local nữa
+    if (activeTab !== "all") list = list.filter((r) => r.status === activeTab);
     return list;
   }, [restaurants, activeTab]);
 
@@ -64,19 +102,28 @@ const RestaurantsView: React.FC = () => {
   const paged = filtered;
 
   const handleDelete = async (id: string | number) => {
-    if (!confirm('Bạn có chắc muốn xóa nhà hàng này không?')) return;
+    if (!confirm("Bạn có chắc muốn xóa nhà hàng này không?")) return;
     try {
-      await deleteRecord('restaurants', id);
-      toast.success('Đã xóa nhà hàng');
+      await deleteRecord("restaurants", id);
+      toast.success("Đã xóa nhà hàng");
       refetch();
     } catch {
-      toast.error('Xóa thất bại!');
+      toast.error("Xóa thất bại!");
     }
   };
 
   const handleExportCSV = () => {
-    const headers = ['ID', 'Tên nhà hàng', 'Vị trí', 'Đánh giá', 'Lượt reviews', 'Ẩm thực', 'Khoảng giá', 'Trạng thái'];
-    const rows = filtered.map(r => [
+    const headers = [
+      "ID",
+      "Tên nhà hàng",
+      "Vị trí",
+      "Đánh giá",
+      "Lượt reviews",
+      "Ẩm thực",
+      "Khoảng giá",
+      "Trạng thái",
+    ];
+    const rows = filtered.map((r) => [
       r.id,
       `"${r.name}"`,
       `"${r.location}"`,
@@ -84,65 +131,81 @@ const RestaurantsView: React.FC = () => {
       `"${r.reviewCount}"`,
       `"${r.category}"`,
       `"${r.averagePrice}"`,
-      r.status
+      r.status,
     ]);
-    
-    const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.setAttribute('download', `restaurants_${new Date().getTime()}.csv`);
+    link.setAttribute("download", `restaurants_${new Date().getTime()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: FormData | Record<string, unknown>) => {
     try {
       if (editingItem) {
-        await updateRecord('restaurants', editingItem.id, data);
-        toast.success('Cập nhật nhà hàng thành công');
+        await updateRecord("restaurants", editingItem.id, data);
+        toast.success("Cập nhật nhà hàng thành công");
       } else {
-        await createRecord('restaurants', data);
-        toast.success('Thêm nhà hàng thành công');
+        await createRecord("restaurants", data);
+        toast.success("Thêm nhà hàng thành công");
       }
       setIsModalOpen(false);
-      setEditingItem(null);
+      setEditingItem(undefined);
       refetch();
     } catch {
-      toast.error('Thao tác thất bại!');
+      toast.error("Thao tác thất bại!");
     }
   };
 
   const openAddModal = () => {
-    setEditingItem(null);
+    setEditingItem(undefined);
     setIsModalOpen(true);
   };
 
-  const openEditModal = (item: any) => {
+  const openEditModal = (item: Restaurant) => {
     setEditingItem(item);
     setIsModalOpen(true);
   };
 
   const categoryMap: Record<string, string> = {
-    'VIETNAMESE': 'Món Việt',
-    'SEAFOOD': 'Hải sản',
-    'DESSERT': 'Tráng miệng',
-    'WESTERN': 'Món Âu',
-    'ASIAN': 'Món Á',
-    'VEGETARIAN': 'Món chay'
+    VIETNAMESE: "Món Việt",
+    SEAFOOD: "Hải sản",
+    DESSERT: "Tráng miệng",
+    WESTERN: "Món Âu",
+    ASIAN: "Món Á",
+    VEGETARIAN: "Món chay",
   };
 
   return (
-    <motion.div className={styles.contentArea} initial="hidden" animate="visible" variants={containerVariants}>
+    <motion.div
+      className={styles.contentArea}
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       <motion.div variants={rowVariants} className={styles.pageHeader}>
         <div className={styles.pageTitle}>
           <h2>Quản lý Nhà hàng</h2>
-          <p>Quản lý danh mục nhà hàng và địa điểm ẩm thực trên toàn hệ thống</p>
+          <p>
+            Quản lý danh mục nhà hàng và địa điểm ẩm thực trên toàn hệ thống
+          </p>
         </div>
         <div className={styles.pageActions}>
-          <button className={styles.btnExport} onClick={handleExportCSV} title="Xuất CSV">
+          <button
+            className={styles.btnExport}
+            onClick={handleExportCSV}
+            title="Xuất CSV"
+          >
             <FileArrowDown size={22} weight="bold" />
           </button>
           <button className={styles.btnPrimary} onClick={openAddModal}>
@@ -155,27 +218,69 @@ const RestaurantsView: React.FC = () => {
       {error && <ErrorBanner message={error} onRetry={refetch} />}
 
       <motion.div variants={rowVariants} className={styles.statsGrid}>
-        <StatCard label="TỔNG NHÀ HÀNG" value={loading ? '...' : String(restaurants.length)} trend="+8% tháng này" trendUp={true} icon="ForkKnife" colorClass="bgBlue" />
-        <StatCard label="ĐANG HOẠT ĐỘNG" value={loading ? '...' : String(totalOpen)} footerText="Đang phục vụ" icon="CheckCircle" colorClass="bgEmerald" />
-        <StatCard label="TẠM ĐÓNG" value={loading ? '...' : String(totalClosed)} trend="Theo dõi lịch" trendUp={true} icon="Storefront" colorClass="bgAmber" />
-        <StatCard label="YÊU CẦU MỚI" value="156" trend="Chờ phê duyệt" trendUp={true} icon="PlusCircle" colorClass="bgBlue" />
+        <StatCard
+          label="TỔNG NHÀ HÀNG"
+          value={loading ? "..." : String(restaurants.length)}
+          trend="+8% tháng này"
+          trendUp={true}
+          icon="ForkKnife"
+          colorClass="bgBlue"
+        />
+        <StatCard
+          label="ĐANG HOẠT ĐỘNG"
+          value={loading ? "..." : String(totalOpen)}
+          footerText="Đang phục vụ"
+          icon="CheckCircle"
+          colorClass="bgEmerald"
+        />
+        <StatCard
+          label="TẠM ĐÓNG"
+          value={loading ? "..." : String(totalClosed)}
+          trend="Theo dõi lịch"
+          trendUp={true}
+          icon="Storefront"
+          colorClass="bgAmber"
+        />
+        <StatCard
+          label="YÊU CẦU MỚI"
+          value="156"
+          trend="Chờ phê duyệt"
+          trendUp={true}
+          icon="PlusCircle"
+          colorClass="bgBlue"
+        />
       </motion.div>
 
       <motion.div variants={rowVariants} className={styles.filterSection}>
         <div className={styles.filterHeader}>
           <div className={styles.tabGroup}>
             <button
-              className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('all'); setPage(1); }}
-            >Tất cả ({pagination.totalElements || restaurants.length})</button>
+              className={`${styles.tab} ${activeTab === "all" ? styles.tabActive : ""}`}
+              onClick={() => {
+                setActiveTab("all");
+                setPage(1);
+              }}
+            >
+              Tất cả ({pagination.totalElements || restaurants.length})
+            </button>
             <button
-              className={`${styles.tab} ${activeTab === 'OPENING' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('OPENING'); setPage(1); }}
-            >Đang hoạt động</button>
+              className={`${styles.tab} ${activeTab === "OPENING" ? styles.tabActive : ""}`}
+              onClick={() => {
+                setActiveTab("OPENING");
+                setPage(1);
+              }}
+            >
+              Đang hoạt động
+            </button>
             <button
-              className={`${styles.tab} ${activeTab === 'CLOSED' ? styles.tabActive : ''}`}
-              onClick={() => { setActiveTab('CLOSED'); setPage(1); }}
-            >Tạm đóng</button>
+              className={`${styles.tab} ${activeTab === "CLOSED" ? styles.tabActive : ""}`}
+              onClick={() => {
+                setActiveTab("CLOSED");
+                setPage(1);
+              }}
+            >
+              Tạm đóng
+            </button>
           </div>
         </div>
         <div className={styles.filterRow}>
@@ -185,13 +290,21 @@ const RestaurantsView: React.FC = () => {
             <input
               type="text"
               value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder="Tìm theo tên hoặc địa điểm..."
+              title="Tìm kiếm"
+              aria-label="Tìm kiếm"
             />
             {search && (
-              <button 
-                className={styles.clearSearchBtn} 
-                onClick={() => { setSearch(""); setPage(1); }}
+              <button
+                className={styles.clearSearchBtn}
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                }}
                 title="Xóa tìm kiếm"
               >
                 <X size={16} weight="bold" />
@@ -205,13 +318,13 @@ const RestaurantsView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th style={{ width: '60px' }}>STT</th>
+              <th className={styles.w60}>STT</th>
               <th>THÔNG TIN NHÀ HÀNG</th>
               <th>ĐỊA ĐIỂM</th>
               <th>ĐÁNH GIÁ</th>
               <th>PHONG CÁCH</th>
               <th>TRẠNG THÁI</th>
-              <th style={{ textAlign: 'right' }}>THAO TÁC</th>
+              <th className={styles.textRight}>THAO TÁC</th>
             </tr>
           </thead>
           {loading ? (
@@ -220,72 +333,116 @@ const RestaurantsView: React.FC = () => {
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontWeight: 600 }}>
+                  <td
+                    colSpan={7}
+                    className={`${styles.textCenter} ${styles.p40} ${styles.textSlate400} ${styles.fw600}`}
+                  >
                     Không tìm thấy kết quả phù hợp
                   </td>
                 </tr>
-              ) : paged.map((res, idx) => (
-                <motion.tr key={res.id} variants={rowVariants} custom={idx}>
-                  <td style={{ fontWeight: 600, color: '#64748b' }}>
-                    #{(page - 1) * PAGE_SIZE + idx + 1}
-                  </td>
-                  <td>
-                    <div className={styles.infoCol}>
-                      <div className={styles.imgWrapper}>
-                        <img src={res.imageUrl} alt="" />
-                        <span 
-                          className={styles.statusIndicator} 
-                          style={{ backgroundColor: (res.status === 'HOẠT ĐỘNG' || res.status === 'ĐANG MỞ') ? '#10b981' : '#f59e0b' }}
-                        ></span>
+              ) : (
+                paged.map((res, idx) => (
+                  <motion.tr key={res.id} variants={rowVariants} custom={idx}>
+                    <td className={`${styles.fw600} ${styles.textSlate500}`}>
+                      #{(page - 1) * PAGE_SIZE + idx + 1}
+                    </td>
+                    <td>
+                      <div className={styles.infoCol}>
+                        <div className={styles.imgWrapper}>
+                          <img src={res.imageUrl} alt="" />
+                          <span
+                            className={styles.statusIndicator}
+                            style={
+                              {
+                                "--bg-color":
+                                  res.status === "HOẠT ĐỘNG" ||
+                                  res.status === "ĐANG MỞ"
+                                    ? "#10b981"
+                                    : "#f59e0b",
+                              } as React.CSSProperties
+                            }
+                          ></span>
+                        </div>
+                        <div className={styles.textInfo}>
+                          <p>{res.name}</p>
+                        </div>
                       </div>
-                      <div className={styles.textInfo}>
-                        <p>{res.name}</p>
+                    </td>
+                    <td>
+                      <div className={styles.locationCol}>
+                        <MapPin size={16} color="#94a3b8" />
+                        <span>{res.location}</span>
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className={styles.locationCol}>
-                      <MapPin size={16} color="#94a3b8" />
-                      <span>{res.location}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className={styles.ratingCol}>
-                      <Star size={16} weight="fill" color="#f59e0b" />
-                      <span>{res.rating}</span>
-                      <span>({res.reviewCount})</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`${styles.badge} ${styles.bgPurple}`}>
-                      {res.category && categoryMap[res.category] ? categoryMap[res.category] : (res.category || 'ẨM THỰC')}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`${styles.badge} ${(res.status === 'OPENING' || res.status === 'ĐANG MỞ' || res.status === 'HOẠT ĐỘNG') ? styles.bgEmerald : styles.bgAmber}`}>
-                      <span className={styles.dot} style={{ backgroundColor: (res.status === 'OPENING' || res.status === 'ĐANG MỞ' || res.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}></span>
-                      {(res.status === 'OPENING' || res.status === 'ĐANG MỞ' || res.status === 'HOẠT ĐỘNG') ? 'MỞ CỬA' : 'TẠM ĐÓNG'}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                      <button 
-                        className={styles.actionBtn} 
-                        onClick={() => { setDetailId(res.id); setIsDetailOpen(true); }}
-                        title="Xem chi tiết"
+                    </td>
+                    <td>
+                      <div className={styles.ratingCol}>
+                        <Star size={16} weight="fill" color="#f59e0b" />
+                        <span>{res.rating}</span>
+                        <span>({res.reviewCount})</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`${styles.badge} ${styles.bgPurple}`}>
+                        {res.category && categoryMap[res.category]
+                          ? categoryMap[res.category]
+                          : res.category || "ẨM THỰC"}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.badge} ${res.status === "OPENING" || res.status === "ĐANG MỞ" || res.status === "HOẠT ĐỘNG" ? styles.bgEmerald : styles.bgAmber}`}
                       >
-                        <Eye size={24} weight="bold" />
-                      </button>
-                      <button className={styles.actionBtn} onClick={() => openEditModal(res)}>
-                        <Pencil size={24} weight="bold" />
-                      </button>
-                      <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => handleDelete(res.id)}>
-                        <Trash size={24} weight="bold" />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
+                        <span
+                          className={styles.dot}
+                          style={
+                            {
+                              "--bg-color":
+                                res.status === "OPENING" ||
+                                res.status === "ĐANG MỞ" ||
+                                res.status === "HOẠT ĐỘNG"
+                                  ? "#10b981"
+                                  : "#f59e0b",
+                            } as React.CSSProperties
+                          }
+                        ></span>
+                        {res.status === "OPENING" ||
+                        res.status === "ĐANG MỞ" ||
+                        res.status === "HOẠT ĐỘNG"
+                          ? "MỞ CỬA"
+                          : "TẠM ĐÓNG"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.flexEnd}>
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => {
+                            setDetailId(res.id);
+                            setIsDetailOpen(true);
+                          }}
+                          title="Xem chi tiết"
+                        >
+                          <Eye size={24} weight="bold" />
+                        </button>
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => openEditModal(res)}
+                          title="Chỉnh sửa"
+                        >
+                          <Pencil size={24} weight="bold" />
+                        </button>
+                        <button
+                          className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                          onClick={() => handleDelete(res.id)}
+                          title="Xóa"
+                        >
+                          <Trash size={24} weight="bold" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
+              )}
             </tbody>
           )}
         </table>
@@ -293,31 +450,47 @@ const RestaurantsView: React.FC = () => {
         {/* Pagination */}
         <div className={styles.pagination}>
           <p className={styles.paginationInfo}>
-            Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, pagination.totalElements)}–{Math.min(page * PAGE_SIZE, pagination.totalElements)}</span> của <span>{pagination.totalElements}</span> kết quả
+            Hiển thị{" "}
+            <span>
+              {Math.min((page - 1) * PAGE_SIZE + 1, pagination.totalElements)}–
+              {Math.min(page * PAGE_SIZE, pagination.totalElements)}
+            </span>{" "}
+            của <span>{pagination.totalElements}</span> kết quả
           </p>
           <div className={styles.paginationBtns}>
-            <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+            <button
+              className={styles.pageBtn}
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              title="Trang trước"
+            >
               <CaretLeft size={20} weight="bold" />
             </button>
-            <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</button>
-            <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+            <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>
+              {page}
+            </button>
+            <button
+              className={styles.pageBtn}
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+              title="Trang sau"
+            >
               <CaretRight size={20} weight="bold" />
             </button>
           </div>
         </div>
-        <DetailModal 
-        isOpen={isDetailOpen} 
-        onClose={() => setIsDetailOpen(false)} 
-        id={detailId} 
-        type="restaurant" 
+      </motion.div>
+      <DetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        id={detailId}
+        type="restaurant"
       />
-    </motion.div>
-
-      <AddEditModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSave} 
-        title={editingItem ? 'Cập nhật nhà hàng' : 'Thêm nhà hàng mới'}
+      <AddEditModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSave}
+        title={editingItem ? "Cập nhật nhà hàng" : "Thêm nhà hàng mới"}
         type="restaurant"
         initialData={editingItem}
       />
@@ -326,5 +499,3 @@ const RestaurantsView: React.FC = () => {
 };
 
 export default RestaurantsView;
-
-

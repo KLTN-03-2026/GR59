@@ -10,7 +10,7 @@ import {
   SpeakerHigh, 
   Bookmark, 
   ShareNetwork,
-  Info
+  InfoIcon
 } from '@phosphor-icons/react';
 import type { RoutePoint } from '../../ItineraryDetail';
 
@@ -22,19 +22,10 @@ interface Props {
 }
 
 const PlaceDetailPanel: React.FC<Props> = ({ pointId, points, onClose, onOpenNavigation }) => {
-  const [point, setPoint] = useState<RoutePoint | null>(null);
+  const point = points.find(p => p.id === pointId) || null;
   const [wikiData, setWikiData] = useState<{ title: string; desc: string; image: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-
-  useEffect(() => {
-    if (pointId) {
-      const found = points.find(p => p.id === pointId);
-      setPoint(found || null);
-    } else {
-      setPoint(null);
-    }
-  }, [pointId, points]);
 
   useEffect(() => {
     if (!point) return;
@@ -97,12 +88,12 @@ const PlaceDetailPanel: React.FC<Props> = ({ pointId, points, onClose, onOpenNav
   return (
     <div className={`${styles.panelContainer} ${pointId ? styles.isOpen : ''}`}>
       <div className={styles.header}>
-        <button className={styles.closeBtn} onClick={onClose}>
+        <button type="button" className={styles.closeBtn} onClick={onClose} title="Đóng chi tiết" aria-label="Đóng chi tiết">
           <X size={24} weight="bold" />
         </button>
         <div className={styles.headerActions}>
-           <button><Bookmark size={20} /></button>
-           <button><ShareNetwork size={20} /></button>
+           <button type="button" title="Lưu địa điểm" aria-label="Lưu địa điểm"><Bookmark size={20} /></button>
+           <button type="button" title="Chia sẻ" aria-label="Chia sẻ"><ShareNetwork size={20} /></button>
         </div>
       </div>
 
@@ -152,7 +143,7 @@ const PlaceDetailPanel: React.FC<Props> = ({ pointId, points, onClose, onOpenNav
 
           <div className={styles.descriptionSection}>
              <div className={styles.sectionTitle}>
-                <Info size={20} weight="bold" />
+                <InfoIcon size={20} weight="bold" />
                 <h3>Thông tin chi tiết</h3>
              </div>
              {isLoading ? (

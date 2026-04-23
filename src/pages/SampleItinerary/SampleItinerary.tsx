@@ -36,15 +36,16 @@ const SampleItinerary: React.FC = () => {
       try {
         setIsLoading(true);
         const response = await getSampleItineraries();
-        const resData = response.data.DT || response.data.data;
-        let list = [];
+        type FlexibleResponse = ItineraryType[] | { content: ItineraryType[] } | ItineraryType;
+        const resData = response.data.data as unknown as FlexibleResponse;
+        let list: ItineraryType[] = [];
         if (Array.isArray(resData)) {
           list = resData;
-        } else if (resData && Array.isArray(resData.content)) {
-          list = resData.content;
-        } else if (resData && typeof resData === 'object') {
+        } else if (resData && typeof resData === "object" && "content" in resData && Array.isArray((resData as { content: ItineraryType[] }).content)) {
+          list = (resData as { content: ItineraryType[] }).content;
+        } else if (resData && typeof resData === "object") {
           // In case the API accidentally returns a single object instead of an array
-          list = [resData];
+          list = [resData as ItineraryType];
         }
         setItineraries(list);
       } catch (err) {

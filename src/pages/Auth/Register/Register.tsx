@@ -4,7 +4,6 @@ import {
   Eye,
   EyeSlash,
   FacebookLogo,
-  GoogleLogo,
   LockKey,
   User,
 } from "phosphor-react";

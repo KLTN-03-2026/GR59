@@ -47,6 +47,7 @@ $lightText: #718096;
   font-weight: 800;
   text-transform: uppercase;
   color: #fff;
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 
   &.upcoming { background: rgba($primary, 0.9); }
@@ -65,6 +66,7 @@ $lightText: #718096;
   justify-content: center;
   color: #fff;
   cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   transition: 0.3s;
 

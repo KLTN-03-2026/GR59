@@ -5,24 +5,27 @@ import {
   MapPin,
   Star,
   Clock,
-  Tag,
   Envelope,
-  Phone,
-  House,
+  PhoneCall,
   IdentificationCard,
   UserCircle,
   Buildings,
   ForkKnife,
-  MapTrifold,
+  MapTrifoldIcon,
   Image as ImageIcon,
-  CheckCircle,
-  XCircle,
-  Globe,
+  GlobeHemisphereWest,
   Video,
   ShieldCheck,
   ChatCircleText,
 } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { 
+  Hotel, 
+  Restaurant, 
+  Destination, 
+  DbUser, 
+  AdminReview
+} from "../../../../services/adminService";
 import {
   fetchUserDetail,
   fetchHotelDetail,
@@ -40,14 +43,17 @@ interface DetailModalProps {
   type: "hotel" | "restaurant" | "destination" | "user" | "review";
 }
 
+type DetailData = Hotel | Restaurant | Destination | DbUser | AdminReview;
+
+
 const DetailModal: React.FC<DetailModalProps> = ({
   isOpen,
   onClose,
   id,
   type,
 }) => {
-  const [data, setData] = useState<any>(null);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [data, setData] = useState<DetailData | null>(null);
+  const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
 
@@ -69,7 +75,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
             const resBody = res.data;
             const resData = resBody.data !== undefined ? resBody.data : (resBody.DT !== undefined ? resBody.DT : resBody);
             
-            if (resData) setData(resData);
+            if (resData) setData(resData as DetailData);
           }
 
           // Fetch reviews for places
@@ -80,7 +86,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
               const revRes = await fetchReviewsByTarget(targetType, id);
               if (revRes.data) {
                 const revData = revRes.data.data?.content || revRes.data.data || revRes.data.DT?.content;
-                setReviews(Array.isArray(revData) ? revData : []);
+                setReviews(Array.isArray(revData) ? (revData as AdminReview[]) : []);
               }
             } catch (err) {
               console.error("Lỗi khi lấy reviews:", err);
@@ -123,33 +129,34 @@ const DetailModal: React.FC<DetailModalProps> = ({
     }
 
     if (type === "user") {
+      const userData = data as DbUser;
       return (
         <div className={styles.userDetail}>
           <div className={styles.profileSection}>
             <div className={styles.avatarWrapper}>
               <ProtectedImage
-                src={data.avatarUrl}
-                fallbackSrc={`https://ui-avatars.com/api/?name=${data.fullName || data.email}&background=0ea5e9&color=fff`}
+                src={userData.avatarUrl || ""}
+                fallbackSrc={`https://ui-avatars.com/api/?name=${userData.fullName || userData.email}&background=0ea5e9&color=fff`}
                 alt="Avatar"
               />
               <div className={styles.roleBadgeFloating}>
-                {data.roleName} (ID: {data.roleId})
+                {userData.roleName} (ID: {userData.roleId})
               </div>
             </div>
             <div className={styles.profileMain}>
-              <h4>{data.fullName || "Chưa cập nhật tên"}</h4>
-              <p className={styles.userEmail}>{data.email}</p>
+              <h4>{userData.fullName || "Chưa cập nhật tên"}</h4>
+              <p className={styles.userEmail}>{userData.email}</p>
               <div className={styles.userMeta}>
                 <span
                   className={
-                    data.isActive ? styles.statusActive : styles.statusInactive
+                    userData.isActive ? styles.statusActive : styles.statusInactive
                   }
                 >
-                  {data.isActive ? "Đang hoạt động" : "Đã bị khóa"}
+                  {userData.isActive ? "Đang hoạt động" : "Đã bị khóa"}
                 </span>
                 <span className={styles.joinDate}>
                   Tham gia:{" "}
-                  {new Date(data.createdAt).toLocaleDateString("vi-VN")}
+                  {new Date(userData.createdAt).toLocaleDateString("vi-VN")}
                 </span>
               </div>
             </div>
@@ -161,15 +168,15 @@ const DetailModal: React.FC<DetailModalProps> = ({
               <div className={styles.cardContent}>
                 <div className={styles.infoLine}>
                   <Envelope size={20} />
-                  <span>{data.email}</span>
+                  <span>{userData.email}</span>
                 </div>
                 <div className={styles.infoLine}>
-                  <Phone size={20} />
-                  <span>{data.phone || "Chưa cập nhật SĐT"}</span>
+                  <PhoneCall size={20} />
+                  <span>{userData.phone || "Chưa cập nhật SĐT"}</span>
                 </div>
                 <div className={styles.infoLine}>
                   <MapPin size={20} />
-                  <span>{data.address || "Chưa cập nhật địa chỉ"}</span>
+                  <span>{userData.address || "Chưa cập nhật địa chỉ"}</span>
                 </div>
               </div>
             </div>
@@ -181,41 +188,41 @@ const DetailModal: React.FC<DetailModalProps> = ({
                   <ShieldCheck size={20} />
                   <span>
                     Xác minh Email:{" "}
-                    {data.isEmailVerified ? "Đã xác thực" : "Chưa xác thực"}
+                    {userData.isEmailVerified ? "Đã xác thực" : "Chưa xác thực"}
                   </span>
                 </div>
                 <div className={styles.infoLine}>
-                  <Globe size={20} />
+                  <GlobeHemisphereWest size={20} />
                   <span>
                     Liên kết:{" "}
-                    {data.isGoogleLinked
+                    {userData.isGoogleLinked
                       ? "Google"
-                      : data.isFacebookLinked
+                      : userData.isFacebookLinked
                         ? "Facebook"
                         : "Mặc định"}
-                    {data.googleId && ` (${data.googleId})`}
-                    {data.facebookId && ` (${data.facebookId})`}
+                    {userData.googleId && ` (${userData.googleId})`}
+                    {userData.facebookId && ` (${userData.facebookId})`}
                   </span>
                 </div>
                 <div className={styles.infoLine}>
                   <IdentificationCard size={20} />
-                  <span>User ID: {data.id}</span>
+                  <span>User ID: {userData.id}</span>
                 </div>
                 <div className={styles.infoLine}>
                   <Clock size={20} />
                   <span>
                     Cập nhật cuối:{" "}
-                    {new Date(data.updatedAt).toLocaleString("vi-VN")}
+                    {new Date(userData.updatedAt).toLocaleString("vi-VN")}
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {data.bio && (
+          {userData.bio && (
             <div className={styles.bioCard}>
               <h5>Giới thiệu bản thân</h5>
-              <p>{data.bio}</p>
+              <p>{userData.bio}</p>
             </div>
           )}
         </div>
@@ -223,42 +230,43 @@ const DetailModal: React.FC<DetailModalProps> = ({
     }
 
     if (type === "review") {
+      const reviewData = data as AdminReview;
       return (
         <div className={styles.reviewDetail}>
           <div className={styles.reviewHeader}>
             <ProtectedImage
-              src={data.userImage || ""}
-              fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(data.userName || "User")}&background=0ea5e9&color=fff`}
+              src={reviewData.userImage || ""}
+              fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(reviewData.userName || "User")}&background=0ea5e9&color=fff`}
               alt="Avatar"
               className={styles.reviewerAvatar}
             />
             <div className={styles.reviewerInfo}>
               <h4>
-                {data.userName || "Người dùng ẩn danh"}
-                <span className={styles.idBadge}>ID: {data.id}</span>
+                {reviewData.userName || "Người dùng ẩn danh"}
+                <span className={styles.idBadge}>ID: {reviewData.id}</span>
               </h4>
               <div className={styles.reviewMeta}>
                 <div className={styles.stars}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      weight={i < (data.rating || 0) ? "fill" : "regular"}
-                      color={i < (data.rating || 0) ? "#f59e0b" : "#cbd5e1"}
+                      weight={i < (reviewData.rating || 0) ? "fill" : "regular"}
+                      color={i < (reviewData.rating || 0) ? "#f59e0b" : "#cbd5e1"}
                     />
                   ))}
-                  <span>{data.rating}/5</span>
+                  <span>{reviewData.rating}/5</span>
                 </div>
-                <div className={styles.categoryTag}>{data.type}</div>
-                {(data.nameService || data.provinceName) && (
+                <div className={styles.categoryTag}>{reviewData.type}</div>
+                {(reviewData.nameService || reviewData.provinceName) && (
                   <div className={styles.targetInfo}>
-                    {data.nameService && (
+                    {reviewData.nameService && (
                       <span className={styles.serviceName}>
-                        <Buildings size={14} weight="fill" /> {data.nameService}
+                        <Buildings size={14} weight="fill" /> {reviewData.nameService}
                       </span>
                     )}
-                    {data.provinceName && (
+                    {reviewData.provinceName && (
                       <span className={styles.provinceTag}>
-                        <MapPin size={14} weight="fill" /> {data.provinceName}
+                        <MapPin size={14} weight="fill" /> {reviewData.provinceName}
                       </span>
                     )}
                   </div>
@@ -273,15 +281,15 @@ const DetailModal: React.FC<DetailModalProps> = ({
               <h5>Nội dung đánh giá</h5>
             </div>
             <p className={styles.commentText}>
-              "{data.comment || "Không có nội dung."}"
+              "{reviewData.comment || "Không có nội dung."}"
             </p>
           </div>
 
           <div className={styles.imageGallery}>
             <h5>Hình ảnh đính kèm</h5>
             <div className={styles.largeGrid}>
-              {data.images && data.images.length > 0 ? (
-                data.images.map((img: string, i: number) => (
+              {reviewData.images && reviewData.images.length > 0 ? (
+                reviewData.images.map((img: string, i: number) => (
                   <ProtectedImage key={i} src={img} alt={`review-${i}`} />
                 ))
               ) : (
@@ -289,9 +297,9 @@ const DetailModal: React.FC<DetailModalProps> = ({
                   <ImageIcon
                     size={32}
                     color="#cbd5e1"
-                    style={{ marginBottom: "8px" }}
+                    className={styles.mb8}
                   />
-                  <p style={{ margin: 0 }}>Không có hình ảnh đính kèm</p>
+                  <p className={styles.m0}>Không có hình ảnh đính kèm</p>
                 </div>
               )}
             </div>
@@ -300,17 +308,17 @@ const DetailModal: React.FC<DetailModalProps> = ({
           <div className={styles.techGrid}>
             <div className={styles.techItem}>
               <label>User ID</label>
-              <p>{data.userId || "N/A"}</p>
+              <p>{reviewData.userId || "N/A"}</p>
             </div>
             <div className={styles.techItem}>
               <label>Mục tiêu</label>
               <p>
-                {data.hotelId && `Khách sạn (ID: ${data.hotelId})`}
-                {data.restaurantId && `Nhà hàng (ID: ${data.restaurantId})`}
-                {data.attractionId && `Địa điểm (ID: ${data.attractionId})`}
-                {!data.hotelId &&
-                  !data.restaurantId &&
-                  !data.attractionId &&
+                {reviewData.hotelId && `Khách sạn (ID: ${reviewData.hotelId})`}
+                {reviewData.restaurantId && `Nhà hàng (ID: ${reviewData.restaurantId})`}
+                {reviewData.attractionId && `Địa điểm (ID: ${reviewData.attractionId})`}
+                {!reviewData.hotelId &&
+                  !reviewData.restaurantId &&
+                  !reviewData.attractionId &&
                   "Hệ thống"}
               </p>
             </div>
@@ -318,15 +326,15 @@ const DetailModal: React.FC<DetailModalProps> = ({
               <label>Trạng thái</label>
               <p
                 className={
-                  data.status === "ACTIVE" ? styles.statusActive : styles.statusMaint
+                  reviewData.status === "ACTIVE" ? styles.statusActive : styles.statusMaint
                 }
               >
-                {data.status === "ACTIVE" ? "Đã duyệt" : "Bị khóa/Ẩn"}
+                {reviewData.status === "ACTIVE" ? "Đã duyệt" : "Bị khóa/Ẩn"}
               </p>
             </div>
             <div className={styles.techItem}>
               <label>Ngày đăng</label>
-              <p>{new Date(data.createdAt).toLocaleString("vi-VN")}</p>
+              <p>{new Date(reviewData.createdAt).toLocaleString("vi-VN")}</p>
             </div>
           </div>
         </div>
@@ -366,18 +374,26 @@ const DetailModal: React.FC<DetailModalProps> = ({
       ENTERTAINMENT: "Giải trí & Vui chơi",
     };
 
+    const placeData = data as (Hotel | Restaurant | Destination) & {
+      heroImage?: string;
+      img?: string;
+      image?: string;
+      price?: number;
+      time?: number;
+      reviews?: number;
+    };
     return (
       <div className={styles.placeDetail}>
         <div className={styles.topSection}>
           <div className={styles.mediaGallery}>
             <img
-              src={data.imageUrl || data.heroImage}
-              alt={data.name}
+              src={placeData.imageUrl || placeData.heroImage}
+              alt={placeData.name}
               className={styles.mainImage}
             />
             <div className={styles.thumbnailGrid}>
-              {data.gallery && data.gallery.length > 0 ? (
-                data.gallery
+              {placeData.gallery && placeData.gallery.length > 0 ? (
+                placeData.gallery
                   .slice(0, 3)
                   .map((img: string, i: number) => (
                     <img key={i} src={img} alt="thumb" />
@@ -385,9 +401,9 @@ const DetailModal: React.FC<DetailModalProps> = ({
               ) : (
                 <div className={styles.noGallery}>Chưa có ảnh gallery</div>
               )}
-              {data.gallery?.length > 3 && (
+              {placeData.gallery?.length > 3 && (
                 <div className={styles.moreOverlay}>
-                  +{data.gallery.length - 3}
+                  +{placeData.gallery.length - 3}
                 </div>
               )}
             </div>
@@ -395,19 +411,20 @@ const DetailModal: React.FC<DetailModalProps> = ({
 
           <div className={styles.quickStats}>
             <div className={styles.categoryTag}>
-              {categoryMap[data.category] || data.category}
+              {(placeData.category ? categoryMap[placeData.category] : null) ||
+                placeData.category}
             </div>
             <h2>
-              {data.name} <span className={styles.idBadge}>ID: {data.id}</span>
+              {placeData.name} <span className={styles.idBadge}>ID: {placeData.id}</span>
             </h2>
 
             <div className={styles.ratingOverview}>
               <div className={styles.stars}>
                 <Star weight="fill" />
-                <span>{data.rating}</span>
+                <span>{placeData.rating}</span>
               </div>
               <div className={styles.reviewsCount}>
-                ({data.reviewCount || data.reviews || 0} đánh giá)
+                ({placeData.reviewCount || placeData.reviews || 0} đánh giá)
               </div>
             </div>
 
@@ -415,44 +432,44 @@ const DetailModal: React.FC<DetailModalProps> = ({
               <div className={styles.techItem}>
                 <label>Giá trung bình</label>
                 <p>
-                  {(data.averagePrice || data.price)?.toLocaleString() || 0} VNĐ
+                  {(placeData.averagePrice || placeData.price)?.toLocaleString() || 0} VNĐ
                 </p>
               </div>
               <div className={styles.techItem}>
                 <label>Thời lượng</label>
-                <p>{data.estimatedDuration || data.time || 0} phút</p>
+                <p>{placeData.estimatedDuration || placeData.time || 0} phút</p>
               </div>
               <div className={styles.techItem}>
                 <label>Mã tỉnh (ProvinceID)</label>
-                <p>{data.provinceId || "N/A"}</p>
+                <p>{placeData.provinceId || "N/A"}</p>
               </div>
               <div className={styles.techItem}>
                 <label>Tỉnh thành</label>
-                <p>{provinceMap[String(data.provinceId)] || "Chưa xác định"}</p>
+                <p>{provinceMap[String(placeData.provinceId)] || "Chưa xác định"}</p>
               </div>
               <div className={styles.techItem}>
                 <label>Trạng thái</label>
                 <p
                   className={
-                    data.status?.includes("ACTIVE") ||
-                    data.status?.includes("OPEN")
+                    placeData.status?.includes("ACTIVE") ||
+                    placeData.status?.includes("OPEN")
                       ? styles.statusActive
                       : styles.statusMaint
                   }
                 >
-                  {data.status}
+                  {placeData.status}
                 </p>
               </div>
               <div className={styles.techItem}>
                 <label>Video</label>
-                <p>{data.previewVideo ? "Có link" : "Không có"}</p>
+                <p>{placeData.previewVideo ? "Có link" : "Không có"}</p>
               </div>
             </div>
 
             <div className={styles.actionRow}>
-              {data.previewVideo && (
+              {placeData.previewVideo && (
                 <a
-                  href={data.previewVideo}
+                  href={placeData.previewVideo}
                   target="_blank"
                   rel="noreferrer"
                   className={styles.videoBtn}
@@ -469,17 +486,17 @@ const DetailModal: React.FC<DetailModalProps> = ({
             <h5>Mô tả chi tiết</h5>
             <div className={styles.locationFooter}>
               <MapPin size={18} weight="fill" />
-              <span>{data.location}</span>
+              <span>{placeData.location}</span>
             </div>
           </div>
           <p className={styles.fullDescription}>
-            {data.description || "Hiện chưa có mô tả chi tiết cho mục này."}
+            {placeData.description || "Hiện chưa có mô tả chi tiết cho mục này."}
           </p>
 
           <div className={styles.rawJsonSection}>
             <h5>Dữ liệu ảnh gốc (imageUrl)</h5>
             <code className={styles.urlCode}>
-              {data.imageUrl || data.heroImage}
+              {placeData.imageUrl || placeData.heroImage}
             </code>
           </div>
 
@@ -557,7 +574,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
               {type === "hotel" && <Buildings size={24} color="#0EA5E9" />}
               {type === "restaurant" && <ForkKnife size={24} color="#F43F5E" />}
               {type === "destination" && (
-                <MapTrifold size={24} color="#10B981" />
+                <MapTrifoldIcon size={24} color="#10B981" />
               )}
               {type === "user" && <UserCircle size={24} color="#8B5CF6" />}
               {type === "review" && (
@@ -583,7 +600,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
               aria-label="Đóng"
               title="Đóng"
             >
-              <div style={{ fontSize: "12px" }}>
+              <div className={styles.smallFont}>
                 <X size={20} weight="bold" />
               </div>
             </button>

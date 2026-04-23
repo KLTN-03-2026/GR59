@@ -60,6 +60,7 @@
     position: relative;
     background: linear-gradient(135deg, #33d7d1 0%, #2bb5af 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     padding-bottom: 5px;
 
@@ -182,6 +183,7 @@
 .locationCard {
   width: 100%;
   background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-radius: 32px;
   overflow: hidden;
@@ -245,6 +247,7 @@
     font-weight: 800;
     color: white;
     text-transform: uppercase;
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 14px;

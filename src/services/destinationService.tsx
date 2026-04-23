@@ -16,7 +16,7 @@ export interface Destination {
   description: string;
   gallery: string[];
   services: {
-    id: number;
+    id: number | string;
     type: "Khách sạn" | "Nhà hàng" | "Tour";
     name: string;
     location: string;
@@ -61,13 +61,13 @@ export interface Destination {
     label: string;
     value: string;
   }[];
+  provinceId?: number;
 }
 
 export interface BackendResponse<T = unknown> {
   status: number;
   message: string;
   data?: T;
-  DT?: T;
 }
 
 export interface BackendAttraction {
@@ -90,7 +90,7 @@ export interface BackendAttraction {
 /**
  * Mapper chuyển đổi dữ liệu từ BackendAttraction sang định dạng Destination hiển thị
  */
-export const mapBackendAttractionToFullDestination = (att: BackendAttraction): Destination => {
+export const mapBackendAttractionToFullDestination = (att: BackendAttraction | any): Destination => {
   if (!att) {
     return {
       id: "error",
@@ -177,7 +177,7 @@ export const mapBackendAttractionToFullDestination = (att: BackendAttraction): D
  */
 export const getAttractionDetail = async (id: string | number): Promise<AxiosResponse<BackendResponse<Destination>>> => {
   const response = await instance.get<BackendResponse<BackendAttraction>>(`/attractions/${id}`);
-  const attData = response.data.data || (response.data as any).DT;
+  const attData = response.data.data;
   
   const fullData = mapBackendAttractionToFullDestination(attData);
   

@@ -108,7 +108,7 @@ const ItineraryMarker: React.FC<{
              </div>
              <h4 className={styles.popupTitle}>{point.name}</h4>
              <p className={styles.popupDesc}>{point.description}</p>
-             <button 
+             <button type="button" 
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpenNavigation(point.lat, point.lng, point.name);
@@ -156,12 +156,18 @@ const MapControls: React.FC = () => {
   return (
     <div className={styles.mapCtrlStack}>
       <div className={styles.ctrlGroup}>
-        <button onClick={() => map.zoomIn()} aria-label="Phóng to"><i className="ph-bold ph-plus"></i></button>
-        <button onClick={() => map.zoomOut()} aria-label="Thu nhỏ"><i className="ph-bold ph-minus"></i></button>
+        <button type="button" onClick={() => map.zoomIn()} title="Phóng to" aria-label="Phóng to"><i className="ph-bold ph-plus"></i></button>
+        <button type="button" onClick={() => map.zoomOut()} title="Thu nhỏ" aria-label="Thu nhỏ"><i className="ph-bold ph-minus"></i></button>
       </div>
-      <button className={styles.ctrlBtn} onClick={() => {
-        map.locate().on("locationfound", (e) => map.flyTo(e.latlng, 15));
-      }}>
+      <button 
+        type="button" 
+        className={styles.ctrlBtn} 
+        onClick={() => {
+          map.locate().on("locationfound", (e) => map.flyTo(e.latlng, 15));
+        }}
+        title="Vị trí của tôi"
+        aria-label="Vị trí của tôi"
+      >
         <i className="ph-bold ph-crosshair"></i>
       </button>
     </div>

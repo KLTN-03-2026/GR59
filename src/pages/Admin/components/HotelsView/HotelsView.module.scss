@@ -228,6 +228,14 @@ $red: #ef4444;
     background: #fdfdfd;
   }
 
+  .w60 { width: 60px; }
+  .textRight { text-align: right; }
+  .textCenter { text-align: center; }
+  .p40 { padding: 40px; }
+  .textSlate400 { color: #94a3b8; }
+  .textSlate500 { color: #64748b; }
+  .fw600 { font-weight: 600; }
+
   td {
     padding: 24px 32px;
     border-bottom: 1px solid #f1f5f9;
@@ -260,6 +268,7 @@ $red: #ef4444;
         height: 12px;
         border-radius: 50%;
         border: 3px solid white;
+        background-color: var(--bg-color);
     }
   }
   
@@ -309,7 +318,7 @@ $red: #ef4444;
   color: #64748b;
 }
 
-.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background-color: var(--bg-color); }
 
 .bgBlue, .bgEmerald, .bgAmber, .bgPurple, .bgOrange {
   background: #f1f5f9;
@@ -340,6 +349,12 @@ $red: #ef4444;
     background: #ef4444;
     border-color: #ef4444;
   }
+}
+
+.flexEnd {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .pagination {
@@ -408,7 +423,6 @@ $red: #ef4444;
     border-color: #f1f5f9;
   }
   
-  // Nút mũi tên có phong cách riêng nếu cần
   svg {
     transition: transform 0.2s;
   }

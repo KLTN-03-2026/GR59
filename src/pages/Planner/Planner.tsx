@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import flatpickr from "flatpickr";
+import type { Instance } from "flatpickr/dist/types/instance";
 import "flatpickr/dist/flatpickr.min.css";
 import styles from "./Planner.module.scss";
 
@@ -11,7 +12,6 @@ import StepProgressBar from "./components/StepProgressBar/StepProgressBar";
 import InterestItem from "./components/InterestItem/InterestItem";
 import type { PlannerFormData, InterestOption } from "./types";
 import { postTravelPlan } from "../../services/plannerService";
-import { getHighlightRestaurants } from "../../services/highlightService";
 
 const INTERESTS: InterestOption[] = [
   { id: "Ẩm thực", icon: "ph-fill ph-fork-knife", color: "#f97316" },
@@ -40,8 +40,6 @@ const Planner: React.FC = () => {
     peopleGroup: heroData?.totalGuests || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [userLocationLatLng, setUserLocationLatLng] = useState<string | null>(null);
 
 
@@ -92,7 +90,7 @@ const Planner: React.FC = () => {
 
   // Khởi tạo Flatpickr một lần duy nhất
   useEffect(() => {
-    let fp: any;
+    let fp: Instance | undefined;
     if (dateInputRef.current) {
       fp = flatpickr(dateInputRef.current, {
         mode: "range",
@@ -119,7 +117,7 @@ const Planner: React.FC = () => {
   // Đồng bộ lại Flatpickr nếu travelDate thay đổi từ bên ngoài (ví dụ từ heroData useEffect)
   useEffect(() => {
     if (dateInputRef.current) {
-      const fp = (dateInputRef.current as any)._flatpickr;
+      const fp = (dateInputRef.current as HTMLInputElement & { _flatpickr?: Instance })._flatpickr;
       if (fp && formData.travelDate && fp.input.value !== formData.travelDate) {
         fp.setDate(formData.travelDate);
       }
@@ -223,29 +221,9 @@ const Planner: React.FC = () => {
                   value={formData.destination} 
                   onChange={(e) => {
                     setFormData({...formData, destination: e.target.value});
-                    setShowSuggestions(true);
                   }}
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 />
-                {showSuggestions && suggestions.length > 0 && (
-                  <ul className={styles.suggestions}>
-                    {suggestions
-                      .filter((s) => s.toLowerCase().includes((formData.destination || "").toLowerCase()))
-                      .map((s, idx) => (
-                        <li 
-                          key={idx} 
-                          onMouseDown={(e) => {
-                            e.preventDefault(); // Tránh onBlur fire trước khi click
-                            setFormData({...formData, destination: s});
-                            setShowSuggestions(false);
-                          }}
-                        >
-                          <i className="ph-fill ph-map-pin"></i> {s}
-                        </li>
-                    ))}
-                  </ul>
-                )}
+
               </div>
             </div>
             <div className={styles.inputGroup}>
@@ -286,11 +264,13 @@ const Planner: React.FC = () => {
 
         <div className={styles.row}>
           <div className={styles.inputGroup}>
-            <label>
+            <label htmlFor="budget">
               <i className="ph-fill ph-money"></i> NGÂN SÁCH
             </label>
             <div className={styles.selectWrapper}>
               <select
+                id="budget"
+                title="Chọn ngân sách dự kiến"
                 className={styles.select}
                 value={formData.budget}
                 onChange={(e) =>

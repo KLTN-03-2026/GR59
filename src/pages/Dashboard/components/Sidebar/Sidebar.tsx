@@ -9,7 +9,8 @@ import {
   CaretUp,
   CaretDown,
   UserCircle,
-  MapTrifold,
+  MapTrifoldIcon,
+
 } from "@phosphor-icons/react";
 import { logo } from "../../../../assets/images/img";
 
@@ -82,7 +83,7 @@ const Sidebar: React.FC = () => {
               <UserCircle size={18} /> Hồ sơ
             </a>
             <a href="#">
-              <MapTrifold size={18} /> Lịch trình
+              <MapTrifoldIcon size={18} /> Lịch trình
             </a>
             <div className={styles.divider}></div>
             <a href="#" className={styles.logoutItem}>

@@ -1,11 +1,10 @@
-import React from "react";
 import {
   CalendarBlank,
   MapPin,
   ForkKnife,
-  Bed,
+  BedIcon,
   CheckCircle,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import styles from "../../Home.module.scss"; // Tạm thời dùng chung file styles cũ của bạn
 
 const Timeline = () => {
@@ -29,7 +28,7 @@ const Timeline = () => {
       color: styles.iconYellow,
     },
     {
-      icon: <Bed weight="bold" />,
+      icon: <BedIcon weight="bold" />,
       title: "Khách sạn",
       desc: "Nghỉ dưỡng tiện nghi",
       color: styles.iconRed,

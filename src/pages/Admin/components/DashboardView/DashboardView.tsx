@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './DashboardView.module.scss';
-import StatCard from '../StatCard/StatCard';
+import StatCard, { type IconName } from '../StatCard/StatCard';
 import { Download, Calendar } from "@phosphor-icons/react";
 import { motion } from 'framer-motion';
 import { useDashboardStats, useRecentActivity, usePopularLocations } from '../../hooks/useAdminData';
@@ -20,8 +20,8 @@ const DashboardView: React.FC = () => {
   const { data: activities, loading: actLoading, error: actError, refetch: refetchAct } = useRecentActivity();
   const { data: locations, loading: locLoading, error: locError, refetch: refetchLoc } = usePopularLocations();
 
-  const anyError = statsError || actError || locError;
-  const anyRefetch = () => { refetchStats(); refetchAct(); refetchLoc(); };
+  const dashboardError = statsError || actError || locError;
+  const handleRefresh = () => { refetchStats(); refetchAct(); refetchLoc(); };
 
   return (
     <motion.div className={styles.contentArea} initial="hidden" animate="visible" variants={containerVariants}>
@@ -44,7 +44,7 @@ const DashboardView: React.FC = () => {
       </motion.div>
 
       {/* ─── Error Banner ────────────────── */}
-      {anyError && <ErrorBanner message={anyError} onRetry={anyRefetch} />}
+      {dashboardError && <ErrorBanner message={dashboardError} onRetry={handleRefresh} />}
 
       {/* ─── Stats Grid ─────────────────── */}
       <motion.div variants={rowVariants} className={styles.statsGrid}>
@@ -57,7 +57,7 @@ const DashboardView: React.FC = () => {
               value={stat.value}
               trend={stat.trend}
               trendUp={stat.trendUp}
-              icon={stat.icon as any}
+              icon={stat.icon as IconName}
               colorClass={stat.colorClass}
               footerText={stat.footerText}
             />
@@ -77,7 +77,7 @@ const DashboardView: React.FC = () => {
             <div className={styles.chartLegend}>
               {[{ label: 'Tuần này', color: '#38BDF8' }, { label: 'Tuần trước', color: '#e2e8f0' }].map(l => (
                 <div key={l.label} className={styles.legendItem}>
-                  <span className={styles.dot} style={{ backgroundColor: l.color }}></span>
+                  <span className={styles.dot} style={{ "--bg-color": l.color } as React.CSSProperties}></span>
                   <span>{l.label}</span>
                 </div>
               ))}
@@ -116,7 +116,7 @@ const DashboardView: React.FC = () => {
           {locLoading ? (
             <div className={styles.locationList}>
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className={styles.shimmerBox} style={{ animationDelay: `${i * 0.1}s` }} />
+                <div key={i} className={styles.shimmerBox} style={{ "--delay": `${i * 0.1}s` } as React.CSSProperties} />
               ))}
             </div>
           ) : (
@@ -125,15 +125,15 @@ const DashboardView: React.FC = () => {
                 <motion.div key={loc.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 * i }} className={styles.locationItem}>
                   <div className={styles.locationInfo}>
                     <div className={styles.nameBox}>
-                      <span className={styles.dot} style={{ backgroundColor: loc.color }}></span>
+                      <span className={styles.dot} style={{ "--bg-color": loc.color } as React.CSSProperties}></span>
                       <span>{loc.name}</span>
                     </div>
-                    <span className={styles.value} style={{ color: loc.color }}>{loc.value}</span>
+                    <span className={styles.value} style={{ "--text-color": loc.color } as React.CSSProperties}>{loc.value}</span>
                   </div>
                   <div className={styles.progressBar}>
                     <motion.div
                       className={styles.progressFill}
-                      style={{ backgroundColor: loc.color }}
+                      style={{ "--bg-color": loc.color } as React.CSSProperties}
                       initial={{ width: 0 }}
                       animate={{ width: `${loc.pct}%` }}
                       transition={{ duration: 0.8, delay: 0.1 * i, ease: 'easeOut' }}
@@ -165,7 +165,7 @@ const DashboardView: React.FC = () => {
             <LoadingRows count={5} />
           ) : (
             <tbody>
-              {activities.map((act, idx) => (
+              {activities.map((act) => (
                 <motion.tr key={act.id} variants={rowVariants}>
                   <td className={styles.timeCol}>
                     <p>{act.time}</p>
@@ -197,4 +197,3 @@ const DashboardView: React.FC = () => {
 };
 
 export default DashboardView;
-

@@ -287,6 +287,16 @@ $slate-400: #94a3b8;
     background: #fdfdfd;
   }
 
+  .w60 { width: 60px; }
+  .fw600 { font-weight: 600; }
+  .textSlate500 { color: #64748b; }
+  .textCenter { text-align: center; }
+  .pointer { cursor: pointer; }
+  .textBlue { color: #38bdf8; }
+  .textAmber { color: #f59e0b; }
+  .textRed { color: #ef4444; }
+  .textEmerald { color: #10b981; }
+
   tr {
     transition: background-color 0.2s;
 
@@ -344,6 +354,25 @@ $slate-400: #94a3b8;
       }
     }
   }
+
+  .newsThumb {
+    border-radius: 4px;
+    width: 48px;
+    height: 32px;
+    object-fit: cover;
+  }
+
+  .readTime {
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+
+  .starIcon {
+    transition: transform 0.2s;
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
 }
 
 .serviceCol {
@@ -386,6 +415,35 @@ $slate-400: #94a3b8;
   letter-spacing: 0.08em;
 }
 
+.userAvatarSmall {
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+}
+
+.ratingFlex {
+  display: flex;
+  color: #f59e0b;
+  gap: 2px;
+}
+
+.serviceName {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #1e293b;
+  margin: 0;
+}
+
+.serviceLoc {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 2px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .bgBlue {
   background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
@@ -409,6 +467,25 @@ $slate-400: #94a3b8;
 .bgSlate {
   background: #f1f5f9;
   color: #64748b;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 100px;
+  width: fit-content;
+
+  &.active {
+    background-color: #ecfdf5;
+    color: #10b981;
+  }
+  &.hidden {
+    background-color: #fef2f2;
+    color: #ef4444;
+  }
 }
 
 .actionGroup {
@@ -533,4 +610,3 @@ $slate-400: #94a3b8;
 }
 
 @include UsersView.mobile-styles();
-

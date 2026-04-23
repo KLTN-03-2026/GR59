@@ -5,12 +5,10 @@ import {
   CaretRight,
   MapPin,
   Star,
-  ArrowRight,
-  Bed,
+  BedIcon,
   ForkKnife,
-  House,
-  Fire,
-} from "phosphor-react";
+  
+} from "@phosphor-icons/react";
 import styles from "./HighlightLocations.module.scss";
 import AnimatedButton from "../../../../components/Ui/AnimatedButton/AnimatedButton";
 import {
@@ -81,7 +79,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
       
       try {
         const res = await getFeaturedAttractions(10);
-        let allFetchedItems = res.data?.data || [];
+        const allFetchedItems = res.data?.data || [];
 
         if (controller.signal.aborted) return;
 
@@ -103,8 +101,8 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
 
         cacheRef.current["featured"] = filtered;
         setItems(filtered);
-      } catch (error: any) {
-        if (error.name !== 'AbortError') {
+      } catch (error) {
+        if (error instanceof Error && error.name !== 'AbortError') {
           console.error("Lỗi khi tải dữ liệu Highlight:", error);
         }
       } finally {
@@ -133,7 +131,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
   };
 
   const renderIcon = (type: string) => {
-    if (type === "bed") return <Bed size={16} weight="fill" />;
+    if (type === "bed") return <BedIcon size={16} weight="fill" />;
     if (type === "food") return <ForkKnife size={16} weight="fill" />;
     return <MapPin size={16} weight="fill" />;
   };

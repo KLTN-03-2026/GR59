@@ -1,22 +1,23 @@
 import React, { useState, useMemo } from "react";
-import styles from "../UsersView/UsersView.module.scss"; // Reuse UsersView styles for consistency
+import styles from "../UsersView/UsersView.module.scss";
 import StatCard from "../StatCard/StatCard";
 import {
   Pencil,
   Trash,
-  MagnifyingGlass,
   CaretLeft,
   CaretRight,
-  Eye,
   FilePlus,
-  Article,
-  CheckCircle,
-  Clock,
   Star,
-  X
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
-import { useNews, deleteRecord, updateRecord, createRecord, toggleNewsFeatured } from "../../hooks/useAdminData";
+import {
+  useNews,
+  deleteRecord,
+  updateRecord,
+  createRecord,
+  toggleNewsFeatured,
+  type NewsItem,
+} from "../../hooks/useAdminData";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import AddEditModal from "../_shared/AddEditModal";
 import ThreeDSearchInput from "../../../../components/Ui/ThreeDSearchInput/ThreeDSearchInput";
@@ -41,7 +42,7 @@ const NewsView: React.FC = () => {
   const [page, setPage] = useState(1);
   const { data: news, pagination, loading, error, refetch } = useNews();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editItem, setEditItem] = useState<any>(null);
+  const [editItem, setEditItem] = useState<NewsItem | undefined>(undefined);
   const [search, setSearch] = useState("");
   const [activeCategoryFilter, setActiveCategoryFilter] = useState("All");
 
@@ -53,29 +54,38 @@ const NewsView: React.FC = () => {
 
   const getCategoryStyle = (cat: string) => {
     switch (cat) {
-      case "Điểm đến": return styles.bgBlue;
-      case "Ẩm thực": return styles.bgOrange;
-      case "Mẹo du lịch": return styles.bgEmerald;
-      case "Sự kiện": return styles.bgPurple;
-      default: return styles.bgSlate;
+      case "Điểm đến":
+        return styles.bgBlue;
+      case "Ẩm thực":
+        return styles.bgOrange;
+      case "Mẹo du lịch":
+        return styles.bgEmerald;
+      case "Sự kiện":
+        return styles.bgPurple;
+      default:
+        return styles.bgSlate;
     }
   };
 
   const filtered = useMemo(() => {
     let list = [...news];
     if (activeCategoryFilter !== "All") {
-      list = list.filter(n => n.category === activeCategoryFilter);
+      list = list.filter((n) => n.category === activeCategoryFilter);
     }
     if (search) {
       const s = search.toLowerCase();
-      list = list.filter(n => n.title.toLowerCase().includes(s) || n.excerpt.toLowerCase().includes(s));
+      list = list.filter(
+        (n) =>
+          n.title.toLowerCase().includes(s) ||
+          n.excerpt.toLowerCase().includes(s),
+      );
     }
     return list;
   }, [news, activeCategoryFilter, search]);
 
   const totalPages = pagination.totalPages || 1;
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     if (!confirm("Bạn có chắc muốn xóa bài viết này?")) return;
     try {
       await deleteRecord("news", id);
@@ -86,12 +96,12 @@ const NewsView: React.FC = () => {
     }
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: NewsItem) => {
     setEditItem(item);
     setIsEditOpen(true);
   };
 
-  const handleSave = async (formData: any) => {
+  const handleSave = async (formData: FormData | Record<string, unknown>) => {
     try {
       if (editItem) {
         await updateRecord("news", editItem.id, formData);
@@ -101,8 +111,9 @@ const NewsView: React.FC = () => {
         toast.success("Thêm bài viết thành công!");
       }
       setIsEditOpen(false);
+      setEditItem(undefined);
       refetch(page - 1, PAGE_SIZE);
-    } catch (err: any) {
+    } catch {
       toast.error("Thao tác thất bại!");
     }
   };
@@ -112,7 +123,7 @@ const NewsView: React.FC = () => {
       await toggleNewsFeatured(id);
       toast.success("Cập nhật trạng thái nổi bật thành công!");
       refetch(page - 1, PAGE_SIZE);
-    } catch (err) {
+    } catch {
       toast.error("Cập nhật trạng thái thất bại!");
     }
   };
@@ -127,12 +138,18 @@ const NewsView: React.FC = () => {
       <motion.div variants={rowVariants} className={styles.pageHeader}>
         <div className={styles.pageTitle}>
           <h2>Quản lý Bài viết</h2>
-          <p>Tạo và chỉnh sửa các tin tức, mẹo du lịch và cảm hứng cho người dùng</p>
+          <p>
+            Tạo và chỉnh sửa các tin tức, mẹo du lịch và cảm hứng cho người dùng
+          </p>
         </div>
         <div className={styles.pageActions}>
-          <button 
-            className={styles.btnPrimary} 
-            onClick={() => { setEditItem(null); setIsEditOpen(true); }}
+          <button
+            className={styles.btnPrimary}
+            onClick={() => {
+              setEditItem(undefined);
+              setIsEditOpen(true);
+            }}
+            title="Viết bài mới"
           >
             <FilePlus size={18} weight="bold" />
             <span>Viết bài mới</span>
@@ -140,7 +157,12 @@ const NewsView: React.FC = () => {
         </div>
       </motion.div>
 
-      {error && <ErrorBanner message={error} onRetry={() => refetch(page - 1, PAGE_SIZE)} />}
+      {error && (
+        <ErrorBanner
+          message={error}
+          onRetry={() => refetch(page - 1, PAGE_SIZE)}
+        />
+      )}
 
       <motion.div variants={rowVariants} className={styles.statsGrid}>
         <StatCard
@@ -151,7 +173,9 @@ const NewsView: React.FC = () => {
         />
         <StatCard
           label="BÀI VIẾT NỔI BẬT"
-          value={loading ? "..." : String(news.filter(n => n.isFeatured).length)}
+          value={
+            loading ? "..." : String(news.filter((n) => n.isFeatured).length)
+          }
           icon="Star"
           colorClass="bgAmber"
         />
@@ -168,8 +192,8 @@ const NewsView: React.FC = () => {
       <motion.div variants={rowVariants} className={styles.filterSection}>
         <div className={styles.filterRow}>
           <div className={styles.searchGroup}>
-            <ThreeDSearchInput 
-              value={search} 
+            <ThreeDSearchInput
+              value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm theo tiêu đề hoặc nội dung..."
               className={styles.adminSearchInput}
@@ -179,9 +203,12 @@ const NewsView: React.FC = () => {
             className={styles.selectPill}
             value={activeCategoryFilter}
             onChange={(e) => setActiveCategoryFilter(e.target.value)}
+            title="Lọc theo chuyên mục"
           >
-            {categories.map(cat => (
-              <option key={cat} value={cat}>Chuyên mục: {cat}</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                Chuyên mục: {cat}
+              </option>
             ))}
           </select>
         </div>
@@ -191,11 +218,11 @@ const NewsView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th style={{ width: "60px" }}>STT</th>
+              <th className={styles.w60}>STT</th>
               <th>BÀI VIẾT</th>
               <th>CHUYÊN MỤC</th>
               <th>NGÀY ĐĂNG</th>
-              <th>NỔI BẬT</th>
+              <th className={styles.textCenter}>NỔI BẬT</th>
               <th className={styles.thActions}>THAO TÁC</th>
             </tr>
           </thead>
@@ -205,45 +232,81 @@ const NewsView: React.FC = () => {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className={styles.emptyState}>Không tìm thấy bài viết nào</td>
+                  <td colSpan={6} className={styles.emptyState}>
+                    Không tìm thấy bài viết nào
+                  </td>
                 </tr>
               ) : (
                 filtered.map((item, idx) => (
                   <motion.tr key={item.id} variants={rowVariants} custom={idx}>
-                    <td>#{(page - 1) * PAGE_SIZE + idx + 1}</td>
+                    <td className={`${styles.fw600} ${styles.textSlate500}`}>
+                      #{(page - 1) * PAGE_SIZE + idx + 1}
+                    </td>
                     <td>
                       <div className={styles.infoCol}>
-                        <img src={item.image} alt="" style={{ borderRadius: '4px', width: '48px', height: '32px', objectFit: 'cover' }} />
+                        <img
+                          src={item.image}
+                          alt=""
+                          className={styles.newsThumb}
+                        />
                         <div className={styles.textInfo}>
-                          <p style={{ fontWeight: 600 }}>{item.title}</p>
-                          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.readTime}</span>
+                          <p className={styles.fw600}>{item.title}</p>
+                          <span className={styles.readTime}>
+                            {item.readTime}
+                          </span>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span className={`${styles.badge} ${getCategoryStyle(item.category)}`}>
+                      <span
+                        className={`${styles.badge} ${getCategoryStyle(item.category)}`}
+                      >
                         {item.category}
                       </span>
                     </td>
                     <td>
-                      {item.createdAt 
-                        ? new Date(item.createdAt).toLocaleDateString('vi-VN')
-                        : item.date || "---"}
+                      {item.date
+                        ? new Date(item.date).toLocaleDateString("vi-VN")
+                        : "---"}
                     </td>
-                    <td style={{ textAlign: "center", cursor: "pointer" }} onClick={() => handleToggleFeatured(item.id)}>
+                    <td
+                      className={`${styles.textCenter} ${styles.pointer}`}
+                      onClick={() => handleToggleFeatured(item.id)}
+                    >
                       {item.isFeatured ? (
-                        <Star size={20} weight="fill" color="#f59e0b" style={{ transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
+                        <Star
+                          size={20}
+                          weight="fill"
+                          className={`${styles.textAmber} ${styles.starIcon}`}
+                        />
                       ) : (
-                        <Star size={20} color="#cbd5e1" style={{ transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
+                        <Star
+                          size={20}
+                          className={`${styles.textSlate400} ${styles.starIcon}`}
+                        />
                       )}
                     </td>
                     <td>
                       <div className={styles.actionGroup}>
-                        <button className={styles.actionBtn} onClick={() => handleEdit(item)} title="Chỉnh sửa">
-                         <div style={{fontSize: "12px"}}> <Pencil size={17} /></div>
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => handleEdit(item)}
+                          title="Chỉnh sửa"
+                        >
+                          <div className={styles.actionBtnIcon}>
+                            {" "}
+                            <Pencil size={17} />
+                          </div>
                         </button>
-                        <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => handleDelete(item.id)} title="Xóa">
-                          <div style={{fontSize: "12px"}}> <Trash size={17} /></div>
+                        <button
+                          className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                          onClick={() => handleDelete(item.id)}
+                          title="Xóa"
+                        >
+                          <div className={styles.actionBtnIcon}>
+                            {" "}
+                            <Trash size={17} />
+                          </div>
                         </button>
                       </div>
                     </td>
@@ -257,16 +320,36 @@ const NewsView: React.FC = () => {
         {totalPages > 1 && (
           <div className={styles.pagination}>
             <div className={styles.paginationBtns}>
-              <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className={styles.pageBtn}>
-               <div style={{fontSize: "12px"}}> <CaretLeft size={16} /></div>
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+                className={styles.pageBtn}
+                title="Trang trước"
+              >
+                <div className={styles.actionBtnIcon}>
+                  {" "}
+                  <CaretLeft size={16} />
+                </div>
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                <button key={p} className={`${styles.pageBtn} ${p === page ? styles.pageBtnActive : ""}`} onClick={() => setPage(p)}>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  className={`${styles.pageBtn} ${p === page ? styles.pageBtnActive : ""}`}
+                  onClick={() => setPage(p)}
+                >
                   {p}
                 </button>
               ))}
-              <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className={styles.pageBtn}>
-                <div style={{fontSize: "12px"}}> <CaretRight size={16} /></div>
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                className={styles.pageBtn}
+                title="Trang sau"
+              >
+                <div className={styles.actionBtnIcon}>
+                  {" "}
+                  <CaretRight size={16} />
+                </div>
               </button>
             </div>
           </div>

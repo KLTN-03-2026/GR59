@@ -18,12 +18,13 @@ import { getHotelDetail, getHotels } from "../../services/hotelService";
 import { getHighlightRestaurants } from "../../services/highlightService";
 import { getRestaurantDetail } from "../../services/restaurantService";
 import { getAttractionDetail, type Destination } from "../../services/destinationService";
+import { type HighlightItem } from "../../services/highlightService";
 
 const DestinationDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [data, setData] = useState<Destination | null>(null);
-  const [nearbyServices, setNearbyServices] = useState<any[]>([]); // Danh sách dịch vụ lân cận đã lọc
+  const [nearbyServices, setNearbyServices] = useState<Destination["services"]>([]); // Danh sách dịch vụ lân cận đã lọc
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("overview");
 
@@ -57,8 +58,8 @@ const DestinationDetail: React.FC = () => {
           return;
         }
 
-        if (res.data && res.data.status === 200 && (res.data.data || (res.data as any).DT)) {
-          const detailData = res.data.data || (res.data as any).DT;
+        if (res.data && res.data.status === 200 && res.data.data) {
+          const detailData = res.data.data;
           setData(detailData);
           document.title = `${detailData.name} - TravelAi`;
         }
@@ -92,7 +93,7 @@ const DestinationDetail: React.FC = () => {
 
         if (!targetProvinceNorm) return;
 
-        let allItems: any[] = [];
+        let allItems: HighlightItem[] = [];
         
         // 2. Fetch đồng thời với số lượng lớn hơn để đảm bảo tập dữ liệu lọc
         const [hotelsRes, restaurantsRes] = await Promise.all([
@@ -109,8 +110,8 @@ const DestinationDetail: React.FC = () => {
           const isSameItem = item.id.toString() === (id?.toString() || data.id.toString());
           if (isSameItem) return false;
 
-          // Ưu tiên so sánh qua provinceId nếu trùng khớp (giả định provinceId của data cũng có thể lấy được)
-          const currentProvinceId = (data as any).provinceId;
+          // Ưu tiên so sánh qua provinceId nếu trùng khớp
+          const currentProvinceId = data.provinceId;
           if (currentProvinceId && item.provinceId && currentProvinceId === item.provinceId) return true;
 
           // Fallback: So sánh chuỗi location đã chuẩn hóa
@@ -119,16 +120,16 @@ const DestinationDetail: React.FC = () => {
         });
 
         // 4. Map sang định dạng Service để hiển thị trong Tab
-        const mappedServices = filtered.slice(0, 8).map(item => ({
+        const mappedServices: Destination["services"] = filtered.slice(0, 8).map(item => ({
           id: item.id,
-          name: item.name || item.title,
+          name: item.name,
           location: item.location || rawProvince,
           rating: Number(item.rating) || 4.5,
-          image: item.image || item.img,
-          type: item.type === 'bed' ? 'Khách sạn' : item.type === 'food' ? 'Nhà hàng' : 'Điểm đến',
+          image: item.image,
+          type: (item.type === 'bed' ? 'Khách sạn' : item.type === 'food' ? 'Nhà hàng' : 'Tour') as Destination["services"][0]["type"],
           price: item.type === 'bed' ? 'Liên hệ' : item.type === 'food' ? 'Giá từ 50k' : 'Miễn phí',
           unit: item.type === 'bed' ? 'đêm' : 'món',
-          buttonText: "Khám phá" // Đổi tất cả thành Khám phá/Xem chi tiết theo yêu cầu
+          buttonText: "Khám phá" 
         }));
 
         setNearbyServices(mappedServices);

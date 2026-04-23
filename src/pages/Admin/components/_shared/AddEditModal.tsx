@@ -1,20 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+
 import styles from "./AddEditModal.module.scss";
 import {
   X,
   Plus,
   Trash,
   Image as ImageIcon,
-  Info,
-  MapTrifold,
+  InfoIcon,
   Cloud,
   Lightbulb,
-  ListChecks,
   Airplane,
   Video,
   UploadSimple,
-  CircleNotch,
-  Bed,
   House,
   Buildings,
   Tent,
@@ -25,28 +22,72 @@ import {
   Coffee,
   Hamburger,
   Leaf,
-  Globe,
+  GlobeHemisphereWest,
   Mountains,
   Star,
-  GlobeHemisphereWest,
   CheckCircle,
   Wrench,
   Clock,
   MapPin,
-  Article
+  Article,
 } from "@phosphor-icons/react";
 import CustomSelect from "./CustomSelect";
-import { uploadAdminImage } from "../../../../services/adminService";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+import type {
+  Hotel,
+  Restaurant,
+  Destination,
+  DbUser,
+  NewsItem,
+} from "../../../../services/adminService";
+type AdminEntity = Hotel | Restaurant | Destination | DbUser | NewsItem;
+
+interface NormalizedData extends Record<string, unknown> {
+  name?: string;
+  title?: string;
+  fullName?: string;
+  imageUrl?: string;
+  image?: string;
+  img?: string;
+  heroImage?: string;
+  reviewCount?: number;
+  rating?: number | string;
+  reviews?: number | string;
+  averagePrice?: number;
+  priceRange?: string;
+  price?: number | string;
+  estimatedDuration?: number;
+  duration?: number | string;
+  time?: number | string;
+  gallery?: string[];
+  provinceId?: number | string;
+  description?: string;
+  location?: string;
+  status?: string;
+  category?: string;
+  previewVideo?: string;
+  email?: string;
+  address?: string;
+  phone?: string;
+  bio?: string;
+  roleId?: number | string;
+  isEmailVerified?: boolean | string;
+  isActive?: boolean | string;
+  content?: string;
+  excerpt?: string;
+  isFeatured?: boolean | string;
+  readTime?: string;
+  password?: string;
+}
 
 interface AddEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: FormData | Record<string, unknown>) => void;
   title: string;
   type: "destination" | "hotel" | "restaurant" | "user" | "news";
-  initialData?: any;
+  initialData?: AdminEntity;
 }
 
 const AddEditModal: React.FC<AddEditModalProps> = ({
@@ -57,99 +98,102 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
   type,
   initialData,
 }) => {
-  const [formData, setFormData] = useState<any>({});
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
+  // State để theo dõi prop thay đổi
+  const [prevInitialData, setPrevInitialData] = useState<
+    AdminEntity | undefined
+  >(initialData);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
-  const [isUploading, setIsUploading] = useState(false);
+  // Helper để lấy dữ liệu mặc định
+  const getBaseData = useCallback(
+    () => ({
+      name: "",
+      location: "",
+      provinceId: 1,
+      status: type === "restaurant" ? "OPENING" : "ACTIVE",
+      rating: 5,
+      reviews: "0",
+      imageUrl: "",
+      gallery: [],
+      description: "",
+      previewVideo: "",
+      category:
+        type === "hotel"
+          ? "LUXURY"
+          : type === "restaurant"
+            ? "VIETNAMESE"
+            : "ATTRACTION",
+      price: type === "hotel" ? 0 : "",
+      duration: type === "hotel" ? 1200 : "",
+    }),
+    [type],
+  );
 
-  // State mới để lưu file thực tế trước khi gửi FormData
-  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
-  const [tempGalleryFiles, setTempGalleryFiles] = useState<File[]>([]);
-  // Lưu trữ các ObjectURL để cleanup
-  const previewUrls = useRef<string[]>([]);
+  // Helper để chuẩn hóa dữ liệu
+  const getNormalizedData = useCallback(
+    (initData: AdminEntity | undefined) => {
+      if (!initData) return getBaseData();
 
-  useEffect(() => {
-    if (initialData) {
-      // Unify initialData keys for internal use
-      const unifiedData = {
-        ...initialData,
-        // Name/Title mapping (Unified to 'name')
-        name: initialData.name || initialData.title || "",
-        // Unified Image mapping
-        imageUrl:
-          initialData.imageUrl ||
-          initialData.image ||
-          initialData.img ||
-          initialData.heroImage,
-        // Reviews mapping (Unified to 'reviewCount')
-        reviews: initialData.reviewCount || initialData.reviews || 0,
-        // Price mapping (Unified to 'averagePrice')
-        price:
-          initialData.averagePrice ||
-          initialData.priceRange ||
-          initialData.price ||
-          0,
-        // Duration mapping (Unified to 'estimatedDuration')
-        duration: initialData.estimatedDuration || initialData.time || 0,
-        // Location mapping
-        location: initialData.location || "",
-        // Province mapping
-        provinceId: initialData.provinceId || 1,
-        // Status mapping
-        status:
-          initialData.status || (type === "restaurant" ? "OPENING" : "ACTIVE"),
-        // Category/Type mapping
+      const data = initData as unknown as NormalizedData;
+      const unifiedData: Record<string, unknown> = {
+        ...data,
+        name: data.name || data.title || data.fullName || "",
+        imageUrl: data.imageUrl || data.image || data.img || data.heroImage,
+        reviews: data.reviewCount || data.reviews || 0,
+        price: data.averagePrice || data.priceRange || data.price || 0,
+        duration: data.estimatedDuration || data.time || 0,
+        location: data.location || "",
+        provinceId: data.provinceId || 1,
+        status: data.status || (type === "restaurant" ? "OPENING" : "ACTIVE"),
         category:
-          initialData.category ||
+          data.category ||
           (type === "hotel"
             ? "LUXURY"
             : type === "restaurant"
               ? "VIETNAMESE"
               : "ATTRACTION"),
-        // User specific fields
-        email: initialData.email || "",
-        fullName: initialData.fullName || "",
-        address: initialData.address || "",
-        phone: initialData.phone || "",
-        bio: initialData.bio || "",
-        roleId: initialData.roleId || 2,
-        isEmailVerified: initialData.isEmailVerified ?? false,
-        isActive: initialData.isActive ?? true,
+        email: data.email || "",
+        fullName: data.fullName || "",
+        address: data.address || "",
+        phone: data.phone || "",
+        bio: data.bio || "",
+        roleId: data.roleId || 2,
+        isEmailVerified: data.isEmailVerified ?? false,
+        isActive: data.isActive ?? true,
         password: "",
-        // News fields
-        content: initialData.content || "",
-        excerpt: initialData.excerpt || "",
-        description: initialData.description || "",
-        isFeatured: initialData.isFeatured ?? false,
-        readTime: initialData.readTime || "5 phút đọc",
+        content: data.content || "",
+        excerpt: data.excerpt || "",
+        description: data.description || "",
+        isFeatured: data.isFeatured ?? false,
+        readTime: data.readTime || "5 phút đọc",
       };
-      setFormData(unifiedData);
-    } else {
-      const baseData = {
-        name: "",
-        location: "",
-        provinceId: 1,
-        status: type === "restaurant" ? "OPENING" : "ACTIVE",
-        rating: 5,
-        reviews: "0",
-        imageUrl: "",
-        gallery: [],
-        description: "",
-        previewVideo: "",
-        category:
-          type === "hotel"
-            ? "LUXURY"
-            : type === "restaurant"
-              ? "VIETNAMESE"
-              : "ATTRACTION",
-        price: type === "hotel" ? 0 : "",
-        duration: type === "hotel" ? 1200 : "",
-      };
+      return unifiedData;
+    },
+    [type, getBaseData],
+  );
 
-      setFormData(baseData);
-    }
-  }, [initialData, type, isOpen]);
+  const [formData, setFormData] = useState<Record<string, unknown>>(() =>
+    getNormalizedData(initialData),
+  );
+
+  // Reset/Sync state khi prop thay đổi (Thực hiện trực tiếp trong render để tránh cascading render)
+  if (initialData !== prevInitialData || isOpen !== prevIsOpen) {
+    setPrevInitialData(initialData);
+    setPrevIsOpen(isOpen);
+    setFormData(getNormalizedData(initialData));
+  }
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  // State để lưu file thực tế trước khi gửi FormData
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [tempGalleryFiles, setTempGalleryFiles] = useState<File[]>([]);
+  // Lưu trữ các ObjectURL để cleanup
+  const previewUrls = useRef<string[]>([]);
+
+  // Ép kiểu formData để sử dụng thuận tiện trong JSX
+  const fd = formData as NormalizedData;
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -157,37 +201,43 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
     >,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleArrayChange = (field: string, index: number, value: string) => {
-    const newArray = [...(formData[field] || [])];
-    newArray[index] = value;
-    setFormData((prev: any) => ({ ...prev, [field]: newArray }));
+    setFormData((prev) => {
+      const currentVal = prev[field];
+      const safeArray = Array.isArray(currentVal)
+        ? (currentVal as unknown[])
+        : [];
+      const newArray = [...safeArray];
+      newArray[index] = value;
+      return { ...prev, [field]: newArray };
+    });
   };
 
-  const handleNestedArrayChange = (
-    field: string,
-    index: number,
-    subfield: string,
-    value: any,
-  ) => {
-    const newArray = [...(formData[field] || [])];
-    newArray[index] = { ...newArray[index], [subfield]: value };
-    setFormData((prev: any) => ({ ...prev, [field]: newArray }));
+  const addArrayItem = (field: string, defaultValue: string | number = "") => {
+    setFormData((prev) => {
+      const currentVal = prev[field];
+      const safeArray = Array.isArray(currentVal)
+        ? (currentVal as unknown[])
+        : [];
+      return {
+        ...prev,
+        [field]: [...safeArray, defaultValue],
+      };
+    });
   };
-
-  const addArrayItem = (field: string, defaultValue: any = "") => {
-    setFormData((prev: any) => ({
-      ...prev,
-      [field]: [...(formData[field] || []), defaultValue],
-    }));
-  };
-
   const removeArrayItem = (field: string, index: number) => {
-    const newArray = [...(formData[field] || [])];
-    newArray.splice(index, 1);
-    setFormData((prev: any) => ({ ...prev, [field]: newArray }));
+    setFormData((prev) => {
+      const currentVal = prev[field];
+      const safeArray = Array.isArray(currentVal)
+        ? (currentVal as unknown[])
+        : [];
+      const newArray = [...safeArray];
+      newArray.splice(index, 1);
+      return { ...prev, [field]: newArray };
+    });
   };
 
   const handleFileUpload = (
@@ -197,7 +247,12 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    if (type === "hotel" || type === "restaurant" || type === "destination" || type === "news") {
+    if (
+      type === "hotel" ||
+      type === "restaurant" ||
+      type === "destination" ||
+      type === "news"
+    ) {
       const newFiles = Array.from(files);
       const newPreviews = newFiles.map((file) => {
         const url = URL.createObjectURL(file);
@@ -207,13 +262,18 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
 
       if (field === "main") {
         setMainImageFile(newFiles[0]);
-        setFormData((prev: any) => ({ ...prev, imageUrl: newPreviews[0] }));
+        setFormData((prev) => ({ ...prev, imageUrl: newPreviews[0] }));
       } else {
         setTempGalleryFiles((prev) => [...prev, ...newFiles]);
-        setFormData((prev: any) => ({
-          ...prev,
-          gallery: [...(prev.gallery || []), ...newPreviews],
-        }));
+        setFormData((prev) => {
+          const currentGallery = Array.isArray(prev.gallery)
+            ? (prev.gallery as unknown[])
+            : [];
+          return {
+            ...prev,
+            gallery: [...currentGallery, ...newPreviews],
+          };
+        });
       }
       return;
     }
@@ -360,7 +420,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
   };
 
   const handleSaveInternal = () => {
-    const finalData = { ...formData };
+    const finalData = { ...formData } as NormalizedData;
 
     if (type === "hotel" || type === "restaurant" || type === "destination") {
       // 1. Chuẩn bị Metadata Key và Object
@@ -371,25 +431,25 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
             ? "restaurant"
             : "attraction";
 
-      let metadata: any = {};
-
-      // Unified metadata for all types (Hotel, Restaurant, Destination)
-      metadata = {
+      const metadata: Partial<Hotel & Restaurant & Destination> = {
         name: finalData.name,
         description: finalData.description,
         location: finalData.location,
-        rating: parseFloat(finalData.rating) || 5.0,
-        reviewCount: parseInt(finalData.reviews) || 0,
+        rating: parseFloat(finalData.rating as string) || 5.0,
+        reviewCount: parseInt(finalData.reviews as string) || 0,
         imageUrl: finalData.imageUrl,
         gallery: Array.isArray(finalData.gallery)
-          ? finalData.gallery.filter((url: string) => !url.startsWith("blob:"))
+          ? finalData.gallery.filter(
+              (url: unknown) =>
+                typeof url === "string" && !url.startsWith("blob:"),
+            )
           : [],
         previewVideo: finalData.previewVideo || null,
         category: finalData.category || null,
         status: finalData.status || "ACTIVE",
-        averagePrice: parseInt(finalData.price) || 0,
-        estimatedDuration: parseInt(finalData.duration) || 0,
-        provinceId: parseInt(finalData.provinceId) || 1,
+        averagePrice: parseInt(finalData.price as string) || 0,
+        estimatedDuration: parseInt(finalData.duration as string) || 0,
+        provinceId: parseInt(finalData.provinceId as string) || 1,
       };
 
       // 2. Tạo FormData theo cấu trúc Backend yêu cầu
@@ -426,7 +486,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
         address: finalData.address,
         phone: finalData.phone,
         bio: finalData.bio,
-        roleId: parseInt(finalData.roleId) || 2,
+        roleId: parseInt(finalData.roleId as string) || 2,
         isEmailVerified:
           finalData.isEmailVerified === true ||
           finalData.isEmailVerified === "true",
@@ -438,7 +498,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
     }
 
     if (type === "news") {
-      const newsData: any = {
+      const newsData: Partial<NewsItem> = {
         title: finalData.name,
         excerpt: finalData.excerpt,
         content: finalData.content,
@@ -450,7 +510,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
         isFeatured:
           finalData.isFeatured === true || finalData.isFeatured === "true",
       };
-      
+
       const fd = new FormData();
       const jsonBlob = new Blob([JSON.stringify(newsData)], {
         type: "application/json",
@@ -459,7 +519,11 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
 
       if (mainImageFile) {
         fd.append("imageFile", mainImageFile);
-      } else if (finalData.imageUrl && typeof finalData.imageUrl === 'string' && !finalData.imageUrl.startsWith("blob:")) {
+      } else if (
+        finalData.imageUrl &&
+        typeof finalData.imageUrl === "string" &&
+        !finalData.imageUrl.startsWith("blob:")
+      ) {
         // Backend có thể không cần imageUrl, nhưng cứ thêm vào json nếu cần.
         // Ta đã có trong json blob ở trên (nhưng bỏ đi trong định nghĩa, nên add lại)
         newsData.image = finalData.imageUrl;
@@ -478,13 +542,6 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
   };
 
   if (!isOpen) return null;
-
-  const mainImageUrl =
-    type === "hotel"
-      ? formData.imageUrl
-      : type === "destination"
-        ? formData.img || formData.heroImage
-        : formData.image;
 
   // News Layout
   if (type === "news") {
@@ -515,17 +572,16 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
             <div className={styles.body}>
               <div className={styles.formGrid}>
                 <div className={styles.sectionTitle}>
-                  <Info size={18} weight="fill" /> Thông tin cơ bản
+                  <InfoIcon size={18} weight="fill" /> Thông tin cơ bản
                 </div>
 
                 <div
-                  className={`${styles.inputGroup} ${styles.fullWidth}`}
-                  style={{ marginBottom: "32px" }}
+                  className={`${styles.inputGroup} ${styles.fullWidth} ${styles.mb32}`}
                 >
                   <div className={styles.mainImageHeader}>
                     <div className={styles.mainPreviewWrapper}>
-                      {formData.imageUrl ? (
-                        <img src={formData.imageUrl} alt="Preview" />
+                      {fd.imageUrl ? (
+                        <img src={fd.imageUrl} alt="Preview" />
                       ) : (
                         <div className={styles.placeholderIcon}>
                           <ImageIcon size={48} weight="thin" />
@@ -537,7 +593,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <UploadSimple size={20} weight="bold" />
-                        <span>{formData.imageUrl ? "Đổi ảnh" : "Tải ảnh lên"}</span>
+                        <span>{fd.imageUrl ? "Đổi ảnh" : "Tải ảnh lên"}</span>
                       </button>
                       <input
                         type="file"
@@ -552,7 +608,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                       <input
                         type="text"
                         name="imageUrl"
-                        value={formData.imageUrl || ""}
+                        value={fd.imageUrl || ""}
                         onChange={handleChange}
                         placeholder="Dán URL hình ảnh tại đây hoặc nhấn nút Tải lên bên cạnh..."
                       />
@@ -565,10 +621,10 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                   <input
                     type="text"
                     name="name"
-                    value={formData.name || ""}
+                    value={fd.name || ""}
                     onChange={handleChange}
                     placeholder="VD: 10 Địa điểm không thể bỏ qua tại Đà Nẵng..."
-                    style={{ fontSize: "1.25rem", fontWeight: "800", color: "#0EA5E9" }}
+                    className={styles.titleInput}
                   />
                 </div>
 
@@ -576,10 +632,10 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                   <label>Tóm tắt bài viết</label>
                   <textarea
                     name="excerpt"
-                    value={formData.excerpt || ""}
+                    value={fd.excerpt || ""}
                     onChange={handleChange}
                     placeholder="Mô tả ngắn gọn về nội dung bài viết..."
-                    style={{ minHeight: "80px" }}
+                    className={styles.shortTextarea}
                   ></textarea>
                 </div>
 
@@ -587,14 +643,30 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                   <CustomSelect
                     label="Chuyên mục"
                     options={[
-                      { value: "Điểm đến", label: "Điểm đến", icon: <MapPin size={18} /> },
-                      { value: "Ẩm thực", label: "Ẩm thực", icon: <BowlFood size={18} /> },
-                      { value: "Mẹo du lịch", label: "Mẹo du lịch", icon: <Airplane size={18} /> },
-                      { value: "Sự kiện", label: "Sự kiện", icon: <Star size={18} /> },
+                      {
+                        value: "Điểm đến",
+                        label: "Điểm đến",
+                        icon: <MapPin size={18} />,
+                      },
+                      {
+                        value: "Ẩm thực",
+                        label: "Ẩm thực",
+                        icon: <BowlFood size={18} />,
+                      },
+                      {
+                        value: "Mẹo du lịch",
+                        label: "Mẹo du lịch",
+                        icon: <Airplane size={18} />,
+                      },
+                      {
+                        value: "Sự kiện",
+                        label: "Sự kiện",
+                        icon: <Star size={18} />,
+                      },
                     ]}
-                    value={formData.category || "Điểm đến"}
+                    value={fd.category || "Điểm đến"}
                     onChange={(val) =>
-                      setFormData((prev: any) => ({ ...prev, category: val }))
+                      setFormData((prev) => ({ ...prev, category: val }))
                     }
                   />
                 </div>
@@ -604,7 +676,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                   <input
                     type="text"
                     name="readTime"
-                    value={formData.readTime || ""}
+                    value={fd.readTime || ""}
                     onChange={handleChange}
                     placeholder="VD: 5 phút đọc"
                   />
@@ -625,9 +697,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                         icon: <Article size={18} />,
                       },
                     ]}
-                    value={formData.isFeatured ?? false}
+                    value={fd.isFeatured ?? false}
                     onChange={(val) =>
-                      setFormData((prev: any) => ({ ...prev, isFeatured: val }))
+                      setFormData((prev) => ({ ...prev, isFeatured: val }))
                     }
                   />
                 </div>
@@ -639,10 +711,10 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                 <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                   <textarea
                     name="content"
-                    value={formData.content || ""}
+                    value={fd.content || ""}
                     onChange={handleChange}
                     placeholder="Viết nội dung HTML hoặc văn bản bài viết tại đây..."
-                    style={{ minHeight: "300px", fontFamily: "monospace" }}
+                    className={styles.codeTextarea}
                   ></textarea>
                 </div>
               </div>
@@ -699,17 +771,16 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
               {type !== "user" ? (
                 <>
                   <div className={styles.sectionTitle}>
-                    <Info size={18} weight="fill" /> Thông tin cơ bản
+                    <InfoIcon size={18} weight="fill" /> Thông tin cơ bản
                   </div>
 
                   <div
-                    className={`${styles.inputGroup} ${styles.fullWidth}`}
-                    style={{ marginBottom: "32px" }}
+                    className={`${styles.inputGroup} ${styles.fullWidth} ${styles.mb32}`}
                   >
                     <div className={styles.mainImageHeader}>
                       <div className={styles.mainPreviewWrapper}>
-                        {formData.imageUrl ? (
-                          <img src={formData.imageUrl} alt="Preview" />
+                        {fd.imageUrl ? (
+                          <img src={fd.imageUrl} alt="Preview" />
                         ) : (
                           <div className={styles.placeholderIcon}>
                             <ImageIcon size={48} weight="thin" />
@@ -721,9 +792,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <UploadSimple size={20} weight="bold" />
-                          <span>
-                            {formData.imageUrl ? "Đổi ảnh" : "Tải ảnh lên"}
-                          </span>
+                          <span>{fd.imageUrl ? "Đổi ảnh" : "Tải ảnh lên"}</span>
                         </button>
                         <input
                           type="file"
@@ -738,7 +807,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                         <input
                           type="text"
                           name="imageUrl"
-                          value={formData.imageUrl || ""}
+                          value={fd.imageUrl || ""}
                           onChange={handleChange}
                           placeholder="Dán URL hình ảnh tại đây hoặc nhấn nút Tải lên bên cạnh..."
                         />
@@ -746,12 +815,6 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                           <span className={styles.tipBadge}>
                             Chất lượng tốt nhất: 800x600px
                           </span>
-                          {isUploading && (
-                            <span className={styles.uploadingBadge}>
-                              <CircleNotch size={14} className="ph-spin" /> Đang
-                              tải...
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -770,14 +833,10 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="text"
                       name="name"
-                      value={formData.name || ""}
+                      value={fd.name || ""}
                       onChange={handleChange}
                       placeholder={`Nhập tên ${type === "hotel" ? "khách sạn" : type === "restaurant" ? "nhà hàng" : "địa điểm"}...`}
-                      style={{
-                        fontSize: "1.25rem",
-                        fontWeight: "800",
-                        color: "#0EA5E9",
-                      }}
+                      className={styles.titleInput}
                     />
                   </div>
 
@@ -786,7 +845,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="text"
                       name="location"
-                      value={formData.location || ""}
+                      value={fd.location || ""}
                       onChange={handleChange}
                       placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh"
                     />
@@ -796,9 +855,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <CustomSelect
                       label="Tỉnh thành"
                       options={provinceOptions}
-                      value={formData.provinceId || 1}
+                      value={fd.provinceId || 1}
                       onChange={(val) =>
-                        setFormData((prev: any) => ({
+                        setFormData((prev) => ({
                           ...prev,
                           provinceId: val,
                         }))
@@ -810,9 +869,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <CustomSelect
                       label="Trạng thái hoạt động"
                       options={getStatusOptions()}
-                      value={formData.status || ""}
+                      value={fd.status || ""}
                       onChange={(val) =>
-                        setFormData((prev: any) => ({ ...prev, status: val }))
+                        setFormData((prev) => ({ ...prev, status: val }))
                       }
                     />
                   </div>
@@ -825,7 +884,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                       min="0"
                       max="5"
                       name="rating"
-                      value={formData.rating || ""}
+                      value={fd.rating || ""}
                       onChange={handleChange}
                       placeholder="Ví dụ: 4.8"
                     />
@@ -836,7 +895,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="number"
                       name="reviews"
-                      value={formData.reviews || ""}
+                      value={fd.reviews || ""}
                       onChange={handleChange}
                       placeholder="Ví dụ: 1250"
                     />
@@ -854,9 +913,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                           : "Hạng mục / Danh mục"
                       }
                       options={getCategoryOptions()}
-                      value={formData.category || ""}
+                      value={fd.category || ""}
                       onChange={(val) =>
-                        setFormData((prev: any) => ({ ...prev, category: val }))
+                        setFormData((prev) => ({ ...prev, category: val }))
                       }
                     />
                   </div>
@@ -872,7 +931,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type={type === "hotel" ? "number" : "text"}
                       name="price"
-                      value={formData.price || ""}
+                      value={fd.price || ""}
                       onChange={handleChange}
                       placeholder="Ví dụ: 500k - 2tr"
                     />
@@ -887,7 +946,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type={type === "hotel" ? "number" : "text"}
                       name="duration"
-                      value={formData.duration || ""}
+                      value={fd.duration || ""}
                       onChange={handleChange}
                       placeholder={
                         type === "hotel" ? "1200" : "Ví dụ: 2-3 tiếng"
@@ -899,7 +958,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <label>Mô tả chi tiết</label>
                     <textarea
                       name="description"
-                      value={formData.description || ""}
+                      value={fd.description || ""}
                       onChange={handleChange}
                       placeholder={`Nhập mô tả chi tiết về ${type === "hotel" ? "khách sạn" : type === "restaurant" ? "nhà hàng" : "địa điểm"} này...`}
                     ></textarea>
@@ -917,29 +976,16 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="text"
                       name="previewVideo"
-                      value={formData.previewVideo || ""}
+                      value={fd.previewVideo || ""}
                       onChange={handleChange}
                       placeholder="https://youtube.com/watch?v=..."
                     />
                   </div>
 
                   <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "16px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <label style={{ margin: 0 }}>
+                    <div className={styles.galleryHeader}>
+                      <div className={styles.galleryLabelWrapper}>
+                        <label className={styles.m0}>
                           Thư viện hình ảnh (
                           {type === "hotel"
                             ? "khách sạn"
@@ -948,38 +994,24 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                               : "địa điểm"}
                           )
                         </label>
-                        <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
-                          ({formData.gallery?.length || 0} ảnh)
+                        <span className={styles.smallLabel}>
+                          ({fd.gallery?.length || 0} ảnh)
                         </span>
                       </div>
-                      <div style={{ display: "flex", gap: "8px" }}>
+                      <div className={styles.galleryActions}>
                         <button
                           type="button"
-                          className={styles.addBtn}
+                          className={`${styles.addBtn} ${styles.uploadBtn}`}
                           onClick={() => galleryInputRef.current?.click()}
-                          style={{
-                            padding: "8px 16px",
-                            background: "#f0f9ff",
-                            color: "#0ea5e9",
-                          }}
-                          disabled={isUploading}
+                          disabled={false}
                         >
-                          {isUploading ? (
-                            <CircleNotch size={14} className="ph-spin" />
-                          ) : (
-                            <UploadSimple size={14} weight="bold" />
-                          )}{" "}
-                          Tải từ máy tính
+                          <UploadSimple size={14} weight="bold" /> Tải từ máy
+                          tính
                         </button>
                         <button
                           type="button"
-                          className={styles.addBtn}
+                          className={`${styles.addBtn} ${styles.addPathBtn}`}
                           onClick={() => addArrayItem("gallery")}
-                          style={{
-                            padding: "8px 16px",
-                            border: "1px solid #e2e8f0",
-                            color: "#64748b",
-                          }}
                         >
                           <Plus size={14} weight="bold" /> Thêm đường dẫn
                         </button>
@@ -995,43 +1027,25 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     />
 
                     <div className={styles.galleryManageList}>
-                      {formData.gallery?.map((url: string, index: number) => (
+                      {fd.gallery?.map((url: string, index: number) => (
                         <div
                           key={index}
-                          className={styles.galleryInputRow}
-                          style={{
-                            display: "flex",
-                            gap: "12px",
-                            marginBottom: "12px",
-                            alignItems: "center",
-                          }}
+                          className={`${styles.galleryInputRow} ${styles.galleryItemRow}`}
                         >
                           <div
-                            className={styles.miniPreview}
-                            style={{
-                              width: "48px",
-                              height: "48px",
-                              borderRadius: "8px",
-                              overflow: "hidden",
-                              background: "#f1f5f9",
-                              flexShrink: 0,
-                            }}
+                            className={`${styles.miniPreview} ${styles.thumbWrapper}`}
                           >
                             {url ? (
                               <img
                                 src={url}
                                 alt=""
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                }}
+                                className={styles.flex1}
                               />
                             ) : (
                               <ImageIcon
                                 size={20}
                                 weight="thin"
-                                style={{ margin: "14px" }}
+                                className={styles.m14}
                               />
                             )}
                           </div>
@@ -1046,13 +1060,12 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                               )
                             }
                             placeholder="Dán URL hình ảnh..."
-                            style={{ flex: 1 }}
+                            className={styles.flex1}
                           />
                           <button
                             type="button"
-                            className={styles.removeBtn}
+                            className={`${styles.removeBtn} ${styles.p8}`}
                             onClick={() => removeArrayItem("gallery", index)}
-                            style={{ padding: "8px" }}
                             aria-label="Xóa ảnh"
                             title="Xóa ảnh"
                           >
@@ -1061,17 +1074,8 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                         </div>
                       ))}
 
-                      {(!formData.gallery || formData.gallery.length === 0) && (
-                        <div
-                          style={{
-                            textAlign: "center",
-                            padding: "24px",
-                            border: "2px dashed #e2e8f0",
-                            borderRadius: "16px",
-                            color: "#94a3b8",
-                            fontSize: "0.875rem",
-                          }}
-                        >
+                      {(!fd.gallery || fd.gallery.length === 0) && (
+                        <div className={styles.emptyGallery}>
                           Chưa có ảnh nào trong bộ sưu tập.
                         </div>
                       )}
@@ -1088,7 +1092,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="text"
                       name="fullName"
-                      value={formData.fullName || ""}
+                      value={fd.fullName || ""}
                       onChange={handleChange}
                       placeholder="Nguyễn Văn A"
                     />
@@ -1098,7 +1102,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="email"
                       name="email"
-                      value={formData.email || ""}
+                      value={fd.email || ""}
                       onChange={handleChange}
                       placeholder="example@gmail.com"
                     />
@@ -1109,7 +1113,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                       <input
                         type="password"
                         name="password"
-                        value={formData.password || ""}
+                        value={fd.password || ""}
                         onChange={handleChange}
                         placeholder="Mật khẩu ít nhất 8 ký tự..."
                       />
@@ -1120,7 +1124,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="text"
                       name="phone"
-                      value={formData.phone || ""}
+                      value={fd.phone || ""}
                       onChange={handleChange}
                       placeholder="09xxxxxxxx"
                     />
@@ -1130,7 +1134,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <input
                       type="text"
                       name="address"
-                      value={formData.address || ""}
+                      value={fd.address || ""}
                       onChange={handleChange}
                       placeholder="Hà Nội, Việt Nam"
                     />
@@ -1147,12 +1151,12 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                         {
                           value: 2,
                           label: "Người dùng (User)",
-                          icon: <Globe size={18} />,
+                          icon: <GlobeHemisphereWest size={18} />,
                         },
                       ]}
-                      value={formData.roleId || 2}
+                      value={fd.roleId || 2}
                       onChange={(val) =>
-                        setFormData((prev: any) => ({ ...prev, roleId: val }))
+                        setFormData((prev) => ({ ...prev, roleId: val }))
                       }
                     />
                   </div>
@@ -1171,9 +1175,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                           icon: <X size={18} color="#ef4444" />,
                         },
                       ]}
-                      value={formData.isEmailVerified ?? false}
+                      value={fd.isEmailVerified ?? false}
                       onChange={(val) =>
-                        setFormData((prev: any) => ({
+                        setFormData((prev) => ({
                           ...prev,
                           isEmailVerified: val,
                         }))
@@ -1195,9 +1199,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                           icon: <X size={18} color="#ef4444" />,
                         },
                       ]}
-                      value={formData.isActive ?? true}
+                      value={fd.isActive ?? true}
                       onChange={(val) =>
-                        setFormData((prev: any) => ({ ...prev, isActive: val }))
+                        setFormData((prev) => ({ ...prev, isActive: val }))
                       }
                     />
                   </div>
@@ -1205,7 +1209,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                     <label>Giới thiệu (Bio)</label>
                     <textarea
                       name="bio"
-                      value={formData.bio || ""}
+                      value={fd.bio || ""}
                       onChange={handleChange}
                       placeholder="Mô tả ngắn về người dùng..."
                     ></textarea>

@@ -15,6 +15,7 @@
   // Khi cuộn chuột xuống thì đổi sang nền đục (tùy chọn)
   &.scrolled {
     background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
 }
@@ -144,6 +145,7 @@
     gap: 12px;
     padding: 6px 14px;
     background: rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid vars.$border-color;
     border-radius: 100px;

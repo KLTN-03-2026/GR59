@@ -4,7 +4,8 @@ import {
   Sparkle,
   CaretDown,
   UserCircle,
-  MapTrifold,
+  MapTrifoldIcon,
+
   SignOut,
   List,
   X,
@@ -17,7 +18,7 @@ import {
   InstagramLogo,
   YoutubeLogo,
   ShieldCheck,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import styles from "./Navbar.module.scss";
 import { logo } from "../../../assets/images/img";
@@ -191,7 +192,7 @@ const Navbar: React.FC = () => {
                   <UserCircle size={20} /> Trang cá nhân
                 </Link>
                 <Link to="/dashboard" className={styles.dropdownItem}>
-                  <MapTrifold size={20} /> Lịch trình của tôi
+                  <MapTrifoldIcon size={20} /> Lịch trình của tôi
                 </Link>
                 {userRole === "ADMIN" && (
                   <Link to="/admin" className={styles.dropdownItem}>
@@ -258,7 +259,7 @@ const Navbar: React.FC = () => {
                     <UserCircle size={22} weight="bold" /> <span>Trang cá nhân</span>
                   </Link>
                   <Link to="/dashboard" className={styles.mobileMenuItem} onClick={() => setIsMenuOpen(false)}>
-                    <MapTrifold size={22} weight="bold" /> <span>Lịch trình của tôi</span>
+                    <MapTrifoldIcon size={22} weight="bold" /> <span>Lịch trình của tôi</span>
                   </Link>
                   {userRole === "ADMIN" && (
                     <Link to="/admin" className={styles.mobileMenuItem} onClick={() => setIsMenuOpen(false)}>

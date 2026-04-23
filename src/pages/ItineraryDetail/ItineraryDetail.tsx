@@ -11,7 +11,9 @@ import {
   getAISuggestedRoute, 
   getTravelMetrics, 
   updateTravelPlan,
-  getSampleItineraryById 
+  getSampleItineraryById,
+  type DayItinerary,
+  type ItineraryActivity 
 } from '../../services/itineraryService';
 import PlaceDetailPanel from './Components/PlaceDetailPanel/PlaceDetailPanel';
 import NavigationModal from './Components/NavigationModal/NavigationModal';
@@ -28,53 +30,6 @@ export interface RoutePoint {
   note?: string;
   day: number; // Thêm trường ngày
 }
-
-const INITIAL_POINTS: RoutePoint[] = [
-  {
-    id: 'p1',
-    name: 'Cầu Rồng Đà Nẵng',
-    lat: 16.0614,
-    lng: 108.227,
-    time: '09:00',
-    type: 'attraction',
-    imageUrl: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=400&auto=format&fit=crop',
-    description: 'Cầu Rồng không chỉ là biểu tượng kiến trúc vĩ đại của Đà Nẵng mà còn là điểm đến không thể bỏ qua với màn phun lửa và phun nước ngoạn mục vào mỗi tối cuối tuần.',
-    day: 1
-  },
-  {
-    id: 'p2',
-    name: 'Biển Mỹ Khê',
-    lat: 16.0544,
-    lng: 108.249,
-    time: '11:45',
-    type: 'attraction',
-    imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=400&auto=format&fit=crop',
-    description: 'Được tạp chí Forbes bình chọn là một trong những bãi biển quyén rũ nhất hành tinh, Mỹ Khê thu hút du khách bởi bãi cát trắng mịn, bờ biển uốn lượn, nước trong xanh.',
-    day: 1
-  },
-  {
-    id: 'p3',
-    name: 'Bà Nà Hills',
-    lat: 15.9975,
-    lng: 107.992,
-    time: '13:00',
-    type: 'attraction',
-    imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400&auto=format&fit=crop',
-    description: 'Bà Nà Hills mang đến trải nghiệm thời tiết 4 mùa trong 1 ngày kỳ diệu. Bạn sẽ được ngoạn cảnh trên tuyến cáp treo đạt nhiều kỷ lục thế giới.',
-    day: 2
-  },
-  {
-    id: 'p5',
-    name: 'Phố cổ Hội An',
-    lat: 15.8794,
-    lng: 108.3283,
-    time: '15:00',
-    type: 'attraction',
-    imageUrl: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=400&auto=format&fit=crop',
-    description: 'Hội An lung linh sắc đèn lồng về đêm, nơi bạn sẽ được thả đèn hoa đăng và thưởng thức ẩm thực đường phố đặc sắc.',
-    day: 3
-  }
-];
 
 import Navbar from '../../components/Layout/Navbar/Navbar';
 
@@ -139,7 +94,11 @@ const ItineraryDetail: React.FC = () => {
     if (points.length > 1) {
       fetchMetrics();
     } else {
-      setMetrics({});
+      // Dùng setTimeout để tách việc reset state khỏi luồng render đồng bộ
+      const timer = setTimeout(() => {
+        setMetrics(prev => Object.keys(prev).length > 0 ? {} : prev);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [points]);
   
@@ -176,14 +135,14 @@ const ItineraryDetail: React.FC = () => {
           let sampleData = itineraryDataFromState;
           if (!sampleData) {
             const res = await getSampleItineraryById(id);
-            sampleData = res.data.DT || res.data.data;
+            sampleData = res.data.data;
           }
 
           if (sampleData && sampleData.itinerary) {
             // Chuyển đổi cấu trúc lồng ngày sang RoutePoint phẳng
             const flattenedPoints: RoutePoint[] = [];
-            sampleData.itinerary.forEach((dayPlan: any) => {
-              dayPlan.activities.forEach((act: any, idx: number) => {
+            sampleData.itinerary.forEach((dayPlan: DayItinerary) => {
+              dayPlan.activities.forEach((act: ItineraryActivity, idx: number) => {
                 flattenedPoints.push({
                   id: `sample-${sampleData.id}-${dayPlan.day}-${idx}`,
                   name: act.location,
@@ -203,7 +162,7 @@ const ItineraryDetail: React.FC = () => {
           setIsOptimizing(false);
         } catch (error) {
           console.error("Lỗi lấy lộ trình mẫu:", error);
-          setPoints(INITIAL_POINTS);
+          setPoints([]);
           setIsOptimizing(false);
         }
         return;
@@ -223,11 +182,11 @@ const ItineraryDetail: React.FC = () => {
           }
         } catch (error) {
           console.error("Lỗi lấy lộ trình AI:", error);
-          setPoints(INITIAL_POINTS);
+          setPoints([]);
           setIsOptimizing(false);
         }
       } else {
-        setPoints(INITIAL_POINTS);
+        setPoints([]);
       }
     };
 

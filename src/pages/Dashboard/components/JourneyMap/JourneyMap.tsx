@@ -3,7 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import styles from './JourneyMap.module.scss';
-import { CornersOut, MapTrifold } from "@phosphor-icons/react";
+import { CornersOut, MapTrifoldIcon } from "@phosphor-icons/react";
+
 
 // Fix icon lỗi của Leaflet trong React
 const customIcon = new L.Icon({
@@ -23,7 +24,7 @@ const JourneyMap: React.FC = () => {
       <div className={styles.sectionHeader}>
         <div className={styles.headerTitle}>
           <div className={styles.iconBox}>
-            <MapTrifold size={20} weight="bold" />
+            <MapTrifoldIcon size={20} weight="bold" />
           </div>
           <div className={styles.headerInfo}>
             <h3>Bản đồ hành trình</h3>

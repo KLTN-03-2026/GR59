@@ -3,10 +3,15 @@ import StarRating from "./component/StarRating";
 import styles from "./Review.module.scss";
 import { X, Camera, PaperPlaneTilt } from "@phosphor-icons/react";
 import AOS from "aos";
-import "aos/dist/aos.css"; 
+import "aos/dist/aos.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getReviews, createReview, type ReviewItem } from "../../services/reviewService";
+import {
+  getReviews,
+  createReview,
+  type ReviewItem,
+} from "../../services/reviewService";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 const Review: React.FC = () => {
   // Khởi tạo AOS khi component mount
@@ -18,7 +23,10 @@ const Review: React.FC = () => {
   }, []);
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as { targetId?: string; targetType?: "HOTEL" | "RESTAURANT" | "ATTRACTION" } | null;
+  const state = location.state as {
+    targetId?: string;
+    targetType?: "HOTEL" | "RESTAURANT" | "ATTRACTION";
+  } | null;
 
   // --- States ---
   const [rating, setRating] = useState<number>(0);
@@ -36,7 +44,7 @@ const Review: React.FC = () => {
         setIsLoading(true);
         const res = await getReviews();
         if (res.data && res.data.status === 200) {
-          const fetchedData = res.data.data || res.data.DT;
+          const fetchedData = res.data.data;
           setRecentReviews(Array.isArray(fetchedData) ? fetchedData : []);
         }
       } catch (err) {
@@ -51,16 +59,16 @@ const Review: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setSelectedFiles(prev => [...prev, ...files]);
-      
-      const newPreviews = files.map(file => URL.createObjectURL(file));
-      setPreviews(prev => [...prev, ...newPreviews]);
+      setSelectedFiles((prev) => [...prev, ...files]);
+
+      const newPreviews = files.map((file) => URL.createObjectURL(file));
+      setPreviews((prev) => [...prev, ...newPreviews]);
     }
   };
 
   const handleRemoveImage = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviews(prev => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => {
       URL.revokeObjectURL(prev[index]);
       return prev.filter((_, i) => i !== index);
     });
@@ -84,7 +92,7 @@ const Review: React.FC = () => {
         navigate("/auth?mode=login");
         return;
       }
-      const user = JSON.parse(userStr);
+      const user = JSON.parse(userStr) as { id: number };
 
       const payload = {
         userId: user.id,
@@ -92,12 +100,14 @@ const Review: React.FC = () => {
         comment,
         type: state?.targetType || "ATTRACTION",
         hotelId: state?.targetType === "HOTEL" ? Number(state.targetId) : null,
-        restaurantId: state?.targetType === "RESTAURANT" ? Number(state.targetId) : null,
-        attractionId: state?.targetType === "ATTRACTION" ? Number(state.targetId) : null,
+        restaurantId:
+          state?.targetType === "RESTAURANT" ? Number(state.targetId) : null,
+        attractionId:
+          state?.targetType === "ATTRACTION" ? Number(state.targetId) : null,
       };
 
       const res = await createReview(payload, selectedFiles);
-      
+
       if (res.data && (res.data.status === 201 || res.data.status === 200)) {
         toast.success("Cảm ơn bạn đã gửi đánh giá!");
         setRating(0);
@@ -107,9 +117,12 @@ const Review: React.FC = () => {
         // Có thể navigate về trang trước hoặc tải lại danh sách
         setTimeout(() => navigate(-1), 1500);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Lỗi khi gửi đánh giá:", err);
-      const msg = err.response?.data?.message || "Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại!";
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      const msg =
+        axiosError.response?.data?.message ||
+        "Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại!";
       toast.error(msg);
     }
   };
@@ -190,11 +203,11 @@ const Review: React.FC = () => {
               <label className={styles.uploadBtn}>
                 <Camera size={24} weight="bold" />
                 <span>Tải ảnh lên</span>
-                <input 
-                  type="file" 
-                  hidden 
-                  multiple 
-                  accept="image/*" 
+                <input
+                  type="file"
+                  hidden
+                  multiple
+                  accept="image/*"
                   onChange={handleFileChange}
                 />
               </label>
@@ -209,6 +222,8 @@ const Review: React.FC = () => {
                   <button
                     className={styles.btnRemoveImg}
                     onClick={() => handleRemoveImage(index)}
+                    title="Xóa ảnh"
+                    aria-label="Xóa ảnh"
                   >
                     <div className={styles.btnIcon}>
                       <X size={10} weight="bold" />
@@ -239,31 +254,44 @@ const Review: React.FC = () => {
           Đánh giá gần đây
         </h2>
         <div className={styles.reviewsGrid}>
-          {(Array.isArray(recentReviews) ? recentReviews : []).map((review, index) => (
-            <div
-              key={review.id}
-              className={styles.reviewUserCard}
-              data-aos="fade-up"
-              data-aos-delay={index * 100}
-            >
-              <div className={styles.userRow}>
-                <div className={styles.userMeta}>
-                  <img src={review.avatar} alt={review.userName} />
-                  <div className={styles.info}>
-                    <strong>{review.userName}</strong>
-                    <span>{review.timeAgo}</span>
-                  </div>
-                </div>
-                <div className={styles.starsFixed}>
-                  <StarRating
-                    initialRating={review.rating}
-                    isEditable={false}
-                  />
-                </div>
-              </div>
-              <p className={styles.reviewText}>"{review.comment}"</p>
+          {isLoading ? (
+            <div className={styles.loadingState}>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                className={styles.spinner}
+              />
+              <p>Đang tải các đánh giá mới nhất...</p>
             </div>
-          ))}
+          ) : (
+            (Array.isArray(recentReviews) ? recentReviews : []).map(
+              (review, index) => (
+                <div
+                  key={review.id}
+                  className={styles.reviewUserCard}
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100}
+                >
+                  <div className={styles.userRow}>
+                    <div className={styles.userMeta}>
+                      <img src={review.avatar} alt={review.userName} />
+                      <div className={styles.info}>
+                        <strong>{review.userName}</strong>
+                        <span>{review.timeAgo}</span>
+                      </div>
+                    </div>
+                    <div className={styles.starsFixed}>
+                      <StarRating
+                        initialRating={review.rating}
+                        isEditable={false}
+                      />
+                    </div>
+                  </div>
+                  <p className={styles.reviewText}>"{review.comment}"</p>
+                </div>
+              ),
+            )
+          )}
         </div>
       </section>
     </main>

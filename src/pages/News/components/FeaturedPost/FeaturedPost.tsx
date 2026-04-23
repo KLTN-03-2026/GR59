@@ -13,7 +13,7 @@ const FeaturedPost: React.FC<Props> = ({ data }) => {
   return (
     <section className={styles.container} onClick={() => navigate(`/news/${data.id}`)} style={{ cursor: 'pointer' }} data-aos="fade-up">
       <div className={styles.imageBox}>
-        <img src={data.image} alt={data.title} />
+        <img src={data.image ?? undefined} alt={data.title} />
         <div className={styles.tagOverlay}>{data.category}</div>
       </div>
       <div className={styles.content}>

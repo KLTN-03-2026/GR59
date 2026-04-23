@@ -11,6 +11,26 @@ export interface ReviewItem {
   comment: string;
 }
 
+export interface BackendReview {
+  id: number;
+  userName: string;
+  userImage?: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  images?: string[];
+  isVerified?: boolean;
+  nameService?: string;
+  provinceName?: string;
+}
+
+export interface PaginationInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface ReviewPayload {
   userId: number;
   hotelId?: number | null;
@@ -21,60 +41,10 @@ export interface ReviewPayload {
   comment: string;
 }
 
-export interface BackendResponse<T = unknown> {
-  status: number;
-  message: string;
-  data: T;
-}
 
-const MOCK_REVIEWS: ReviewItem[] = [
-  {
-    id: 1,
-    userName: "Linh Nguyễn",
-    avatar: "https://i.pravatar.cc/150?u=user1",
-    timeAgo: "2 ngày trước",
-    rating: 5,
-    comment:
-      "Chuyến đi thật tuyệt vời! Lịch trình rất hợp lý, tôi không cảm thấy quá mệt mỏi nhưng vẫn tham quan được nhiều địa điểm đẹp.",
-  },
-  {
-    id: 2,
-    userName: "Minh Trần",
-    avatar: "https://i.pravatar.cc/150?u=user2",
-    timeAgo: "1 tuần trước",
-    rating: 4,
-    comment:
-      "Giá cả khá cạnh tranh so với mặt bằng chung. Hướng dẫn viên rất nhiệt tình và chu đáo với khách hàng.",
-  },
-  {
-    id: 3,
-    userName: "Minh Trần",
-    avatar: "https://i.pravatar.cc/150?u=user2",
-    timeAgo: "1 tuần trước",
-    rating: 4,
-    comment:
-      "Giá cả khá cạnh tranh so với mặt bằng chung. Hướng dẫn viên rất nhiệt tình và chu đáo với khách hàng.",
-  },
-];
 
 export const getReviews = async (): Promise<AxiosResponse<BackendResponse<ReviewItem[]>>> => {
-  try {
-    const response = await instance.get<BackendResponse<ReviewItem[]>>("/reviews");
-    return response;
-  } catch (error) {
-    console.warn("Fake API fallback cho Reviews GET");
-    return {
-      data: {
-        status: 200,
-        message: "Lấy dữ liệu review mock thành công",
-        data: MOCK_REVIEWS,
-      },
-      status: 200,
-      statusText: "OK",
-      headers: {},
-      config: {} as any,
-    };
-  }
+  return await instance.get<BackendResponse<ReviewItem[]>>("/reviews");
 };
 
 export const createReview = async (
@@ -142,43 +112,19 @@ export const getUserReviews = async (userId?: number): Promise<AxiosResponse<Bac
     const url = userId ? `/reviews/user/${userId}` : "/reviews/user";
     const response = await instance.get<BackendResponse<any[]>>(url);
     return response;
-  } catch (error: any) {
-    console.warn("Lấy review user thất bại (400 hoặc lỗi khác), chi tiết:", error.response?.data);
-    return {
-      data: {
-        status: 200,
-        message: "Sử dụng dữ liệu dự phòng",
-        data: []
-      },
-      status: 200,
-      statusText: "OK",
-      headers: {},
-      config: {} as any
-    };
+  } catch (error) {
+    console.warn("Lấy review user thất bại:", error);
+    throw error;
   }
-};export const getReviewsByTarget = async (
+};
+
+export const getReviewsByTarget = async (
   type: "restaurant" | "hotel" | "attraction",
   id: number | string,
   page = 0,
   size = 10
-): Promise<AxiosResponse<BackendResponse<{ content: any[]; page: any }>>> => {
-  try {
-    const response = await instance.get<BackendResponse<{ content: any[]; page: any }>>(
-      `/reviews/${type.toLowerCase()}/${id}?page=${page}&size=${size}`
-    );
-    return response;
-  } catch (error) {
-    console.warn(`Lấy review ${type} thất bại, dùng mock`);
-    return {
-      data: {
-        status: 200,
-        message: "Thành công",
-        data: { content: MOCK_REVIEWS as any[], page: { totalPages: 1, totalElements: 3, size: 10, number: 0 } }
-      },
-      status: 200,
-      statusText: "OK",
-      headers: {},
-      config: {} as any
-    };
-  }
+): Promise<AxiosResponse<BackendResponse<{ content: BackendReview[]; page: PaginationInfo }>>> => {
+  return await instance.get<BackendResponse<{ content: BackendReview[]; page: PaginationInfo }>>(
+    `/reviews/${type.toLowerCase()}/${id}?page=${page}&size=${size}`
+  );
 };

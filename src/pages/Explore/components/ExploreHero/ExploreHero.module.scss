@@ -136,6 +136,7 @@ $accent-light-alpha: rgba(255, 255, 255, 0.8);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 28px;
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
@@ -195,6 +196,7 @@ $accent-light-alpha: rgba(255, 255, 255, 0.8);
   align-items: center;
   gap: 30px;
   background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;

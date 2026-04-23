@@ -3,26 +3,20 @@ import styles from "../UsersView/UsersView.module.scss";
 import StatCard from "../StatCard/StatCard";
 import {
   Trash,
-  MagnifyingGlass,
   CaretLeft,
   CaretRight,
-  ChatCircleText,
   Star,
-  CheckCircle,
-  XCircle,
   MapPin,
-  Buildings,
-  ForkKnife,
-  Globe,
-  MapTrifold,
   Lock,
   LockOpen,
   ShieldCheck,
   Eye,
-  X
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
-import { useAdminReviews, deleteRecord } from "../../hooks/useAdminData";
+import {
+  useAdminReviews,
+  deleteRecord,
+} from "../../hooks/useAdminData";
 import * as adminService from "../../../../services/adminService";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import DetailModal from "../_shared/DetailModal";
@@ -84,7 +78,7 @@ const ReviewsView: React.FC = () => {
 
   const totalPages = pagination.totalPages || 1;
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     if (!confirm("Bạn có chắc muốn xóa đánh giá này?")) return;
     try {
       await deleteRecord("reviews", id);
@@ -98,9 +92,14 @@ const ReviewsView: React.FC = () => {
   const handleToggleVerify = async (id: number, currentStatus: string) => {
     try {
       const nextStatus = currentStatus === "ACTIVE" ? "HIDDEN" : "ACTIVE";
-      await adminService.updateReviewStatus(id, nextStatus as "ACTIVE" | "HIDDEN");
+      await adminService.updateReviewStatus(
+        id,
+        nextStatus as "ACTIVE" | "HIDDEN",
+      );
       toast.success(
-        nextStatus === "ACTIVE" ? "Đã duyệt đánh giá!" : "Đã gỡ trạng thái duyệt!",
+        nextStatus === "ACTIVE"
+          ? "Đã duyệt đánh giá!"
+          : "Đã gỡ trạng thái duyệt!",
       );
       refetch();
     } catch {
@@ -111,21 +110,6 @@ const ReviewsView: React.FC = () => {
   const handleViewDetail = (id: string | number) => {
     setSelectedId(id);
     setIsDetailOpen(true);
-  };
-
-  const getTargetIcon = (type: string) => {
-    switch (type) {
-      case "HOTEL":
-        return <Buildings size={14} />;
-      case "RESTAURANT":
-        return <ForkKnife size={14} />;
-      case "WEBSITE":
-        return <Globe size={14} />;
-      case "TRIP":
-        return <MapTrifold size={14} />;
-      default:
-        return <MapPin size={14} />;
-    }
   };
 
   return (
@@ -174,8 +158,8 @@ const ReviewsView: React.FC = () => {
       <motion.div variants={rowVariants} className={styles.filterSection}>
         <div className={styles.filterRow}>
           <div className={styles.searchGroup}>
-            <ThreeDSearchInput 
-              value={search} 
+            <ThreeDSearchInput
+              value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm theo tên người dùng hoặc nội dung..."
               className={styles.adminSearchInput}
@@ -202,7 +186,7 @@ const ReviewsView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th style={{ width: "60px" }}>STT</th>
+              <th className={styles.w60}>STT</th>
               <th>NGƯỜI DÙNG</th>
               <th>DỊCH VỤ / TỈNH THÀNH</th>
               <th>ĐÁNH GIÁ</th>
@@ -223,27 +207,24 @@ const ReviewsView: React.FC = () => {
               ) : (
                 filtered.map((item, idx) => (
                   <motion.tr key={item.id} variants={rowVariants} custom={idx}>
-                    <td>#{(page - 1) * PAGE_SIZE + idx + 1}</td>
+                    <td className={`${styles.fw600} ${styles.textSlate500}`}>
+                      #{(page - 1) * PAGE_SIZE + idx + 1}
+                    </td>
                     <td>
                       <div className={styles.infoCol}>
                         <ProtectedImage
                           src={item.userImage || ""}
                           fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.userName)}&background=random`}
                           alt=""
-                          style={{
-                            borderRadius: "50%",
-                            width: "32px",
-                            height: "32px",
-                            objectFit: "cover",
-                          }}
+                          className={styles.userAvatarSmall}
                         />
                         <div className={styles.textInfo}>
-                          <p style={{ fontWeight: 600 }}>{item.userName}</p>
+                          <p className={styles.fw600}>{item.userName}</p>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: "flex", color: "#f59e0b" }}>
+                      <div className={styles.ratingFlex}>
                         {Array.from({ length: item.rating }).map((_, i) => (
                           <Star key={i} size={14} weight="fill" />
                         ))}
@@ -251,44 +232,37 @@ const ReviewsView: React.FC = () => {
                     </td>
                     <td>
                       <div className={styles.serviceCol}>
-                        <p style={{ fontWeight: 700, fontSize: "0.85rem", color: "#1e293b", margin: 0 }}>
+                        <p className={styles.serviceName}>
                           {item.nameService || "N/A"}
                         </p>
-                        <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "2px 0 0 0", display: "flex", alignItems: "center", gap: "4px" }}>
-                          <MapPin size={12} weight="fill" color="#38bdf8" />
+                        <p className={styles.serviceLoc}>
+                          <MapPin
+                            size={12}
+                            weight="fill"
+                            className={styles.textBlue}
+                          />
                           {item.provinceName || "N/A"}
                         </p>
                       </div>
                     </td>
                     <td>
                       <div
-                        className={styles.statusBadge}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          fontSize: "0.75rem",
-                          padding: "4px 8px",
-                          borderRadius: "100px",
-                          backgroundColor: item.status === "ACTIVE"
-                            ? "#ecfdf5"
-                            : "#fef2f2",
-                          color: item.status === "ACTIVE" ? "#10b981" : "#ef4444",
-                          width: "fit-content",
-                        }}
+                        className={`${styles.statusBadge} ${item.status === "ACTIVE" ? styles.active : styles.hidden}`}
                       >
                         {item.status === "ACTIVE" ? (
                           <ShieldCheck size={14} weight="fill" />
                         ) : (
                           <Lock size={14} weight="fill" />
                         )}
-                        <span>{item.status === "ACTIVE" ? "Đã duyệt" : "Đã khóa"}</span>
+                        <span>
+                          {item.status === "ACTIVE" ? "Đã duyệt" : "Đã khóa"}
+                        </span>
                       </div>
                     </td>
                     <td>
                       <div className={styles.actionGroup}>
                         <button
-                          className={`${styles.actionBtn} ${styles.actionBtnSecondary}`}
+                          className={styles.actionBtn}
                           onClick={() => handleViewDetail(item.id)}
                           title="Xem chi tiết"
                         >
@@ -303,18 +277,16 @@ const ReviewsView: React.FC = () => {
                           }
                           title={
                             item.status === "ACTIVE"
-                              ? "Mở khóa (Gỡ duyệt)"
-                              : "Khóa (Duyệt)"
+                              ? "Khóa đánh giá"
+                              : "Duyệt đánh giá"
                           }
                         >
                           {item.status === "ACTIVE" ? (
                             <div className={styles.actionBtnIcon}>
-                              {" "}
                               <LockOpen size={17} />
                             </div>
                           ) : (
                             <div className={styles.actionBtnIcon}>
-                              {" "}
                               <ShieldCheck size={17} />
                             </div>
                           )}
@@ -326,7 +298,7 @@ const ReviewsView: React.FC = () => {
                         >
                           <div className={styles.actionBtnIcon}>
                             <Trash size={17} />
-                          </div>{" "}
+                          </div>
                         </button>
                       </div>
                     </td>
@@ -344,8 +316,11 @@ const ReviewsView: React.FC = () => {
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
                 className={styles.pageBtn}
+                title="Trang trước"
               >
-                <CaretLeft size={16} />
+                <div className={styles.actionBtnIcon}>
+                  <CaretLeft size={16} />
+                </div>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
@@ -360,8 +335,11 @@ const ReviewsView: React.FC = () => {
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
                 className={styles.pageBtn}
+                title="Trang sau"
               >
-                <CaretRight size={16} />
+                <div className={styles.actionBtnIcon}>
+                  <CaretRight size={16} />
+                </div>
               </button>
             </div>
           </div>

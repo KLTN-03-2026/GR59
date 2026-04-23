@@ -25,14 +25,8 @@ const CustomSelect: React.FC<{
   onChange?: (value: string) => void 
 }> = ({ options, defaultValue, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState(options.find(o => o.value === defaultValue) || options[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Khi options thay đổi (do đổi tab), cập nhật lại selected
-    const newSelected = options.find(o => o.value === defaultValue) || options[0];
-    setSelected(newSelected);
-  }, [defaultValue, options]);
+  const selectedOption = options.find(o => o.value === defaultValue) || options[0];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -45,7 +39,6 @@ const CustomSelect: React.FC<{
   }, []);
 
   const handleSelect = (option: Option) => {
-    setSelected(option);
     setIsOpen(false);
     if (onChange) {
       onChange(option.value);
@@ -58,7 +51,7 @@ const CustomSelect: React.FC<{
         className={`${styles.selectBox} ${isOpen ? styles.activeBox : ''}`} 
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className={styles.selectLabel}>{selected.label}</span>
+        <span className={styles.selectLabel}>{selectedOption.label}</span>
         <CaretDown 
           size={14} 
           weight="bold" 
@@ -71,7 +64,7 @@ const CustomSelect: React.FC<{
           {options.map((option) => (
             <div 
               key={option.value}
-              className={`${styles.dropdownItem} ${selected.value === option.value ? styles.selectedItem : ''}`}
+              className={`${styles.dropdownItem} ${selectedOption.value === option.value ? styles.selectedItem : ''}`}
               onClick={() => handleSelect(option)}
             >
               {option.label}

@@ -82,7 +82,7 @@ export const getRestaurants = async (page = 0, size = 10): Promise<AxiosResponse
 /**
  * Mapper chuyển đổi dữ liệu từ BackendRestaurant sang định dạng Destination (dùng cho DestinationDetail)
  */
-export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant): Destination => {
+export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant | any): Destination => {
   if (!rest) {
     return {
       id: "error",
@@ -171,7 +171,7 @@ export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant): 
  */
 export const getRestaurantDetail = async (id: string | number): Promise<AxiosResponse<BackendResponse<Destination>>> => {
   const response = await instance.get<BackendResponse<BackendRestaurant>>(`/restaurants/${id}`);
-  const restData = response.data.data || (response.data as any).DT;
+  const restData = response.data.data;
   
   const fullData = mapBackendRestaurantToFullDestination(restData);
   

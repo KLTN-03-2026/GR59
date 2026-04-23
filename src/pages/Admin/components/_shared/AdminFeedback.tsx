@@ -10,11 +10,8 @@ export const LoadingRows: React.FC<{ count?: number }> = ({ count = 4 }) => (
         {Array.from({ length: 5 }).map((_, j) => (
           <td key={j}>
             <div
-              className={styles.skeletonBar}
-              style={{
-                animationDelay: `${i * 0.1}s`,
-                width: j === 0 ? "60%" : j === 4 ? "40%" : "80%",
-              }}
+              className={`${styles.skeletonBar} ${j === 0 ? styles.w60 : j === 4 ? styles.w40 : ""}`}
+              style={{ "--delay": `${i * 0.1}s` } as React.CSSProperties}
             />
           </td>
         ))}
@@ -53,11 +50,11 @@ export const SkeletonCards: React.FC<{ count?: number }> = ({ count = 4 }) => (
       <div key={i} className={styles.skeletonCard}>
         <div
           className={styles.skeletonTitle}
-          style={{ animationDelay: `${i * 0.1}s` }}
+          style={{ "--delay": `${i * 0.1}s` } as React.CSSProperties}
         />
         <div
           className={styles.skeletonValue}
-          style={{ animationDelay: `${i * 0.1}s` }}
+          style={{ "--delay": `${i * 0.1}s` } as React.CSSProperties}
         />
       </div>
     ))}

@@ -5,7 +5,6 @@ import {
   Envelope,
   Pencil,
   Trash,
-  MagnifyingGlass,
   DotsThreeVertical,
   CheckCircle,
   Clock,
@@ -15,14 +14,18 @@ import {
   Eye,
   Lock,
   LockOpen,
-  X
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
-import { useDbUsers, deleteRecord, updateRecord, createRecord } from "../../hooks/useAdminData";
+import {
+  useDbUsers,
+  deleteRecord,
+  updateRecord,
+  createRecord,
+  type DbUser,
+} from "../../hooks/useAdminData";
 import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import DetailModal from "../_shared/DetailModal";
 import AddEditModal from "../_shared/AddEditModal";
-import ProtectedImage from "../../../../components/ProtectedImage/ProtectedImage";
 import ThreeDSearchInput from "../../../../components/Ui/ThreeDSearchInput/ThreeDSearchInput";
 import { toast } from "react-toastify";
 
@@ -43,11 +46,18 @@ const rowVariants = {
 
 const UsersView: React.FC = () => {
   const [page, setPage] = useState(1);
-  const { data: users, pagination, loading, error, refetch, toggleUserStatus } = useDbUsers();
+  const {
+    data: users,
+    pagination,
+    loading,
+    error,
+    refetch,
+    toggleUserStatus,
+  } = useDbUsers();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | number | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editUser, setEditUser] = useState<any>(null);
+  const [editUser, setEditUser] = useState<DbUser | undefined>(undefined);
 
   const [activeStatusFilter, setActiveStatusFilter] = useState<
     "All" | "Active" | "Inactive"
@@ -106,22 +116,24 @@ const UsersView: React.FC = () => {
   const totalPages = pagination.totalPages || 1;
   const paged = filtered;
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     if (!confirm("Bạn có chắc muốn xóa người dùng này?")) return;
     try {
       await deleteRecord("users", id);
       refetch();
     } catch {
-      alert("Xóa thất bại!");
+      toast.error("Xóa thất bại!");
     }
   };
 
-  const handleEdit = (user: any) => {
+  const handleEdit = (user: DbUser) => {
     setEditUser(user);
     setIsEditOpen(true);
   };
 
-  const handleSaveUser = async (formData: any) => {
+  const handleSaveUser = async (
+    formData: FormData | Record<string, unknown>,
+  ) => {
     try {
       if (editUser) {
         await updateRecord("users", editUser.id, formData);
@@ -131,26 +143,39 @@ const UsersView: React.FC = () => {
         toast.success("Thêm người dùng thành công!");
       }
       setIsEditOpen(false);
+      setEditUser(undefined);
       refetch();
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.message || err.response?.data?.EM || "Thao tác thất bại!";
+    } catch (err) {
+      const error = err as {
+        response?: { data?: { message?: string; EM?: string } };
+      };
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.EM ||
+        "Thao tác thất bại!";
       toast.error(errorMsg);
     }
   };
 
-  const handleToggleStatus = async (user: any) => {
+  const handleToggleStatus = async (user: DbUser) => {
     try {
-      const confirmMsg = user.isActive 
-        ? `Bạn có chắc muốn khóa tài khoản của ${user.fullName}?` 
+      const confirmMsg = user.isActive
+        ? `Bạn có chắc muốn khóa tài khoản của ${user.fullName}?`
         : `Bạn có chắc muốn mở khóa tài khoản cho ${user.fullName}?`;
-      
+
       if (window.confirm(confirmMsg)) {
         await toggleUserStatus(user.id, user.isActive);
-        toast.success(`${user.isActive ? 'Khóa' : 'Mở khóa'} thành công!`);
+        toast.success(`${user.isActive ? "Khóa" : "Mở khóa"} thành công!`);
         refetch();
       }
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.message || err.response?.data?.EM || "Thao tác thất bại!";
+    } catch (err) {
+      const error = err as {
+        response?: { data?: { message?: string; EM?: string } };
+      };
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.EM ||
+        "Thao tác thất bại!";
       toast.error(errorMsg);
     }
   };
@@ -170,11 +195,11 @@ const UsersView: React.FC = () => {
           </p>
         </div>
         <div className={styles.pageActions}>
-          <button 
-            className={styles.btnPrimary} 
+          <button
+            className={styles.btnPrimary}
             title="Thêm người dùng mới"
             onClick={() => {
-              setEditUser(null);
+              setEditUser(undefined);
               setIsEditOpen(true);
             }}
           >
@@ -259,8 +284,8 @@ const UsersView: React.FC = () => {
         <div className={styles.filterRow}>
           <span className={styles.filterLabel}>Tìm:</span>
           <div className={styles.searchGroup}>
-            <ThreeDSearchInput 
-              value={search} 
+            <ThreeDSearchInput
+              value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
@@ -298,7 +323,7 @@ const UsersView: React.FC = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th style={{ width: "60px" }}>STT</th>
+              <th className={styles.w60}>STT</th>
               <th>NGƯỜI DÙNG</th>
               <th>VAI TRÒ</th>
               <th>TRẠNG THÁI</th>
@@ -319,7 +344,7 @@ const UsersView: React.FC = () => {
               ) : (
                 paged.map((user, idx) => (
                   <motion.tr key={user.id} variants={rowVariants} custom={idx}>
-                    <td style={{ fontWeight: 600, color: "#64748b" }}>
+                    <td className={`${styles.fw600} ${styles.textSlate500}`}>
                       #{(page - 1) * PAGE_SIZE + idx + 1}
                     </td>
                     <td>
@@ -367,9 +392,12 @@ const UsersView: React.FC = () => {
                     </td>
                     <td>
                       <div className={styles.actionGroup}>
-                        <button 
-                          className={styles.actionBtn} 
-                          onClick={() => { setDetailId(user.id); setIsDetailOpen(true); }}
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => {
+                            setDetailId(user.id);
+                            setIsDetailOpen(true);
+                          }}
                           title="Xem chi tiết"
                         >
                           <div className={styles.actionBtnIcon}>
@@ -385,13 +413,25 @@ const UsersView: React.FC = () => {
                             <Pencil size={17} />
                           </div>
                         </button>
-                        <button 
-                          className={styles.actionBtn} 
-                          title={user.isActive ? "Khóa người dùng" : "Mở khóa người dùng"}
+                        <button
+                          className={styles.actionBtn}
+                          title={
+                            user.isActive
+                              ? "Khóa người dùng"
+                              : "Mở khóa người dùng"
+                          }
                           onClick={() => handleToggleStatus(user)}
                         >
                           <div className={styles.actionBtnIcon}>
-                            {user.isActive ? <Lock size={18} weight="bold" color="#f43f5e" /> : <LockOpen size={18} weight="bold" color="#10b981" />}
+                            {user.isActive ? (
+                              <Lock size={18} weight="bold" color="#f43f5e" />
+                            ) : (
+                              <LockOpen
+                                size={18}
+                                weight="bold"
+                                color="#10b981"
+                              />
+                            )}
                           </div>
                         </button>
                         <button
@@ -456,16 +496,18 @@ const UsersView: React.FC = () => {
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
-              <div className={styles.actionBtnIcon}><CaretRight size={16} /></div>
+              <div className={styles.actionBtnIcon}>
+                <CaretRight size={16} />
+              </div>
             </button>
           </div>
         </div>
       </motion.div>
-      <DetailModal 
-        isOpen={isDetailOpen} 
-        onClose={() => setIsDetailOpen(false)} 
-        id={detailId} 
-        type="user" 
+      <DetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        id={detailId}
+        type="user"
       />
       <AddEditModal
         isOpen={isEditOpen}

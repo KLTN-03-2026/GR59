@@ -48,7 +48,11 @@ const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
       </div>
 
       <div className={styles.heroActions}>
-        <button className={styles.btnIconCircle}>
+        <button 
+          className={styles.btnIconCircle} 
+          title="Chia sẻ địa điểm"
+          aria-label="Chia sẻ địa điểm này"
+        >
           <div className={styles.btnIcon}>
             <ShareNetwork weight="bold" />
           </div>
@@ -56,6 +60,8 @@ const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
         <button
           className={`${styles.btnIconCircle} ${isFavorite ? styles.activeHeart : ""}`}
           onClick={() => setIsFavorite(!isFavorite)}
+          title={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
+          aria-label={isFavorite ? "Bỏ yêu thích địa điểm này" : "Yêu thích địa điểm này"}
         >
           <div className={styles.btnIcon}>
             <Heart
@@ -64,7 +70,11 @@ const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
             />
           </div>
         </button>
-        <button className={styles.btnIconCircle}>
+        <button 
+          className={styles.btnIconCircle}
+          title="Lưu địa điểm"
+          aria-label="Lưu địa điểm này vào danh sách"
+        >
           <div className={styles.btnIcon}>
             <BookmarkSimple weight="bold" />
           </div>

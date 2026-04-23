@@ -111,15 +111,18 @@ const Explore: React.FC = () => {
 
       let allItems: HighlightItem[] = [];
       if (hotelsRes?.data?.data) {
-        const hContent = Array.isArray(hotelsRes.data.data) ? hotelsRes.data.data : (hotelsRes.data.data as any).content;
+        const data = hotelsRes.data.data;
+        const hContent = Array.isArray(data) ? data : (data as { content: HighlightItem[] }).content;
         if (Array.isArray(hContent)) allItems = [...allItems, ...hContent];
       }
       if (restaurantsRes?.data?.data) {
-        const rContent = Array.isArray(restaurantsRes.data.data) ? restaurantsRes.data.data : (restaurantsRes.data.data as any).content;
+        const data = restaurantsRes.data.data;
+        const rContent = Array.isArray(data) ? data : (data as { content: HighlightItem[] }).content;
         if (Array.isArray(rContent)) allItems = [...allItems, ...rContent];
       }
       if (attractionsRes?.data?.data) {
-        const aContent = Array.isArray(attractionsRes.data.data) ? attractionsRes.data.data : (attractionsRes.data.data as any).content;
+        const data = attractionsRes.data.data;
+        const aContent = Array.isArray(data) ? data : (data as { content: HighlightItem[] }).content;
         if (Array.isArray(aContent)) allItems = [...allItems, ...aContent];
       }
 
@@ -242,7 +245,7 @@ const Explore: React.FC = () => {
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => <div key={`skeleton-${i}`}><SkeletonCard /></div>)
           ) : error ? (
-            <div className={styles.errorState}><p>{error}</p><button onClick={() => fetchPlaces()} className={styles.retryBtn}>Thử lại</button></div>
+            <div className={styles.errorState}><p>{error}</p><button type="button" onClick={() => fetchPlaces()} className={styles.retryBtn}>Thử lại</button></div>
           ) : displayedData.length > 0 ? (
             displayedData.map((location, index) => (
               <div key={location.uniqueId || location.id} data-aos="fade-up" data-aos-delay={index * 50}>
@@ -262,11 +265,29 @@ const Explore: React.FC = () => {
         </div>
         {totalPages > 1 && (
           <div className={styles.paginationContainer} data-aos="fade-up">
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className={styles.pageNavBtn}><CaretLeft size={20} /></button>
+            <button 
+              type="button" 
+              onClick={() => handlePageChange(currentPage - 1)} 
+              disabled={currentPage === 1} 
+              className={styles.pageNavBtn}
+              title="Trang trước"
+              aria-label="Trang trước"
+            >
+              <CaretLeft size={20} />
+            </button>
             <div className={styles.pageNumbers}>
-              {getPageNumbers().map((pageNum, idx) => pageNum === "..." ? <span key={idx}>...</span> : <button key={idx} onClick={() => handlePageChange(pageNum as number)} className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}>{pageNum}</button>)}
+              {getPageNumbers().map((pageNum, idx) => pageNum === "..." ? <span key={idx}>...</span> : <button type="button" key={idx} onClick={() => handlePageChange(pageNum as number)} className={`${styles.pageBtn} ${currentPage === pageNum ? styles.activePage : ""}`}>{pageNum}</button>)}
             </div>
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className={styles.pageNavBtn}><CaretRight size={20} /></button>
+            <button 
+              type="button" 
+              onClick={() => handlePageChange(currentPage + 1)} 
+              disabled={currentPage === totalPages} 
+              className={styles.pageNavBtn}
+              title="Trang tiếp theo"
+              aria-label="Trang tiếp theo"
+            >
+              <CaretRight size={20} />
+            </button>
           </div>
         )}
       </main>

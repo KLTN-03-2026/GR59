@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { RoutePoint } from '../../ItineraryDetail';
 import styles from './ItinerarySidebar.module.scss';
 import PlaceCard from '../PlaceCard/PlaceCard';
-import axios from 'axios';
+
 
 interface TravelMetric {
   distance: string;
@@ -141,7 +141,7 @@ const ItinerarySidebar: React.FC<Props> = ({
               for (let i = 1; i <= maxDay; i++) {
                 tabs.push(
                   <button 
-                    key={`day-${i}`}
+                    type="button"                    key={`day-${i}`}
                     className={`${styles.dayTab} ${!showStats && activeDay === i ? styles.active : ''}`}
                     onClick={() => handleTabClick(i)}
                   >
@@ -154,8 +154,11 @@ const ItinerarySidebar: React.FC<Props> = ({
           </div>
           
           <button 
+            type="button"
             className={`${styles.statsBtn} ${showStats ? styles.active : ''}`}
             onClick={() => setShowStats(true)}
+            title="Xem ngân sách dự kiến"
+            aria-label="Xem ngân sách dự kiến"
           >
             <i className="ph-fill ph-money"></i>
           </button>
@@ -199,13 +202,14 @@ const ItinerarySidebar: React.FC<Props> = ({
 
       <div className={styles.footerActions}>
         <button 
+          type="button"
           className={`${styles.btnPreview} ${isPreviewing ? styles.active : ''}`}
           onClick={onTogglePreview}
         >
           {isPreviewing ? <><i className="ph-bold ph-stop"></i> Dừng phát</> : <><i className="ph-fill ph-play-circle"></i> Xem trước</>}
         </button>
         
-        <button className={styles.btnAdd} onClick={onOpenAddModal}>
+        <button type="button" className={styles.btnAdd} onClick={onOpenAddModal}>
           <i className="ph-bold ph-plus-circle"></i> Thêm mới
         </button>
       </div>

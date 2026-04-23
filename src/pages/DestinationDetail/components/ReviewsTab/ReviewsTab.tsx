@@ -3,7 +3,7 @@ import { Star, StarHalf } from "@phosphor-icons/react";
 import styles from "./ReviewsTab.module.scss";
 import type { Destination } from "../../../../services/destinationService";
 import { useNavigate, useParams } from "react-router-dom";
-import { getReviewsByTarget, createReview } from "../../../../services/reviewService";
+import { getReviewsByTarget, createReview, type BackendReview, type ReviewPayload } from "../../../../services/reviewService";
 import { Camera, X, PaperPlaneTilt, MapPin } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 
@@ -14,7 +14,7 @@ interface ReviewsTabProps {
 const ReviewsTab: React.FC<ReviewsTabProps> = ({ reviews: initialReviews }) => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [realReviews, setRealReviews] = React.useState<any[]>([]);
+  const [realReviews, setRealReviews] = React.useState<BackendReview[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
   const [page, setPage] = React.useState(0);
@@ -32,7 +32,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ reviews: initialReviews }) => {
   if (path.includes('/hotel/')) targetType = "hotel";
   else if (path.includes('/restaurant/')) targetType = "restaurant";
 
-  const calculateBreakdown = (allReviews: any[]) => {
+  const calculateBreakdown = (allReviews: BackendReview[]) => {
     const total = allReviews.length;
     if (total === 0) return initialReviews.breakdown;
     
@@ -129,7 +129,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ reviews: initialReviews }) => {
         userId: user.id,
         rating: newRating,
         comment: newComment,
-        type: targetType.toUpperCase() as any,
+        type: targetType.toUpperCase() as ReviewPayload["type"],
         restaurantId: targetType === 'restaurant' ? Number(id) : null,
         hotelId: targetType === 'hotel' ? Number(id) : null,
         attractionId: targetType === 'attraction' ? Number(id) : null,
@@ -145,6 +145,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ reviews: initialReviews }) => {
         fetchReviews(0); // Làm mới danh sách
       }
     } catch (error) {
+      console.error("Lỗi khi gửi đánh giá:", error);
       toast.error("Không thể gửi đánh giá, vui lòng thử lại sau.");
     } finally {
       setSubmitting(false);
@@ -284,7 +285,13 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ reviews: initialReviews }) => {
                 {previews.map((p, idx) => (
                   <div key={idx} className={styles.miniPreviewItem}>
                     <img src={p} alt="" />
-                    <button onClick={() => removeImage(idx)}><X size={10} /></button>
+                    <button 
+                      onClick={() => removeImage(idx)} 
+                      title="Xóa ảnh" 
+                      aria-label="Xóa ảnh này"
+                    >
+                      <X size={10} />
+                    </button>
                   </div>
                 ))}
               </div>

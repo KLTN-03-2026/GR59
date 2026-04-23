@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MagnifyingGlass, TrendUp,  } from "@phosphor-icons/react";
+import {  TrendUp,  } from "@phosphor-icons/react";
 import styles from './NewsSidebar.module.scss';
 import type { NewsItem } from '../../types';
 

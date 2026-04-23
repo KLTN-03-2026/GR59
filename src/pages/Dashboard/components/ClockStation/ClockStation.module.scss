@@ -102,6 +102,7 @@ $purple-accent: #8b5cf6;
 
 .nextTripCard {
   background: rgba(#f0f9ff, 0.6); // Light blue glass like image
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba($blue-accent, 0.1);
   border-radius: 32px;

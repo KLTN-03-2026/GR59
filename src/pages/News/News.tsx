@@ -55,7 +55,7 @@ const News: React.FC = () => {
           if ('content' in featuredRes.data.data) {
             setFeaturedNewsData(featuredRes.data.data.content as NewsItem[]);
           } else {
-            setFeaturedNewsData(featuredRes.data.data as any);
+            setFeaturedNewsData(featuredRes.data.data as NewsItem[]);
           }
         }
       } catch (error) {
@@ -78,7 +78,7 @@ const News: React.FC = () => {
             setNewsData(res.data.data.content as NewsItem[]);
           } else {
             // Fallback for old mock data format
-            setNewsData(res.data.data as any);
+            setNewsData(res.data.data as NewsItem[]);
           }
         }
       } catch (error) {

@@ -11,7 +11,7 @@ interface Option {
 interface CustomSelectProps {
   options: Option[];
   value: string | number | boolean;
-  onChange: (value: any) => void;
+  onChange: (value: string | number | boolean) => void;
   placeholder?: string;
   label?: string;
 }
@@ -68,7 +68,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           <div className={styles.dropdownInner}>
             {options.map((option) => (
               <div
-                key={option.value}
+                key={String(option.value)}
                 className={`${styles.option} ${String(option.value) === String(value) ? styles.optionSelected : ''}`}
                 onClick={() => handleSelect(option.value)}
               >

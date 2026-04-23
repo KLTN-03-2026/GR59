@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Star, MapPin, Play, X, ArrowRight } from "@phosphor-icons/react";
+import { Heart, Star, MapPin, Play, X } from "@phosphor-icons/react";
 import styles from "./TravelCard.module.scss";
 import AnimatedButton from "../../../../components/Ui/AnimatedButton/AnimatedButton";
 

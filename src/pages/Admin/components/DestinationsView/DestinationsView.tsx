@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import styles from './DestinationsView.module.scss';
 import StatCard from '../StatCard/StatCard';
-import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, Globe, FileArrowDown, Check, Eye, X } from "@phosphor-icons/react";
-import { motion, AnimatePresence } from 'framer-motion';
-import { useDestinations, deleteRecord, createRecord, updateRecord } from '../../hooks/useAdminData';
+import { MapPin, Star, Pencil, Plus, CaretLeft, CaretRight, Trash, MagnifyingGlass, FileArrowDown, Eye, X } from "@phosphor-icons/react";
+import { motion } from 'framer-motion';
+import { useDestinations, deleteRecord, createRecord, updateRecord, type Destination } from '../../hooks/useAdminData';
 import { ErrorBanner, LoadingRows } from '../_shared/AdminFeedback';
 import AddEditModal from '../_shared/AddEditModal';
 import DetailModal from '../_shared/DetailModal';
@@ -43,7 +43,7 @@ const DestinationsView: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'all' | 'ACTIVE' | 'MAINTENANCE'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<Destination | undefined>(undefined);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | number | null>(null);
 
@@ -54,12 +54,11 @@ const DestinationsView: React.FC = () => {
   const filtered = useMemo(() => {
     let list = [...destinations];
     if (activeTab !== 'all') list = list.filter(d => d.status === activeTab);
-    // Search đã thực hiện ở Server, không cần lọc local nữa
     return list;
   }, [destinations, activeTab]);
 
   const totalPages = pagination.totalPages || 1;
-  const paged = filtered; // Vì đã phân trang ở Server, hiển thị toàn bộ list lọc được
+  const paged = filtered;
 
   const handleDelete = async (id: string | number) => {
     if (!confirm('Bạn có chắc muốn xóa địa điểm này không?')) return;
@@ -95,7 +94,7 @@ const DestinationsView: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: FormData | Record<string, unknown>) => {
     try {
       if (editingItem) {
         await updateRecord('destinations', editingItem.id, data);
@@ -105,7 +104,7 @@ const DestinationsView: React.FC = () => {
         toast.success('Thêm địa điểm mới thành công');
       }
       setIsModalOpen(false);
-      setEditingItem(null);
+      setEditingItem(undefined);
       refetch();
     } catch {
       toast.error('Thao tác thất bại!');
@@ -113,11 +112,11 @@ const DestinationsView: React.FC = () => {
   };
 
   const openAddModal = () => {
-    setEditingItem(null);
+    setEditingItem(undefined);
     setIsModalOpen(true);
   };
 
-  const openEditModal = (item: any) => {
+  const openEditModal = (item: Destination) => {
     setEditingItem(item);
     setIsModalOpen(true);
   };
@@ -153,7 +152,7 @@ const DestinationsView: React.FC = () => {
       <motion.div variants={rowVariants} className={styles.statsGrid}>
         <StatCard label="TỔNG ĐIỂM ĐẾN" value={loading ? '...' : String(destinations.length)} trend="+5 tháng này" trendUp={true} icon="MapPin" colorClass="bgBlue" />
         <StatCard label="HOẠT ĐỘNG" value={loading ? '...' : String(totalActive)} footerText="Đang đón khách" icon="CheckCircle" colorClass="bgEmerald" />
-        <StatCard label="VÙNG MIỀN" value="3" trend="Miền Bắc, Trung, Nam" trendUp={true} icon="Globe" colorClass="bgPurple" />
+        <StatCard label="VÙNG MIỀN" value="3" trend="Miền Bắc, Trung, Nam" trendUp={true} icon="GlobeHemisphereWest" colorClass="bgPurple" />
         <StatCard label="DI SẢN" value="8" trend="UNESCO công nhận" trendUp={true} icon="Buildings" colorClass="bgAmber" />
       </motion.div>
 
@@ -231,7 +230,7 @@ const DestinationsView: React.FC = () => {
                         <img src={dest.imageUrl} alt="" />
                         <span 
                           className={styles.statusIndicator} 
-                          style={{ backgroundColor: dest.status === 'HOẠT ĐỘNG' ? '#10b981' : '#f59e0b' }}
+                          style={{ backgroundColor: (dest.status === 'ACTIVE' || dest.status === 'HOẠT ĐỘNG') ? '#10b981' : '#f59e0b' }}
                         ></span>
                       </div>
                       <div className={styles.textInfo}>
@@ -272,10 +271,18 @@ const DestinationsView: React.FC = () => {
                       >
                         <Eye size={24} weight="bold" />
                       </button>
-                      <button className={styles.actionBtn} onClick={() => openEditModal(dest)}>
+                      <button 
+                        className={styles.actionBtn} 
+                        onClick={() => openEditModal(dest)}
+                        title="Chỉnh sửa"
+                      >
                         <Pencil size={24} weight="bold" />
                       </button>
-                      <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => handleDelete(dest.id)}>
+                      <button 
+                        className={`${styles.actionBtn} ${styles.actionBtnDanger}`} 
+                        onClick={() => handleDelete(dest.id)}
+                        title="Xóa"
+                      >
                         <Trash size={24} weight="bold" />
                       </button>
                     </div>
@@ -291,22 +298,33 @@ const DestinationsView: React.FC = () => {
             Hiển thị <span>{Math.min((page - 1) * PAGE_SIZE + 1, pagination.totalElements)}–{Math.min(page * PAGE_SIZE, pagination.totalElements)}</span> của <span>{pagination.totalElements}</span> kết quả
           </p>
           <div className={styles.paginationBtns}>
-             <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+             <button 
+               className={styles.pageBtn} 
+               disabled={page === 1} 
+               onClick={() => setPage(p => p - 1)}
+               title="Trang trước"
+             >
                <CaretLeft size={20} weight="bold" />
              </button>
              <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>{page}</button>
-             <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+             <button 
+               className={styles.pageBtn} 
+               disabled={page === totalPages} 
+               onClick={() => setPage(p => p + 1)}
+               title="Trang sau"
+             >
                <CaretRight size={20} weight="bold" />
              </button>
           </div>
         </div>
-        <DetailModal 
+      </motion.div>
+
+      <DetailModal 
         isOpen={isDetailOpen} 
         onClose={() => setIsDetailOpen(false)} 
         id={detailId} 
         type="destination" 
       />
-    </motion.div>
 
       <AddEditModal 
         isOpen={isModalOpen} 
@@ -321,5 +339,3 @@ const DestinationsView: React.FC = () => {
 };
 
 export default DestinationsView;
-
-

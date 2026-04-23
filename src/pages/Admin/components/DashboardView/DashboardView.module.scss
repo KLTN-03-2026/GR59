@@ -141,6 +141,7 @@ $slate-400: #94a3b8;
       width: 12px;
       height: 12px;
       border-radius: 4px;
+      background-color: var(--bg-color);
     }
 
     span {
@@ -217,6 +218,7 @@ $slate-400: #94a3b8;
         width: 10px;
         height: 10px;
         border-radius: 50%;
+        background-color: var(--bg-color);
       }
 
       span {
@@ -229,6 +231,7 @@ $slate-400: #94a3b8;
     .value {
       font-size: 0.9375rem;
       font-weight: 900;
+      color: var(--text-color);
     }
   }
 
@@ -241,6 +244,8 @@ $slate-400: #94a3b8;
     .progressFill {
       height: 100%;
       border-radius: 999px;
+      background-color: var(--bg-color);
+      width: var(--width, 0%);
     }
   }
 }
@@ -251,6 +256,7 @@ $slate-400: #94a3b8;
   background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
 }
 
 @keyframes shimmer {

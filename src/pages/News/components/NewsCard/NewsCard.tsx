@@ -13,7 +13,7 @@ const NewsCard: React.FC<Props> = ({ item }) => {
   return (
     <article className={styles.card} onClick={() => navigate(`/news/${item.id}`)} style={{ cursor: 'pointer' }} data-aos="fade-up">
       <div className={styles.thumb}>
-        <img src={item.image} alt={item.title} />
+        <img src={item.image ?? undefined} alt={item.title} />
         <span className={styles.badge}>{item.category}</span>
         <div className={styles.imageOverlay} />
       </div>

@@ -2,12 +2,14 @@ import React from 'react';
 import styles from './StatCard.module.scss';
 import * as Icons from "@phosphor-icons/react";
 
+export type IconName = keyof typeof Icons;
+
 interface StatCardProps {
   label: string;
   value: string;
   trend?: string;
   trendUp?: boolean;
-  icon: keyof typeof Icons;
+  icon: IconName;
   colorClass: string;
   footerText?: string;
 }
@@ -21,7 +23,7 @@ const StatCard: React.FC<StatCardProps> = ({
   colorClass, 
   footerText 
 }) => {
-  const IconComponent = Icons[icon] as any;
+  const IconComponent = Icons[icon] as React.ElementType;
 
   return (
     <div className={styles.statCard}>
@@ -40,7 +42,7 @@ const StatCard: React.FC<StatCardProps> = ({
           <span>{trend}</span>
         </div>
       )}
-      {footerText && <p className={styles.statLabel} style={{ marginTop: '8px' }}>{footerText}</p>}
+      {footerText && <p className={styles.footerLabel}>{footerText}</p>}
     </div>
   );
 };
