@@ -10,8 +10,13 @@ import UserReviews from "./components/UserReviews/UserReviews";
 import { getProfile, getSavedTrips } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
 import { anhmatdinh } from "../../assets/images/img";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../../redux/store";
+import { updateUserInfo } from "../../redux/slices/userSlice";
 
 const Profile: React.FC = () => {
+  const dispatch = useDispatch();
+  const { userInfo } = useSelector((state: RootState) => state.user);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [activeTab, setActiveTab] = useState("info");
@@ -69,39 +74,31 @@ const Profile: React.FC = () => {
           );
         }
 
-        // 2. Nếu API không trả về dữ liệu, dùng LocalStorage (Đã lưu từ bước Đăng nhập)
-        if (!profileData) {
-          const userStr = localStorage.getItem("user");
-          if (userStr) {
-            const userData = JSON.parse(userStr);
-            let formattedJoinDate = "Mới tham gia";
-            if (userData.createdAt) {
-              const date = new Date(userData.createdAt);
-              const month = (date.getMonth() + 1).toString().padStart(2, "0");
-              const year = date.getFullYear();
-              formattedJoinDate = `${month}/${year}`;
-            }
-
-            profileData = {
-              fullName: userData.fullName || userData.email || "Thành viên",
-              email: userData.email || "Không rõ email",
-              phone: userData.phone || "",
-              address: userData.address || "",
-              bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
-              avatar_url:
-                userData.avatar_url ||
-                userData.avatarUrl ||
-                anhmatdinh,
-              cover_url:
-                userData.cover_url ||
-                userData.cover ||
-                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
-              badge:
-                userData.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
-              joinDate: formattedJoinDate,
-              location: userData.address || "Việt Nam",
-            };
+        // 2. Nếu API không trả về dữ liệu, dùng dữ liệu từ Redux (đã lấy từ localStorage lúc init)
+        if (!profileData && userInfo) {
+          let formattedJoinDate = "Mới tham gia";
+          if (userInfo.createdAt) {
+            const date = new Date(userInfo.createdAt);
+            const month = (date.getMonth() + 1).toString().padStart(2, "0");
+            const year = date.getFullYear();
+            formattedJoinDate = `${month}/${year}`;
           }
+
+          profileData = {
+            fullName: userInfo.fullName || userInfo.email || "Thành viên",
+            email: userInfo.email || "Không rõ email",
+            phone: userInfo.phone || "",
+            address: userInfo.address || "",
+            bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
+            avatar_url: userInfo.avatar_url || userInfo.avatarUrl || anhmatdinh,
+            cover_url:
+              userInfo.cover_url ||
+              userInfo.cover ||
+              "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
+            badge: userInfo.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
+            joinDate: formattedJoinDate,
+            location: userInfo.address || "Việt Nam",
+          };
         }
 
         if (profileData) {
@@ -127,10 +124,12 @@ const Profile: React.FC = () => {
 
   const handleAvatarUpdate = (newUrl: string) => {
     setProfile((prev) => (prev ? { ...prev, avatar_url: newUrl } : null));
+    dispatch(updateUserInfo({ avatar_url: newUrl }));
   };
 
   const handleCoverUpdate = (newUrl: string) => {
     setProfile((prev) => (prev ? { ...prev, cover_url: newUrl } : null));
+    dispatch(updateUserInfo({ cover_url: newUrl }));
   };
 
   if (!profile)

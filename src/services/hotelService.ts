@@ -4,21 +4,62 @@ import type { BackendResponse } from "../types/backend";
 import { type Destination } from "./destinationService";
 import { type HighlightItem } from "./highlightService";
 
+export interface HotelService {
+  id: number;
+  type: "Khách sạn" | "Nhà hàng" | "Tour";
+  name: string;
+  location: string;
+  price: string;
+  unit: string;
+  rating: number;
+  image: string;
+  buttonText: string;
+}
+
+export interface ReviewItemData {
+  user: string;
+  avatar: string;
+  rating: number;
+  date: string;
+  tag: string;
+  content: string;
+  images?: string[];
+}
+
+export interface ReviewsData {
+  average: number;
+  total: number;
+  breakdown: { stars: number; percentage: number }[];
+  list: ReviewItemData[];
+}
+
+export interface WeatherData {
+  temp: number;
+  description: string;
+  icon: string;
+}
+
 export interface BackendHotel {
   id: number;
   name: string;
   description: string | null;
   location: string | null;
   rating: number;
-  reviewCount: number | null; // Đổi từ reviews
-  imageUrl: string | null; // Đổi từ image
+  reviewCount: number | null;
+  imageUrl: string | null;
   gallery?: string[] | null;
   previewVideo?: string | null;
-  category: string | null; // Đổi từ type
+  category: string | null;
   status: string | null;
   averagePrice: number | null;
   estimatedDuration: number | null;
   provinceId: number;
+  services?: HotelService[];
+  reviewsData?: ReviewsData;
+  weatherCurrent?: WeatherData;
+  travelTimeFromHanoi?: string;
+  coordinates?: { lat: number; lng: number };
+  mapScreenshot?: string;
 }
 
 /**
@@ -72,7 +113,7 @@ export interface PaginatedData<T> {
  * Mapper chuyển đổi dữ liệu từ BackendHotel sang định dạng Destination đầy đủ (dùng cho DestinationDetail)
  * Các trường thiếu sẽ được điền giá trị mặc định "Đang cập nhật"
  */
-export const mapBackendHotelToFullDestination = (hotel: BackendHotel | any): Destination => {
+export const mapBackendHotelToFullDestination = (hotel: BackendHotel | null): Destination => {
   if (!hotel) {
     return {
       id: "error",
@@ -121,7 +162,7 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel | any): Des
           "https://placehold.co/800x600?text=BE+dang+thieu+gallery+2",
           "https://placehold.co/800x600?text=BE+dang+thieu+gallery+3"
         ],
-    services: (hotel as any).services || [
+    services: hotel.services || [
       {
         id: 1,
         type: "Khách sạn",
@@ -134,7 +175,7 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel | any): Des
         buttonText: "Xem chi tiết",
       }
     ],
-    reviewsData: (hotel as any).reviewsData || {
+    reviewsData: hotel.reviewsData || {
       average: hotel.rating || 0,
       total: (hotel.reviewCount || 0),
       breakdown: [
@@ -148,26 +189,24 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel | any): Des
     },
     travelTips: DEFAULT_TRAVEL_TIPS,
 
-    weatherCurrent: (hotel as any).weatherCurrent || {
+    weatherCurrent: hotel.weatherCurrent || {
       temp: 0,
       description: "BE đang thiếu weather data",
       icon: "Cloud"
     },
-    travelTimeFromHanoi: (hotel as any).travelTimeFromHanoi || "BE đang thiếu travelTime",
-    coordinates: (hotel as any).coordinates || {
+    travelTimeFromHanoi: hotel.travelTimeFromHanoi || "BE đang thiếu travelTime",
+    coordinates: hotel.coordinates || {
       lat: 0,
       lng: 0
     },
-    mapScreenshot: (hotel as any).mapScreenshot || "https://placehold.co/600x400?text=BE+dang+thieu+mapScreenshot",
+    mapScreenshot: hotel.mapScreenshot || "https://placehold.co/600x400?text=BE+dang+thieu+mapScreenshot",
     quickInfo: [
       { id: 1, label: "Tình trạng", value: hotel.status === "MAINTENANCE" ? "Đang bảo trì" : "Đang hoạt động" },
       { id: 2, label: "Hạng sao", value: hotel.rating ? `${hotel.rating} sao` : "Đang cập nhật" },
       { id: 3, label: "Khu vực", value: 
-          hotel.provinceId === 1 ? "Thừa Thiên Huế" : 
-          hotel.provinceId === 2 ? "Đà Nẵng" : 
-          hotel.provinceId === 3 ? "Quảng Nam" :
-          hotel.provinceId === 4 ? "Hà Nội" : 
-          hotel.provinceId === 5 ? "TP. Hồ Chí Minh" : "Toàn quốc" 
+          hotel.provinceId === 4 ? "Thừa Thiên Huế" : 
+          hotel.provinceId === 3 ? "Đà Nẵng" : 
+          hotel.provinceId === 6 ? "Quảng Nam" : "Toàn quốc" 
       },
       { id: 4, label: "Thời lượng", value: hotel.estimatedDuration ? `${hotel.estimatedDuration} phút` : "Đang cập nhật" },
     ],
@@ -207,7 +246,7 @@ export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<Back
         content: mappedContent
       }
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>;
 };
 
 /**
@@ -226,7 +265,7 @@ export const getHotelDetail = async (id: string | number): Promise<AxiosResponse
       ...response.data,
       data: fullData
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<Destination>>;
 };
 /**
  * Tìm kiếm khách sạn theo từ khóa (Tên hoặc Vị trí)
@@ -260,5 +299,5 @@ export const getHotelsByKeyword = async (keyword: string, page = 0, size = 10): 
         content: mappedContent
       }
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>;
 };

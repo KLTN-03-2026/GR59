@@ -50,7 +50,7 @@ export const getReviews = async (): Promise<AxiosResponse<BackendResponse<Review
 export const createReview = async (
   reviewData: ReviewPayload,
   imageFiles?: File[]
-): Promise<AxiosResponse<BackendResponse<any>>> => {
+): Promise<AxiosResponse<BackendResponse<BackendReview>>> => {
   try {
     const formData = new FormData();
     
@@ -67,15 +67,15 @@ export const createReview = async (
       });
     }
 
-    const response = await instance.post<BackendResponse<any>>("/reviews", formData, {
+    const response = await instance.post<BackendResponse<BackendReview>>("/reviews", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
     return response;
-  } catch (error) {
-    console.warn("Lỗi khi gửi đánh giá:", error);
-    throw error;
+  } catch {
+    console.warn("Lỗi khi gửi đánh giá");
+    throw new Error("Lỗi khi gửi đánh giá");
   }
 };
 
@@ -83,7 +83,7 @@ export const updateReview = async (
   id: number | string,
   reviewData: Partial<ReviewPayload>,
   imageFiles?: File[]
-): Promise<AxiosResponse<BackendResponse<any>>> => {
+): Promise<AxiosResponse<BackendResponse<BackendReview>>> => {
   try {
     const formData = new FormData();
     const reviewBlob = new Blob([JSON.stringify(reviewData)], {
@@ -97,24 +97,24 @@ export const updateReview = async (
       });
     }
 
-    const response = await instance.put<BackendResponse<any>>(`/reviews/${id}`, formData, {
+    const response = await instance.put<BackendResponse<BackendReview>>(`/reviews/${id}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response;
-  } catch (error) {
-    console.error("Lỗi khi cập nhật đánh giá:", error);
-    throw error;
+  } catch {
+    console.error("Lỗi khi cập nhật đánh giá");
+    throw new Error("Lỗi khi cập nhật đánh giá");
   }
 };
 
-export const getUserReviews = async (userId?: number): Promise<AxiosResponse<BackendResponse<any[]>>> => {
+export const getUserReviews = async (userId?: number): Promise<AxiosResponse<BackendResponse<BackendReview[]>>> => {
   try {
     const url = userId ? `/reviews/user/${userId}` : "/reviews/user";
-    const response = await instance.get<BackendResponse<any[]>>(url);
+    const response = await instance.get<BackendResponse<BackendReview[]>>(url);
     return response;
-  } catch (error) {
-    console.warn("Lấy review user thất bại:", error);
-    throw error;
+  } catch {
+    console.warn("Lấy review user thất bại");
+    throw new Error("Lấy review user thất bại");
   }
 };
 

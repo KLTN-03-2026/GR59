@@ -3,11 +3,6 @@ import { Link } from "react-router-dom";
 import {
   CaretLeft,
   CaretRight,
-  MapPin,
-  Star,
-  BedIcon,
-  ForkKnife,
-  
 } from "@phosphor-icons/react";
 import styles from "./HighlightLocations.module.scss";
 import AnimatedButton from "../../../../components/Ui/AnimatedButton/AnimatedButton";
@@ -15,8 +10,8 @@ import {
   getFeaturedAttractions,
   type HighlightItem,
 } from "../../../../services/highlightService";
-
 import SkeletonCard from "../../../../components/Ui/SkeletonCard/SkeletonCard";
+import LocationCard from "../../../../components/Ui/LocationCard/LocationCard";
 
 // Thêm Interface cho Props
 interface HighlightLocationsProps {
@@ -130,12 +125,6 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
     }
   };
 
-  const renderIcon = (type: string) => {
-    if (type === "bed") return <BedIcon size={16} weight="fill" />;
-    if (type === "food") return <ForkKnife size={16} weight="fill" />;
-    return <MapPin size={16} weight="fill" />;
-  };
-
   return (
     <section className={styles.locations} ref={sectionRef}>
 
@@ -189,65 +178,7 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
               ))
             ) : items && items.length > 0 ? (
               items.map((item, idx) => (
-                <Link
-                  key={`${item.type}-${item.id}`}
-                  to={
-                    item.type === 'bed' 
-                      ? `/hotel/${item.id}` 
-                      : item.type === 'food' 
-                        ? `/restaurant/${item.id}` 
-                        : `/attraction/${item.id}`
-                  }
-                  className={styles.cardWrapperLink}
-                  data-aos="fade-up"
-                  data-aos-delay={idx * 100}
-                >
-                  <div className={styles.locationCard}>
-                    <div className={styles.imageContainer}>
-                      <img src={item.image} alt={item.name} loading="lazy" />
-                      <div className={styles.imageOverlay}></div>
-                      <div className={styles.statusBadge}>
-                        <span className={`${styles.ribbon} ${styles[item.status?.toLowerCase() || 'active']}`}>
-                          {item.status === 'ACTIVE' || item.status === 'OPEN' ? 'Đang mở cửa' : 
-                           item.status === 'MAINTENANCE' ? 'Đang bảo trì' : 'Đã đóng cửa'}
-                        </span>
-                      </div>
-                      {item.isHot && (
-                        <div className={styles.hotTag}>
-                          HOT
-                        </div>
-                      )}
-                      {item.price > 0 && (
-                        <div className={styles.floatingPrice}>
-                          {item.price.toLocaleString("vi-VN")}đ
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className={styles.cardInfo}>
-                      <div className={styles.infoHead}>
-                        <div className={styles.typeBadge}>
-                          {renderIcon(item.type)} {item.type === 'bed' ? 'Khách sạn' : item.type === 'food' ? 'Ẩm thực' : 'Địa điểm'}
-                        </div>
-                        <div className={styles.ratingBadge}>
-                          <Star size={14} weight="fill" /> {item.rating}
-                        </div>
-                      </div>
-                      
-                      <h3>{item.name}</h3>
-                      <p>{item.desc}</p>
-                      
-                      <div className={styles.infoFooter}>
-                        <div className={styles.locationName}>
-                          <MapPin size={14} weight="fill" /> {item.location}
-                        </div>
-                        <div className={styles.viewDetail}>
-                          <AnimatedButton text="XEM THÊM" size="mini" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <LocationCard key={`${item.type}-${item.id}`} item={item} idx={idx} />
               ))
             ) : (
               <div style={{ padding: "40px", textAlign: "center", width: "100%" }}>

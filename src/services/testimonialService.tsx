@@ -105,5 +105,5 @@ export const getTestimonials = async (page = 0, size = 6): Promise<AxiosResponse
         content: mappedContent
       }
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<PaginatedData<TestimonialItem>>>;
 };

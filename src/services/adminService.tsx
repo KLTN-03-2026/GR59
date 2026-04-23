@@ -106,9 +106,14 @@ export interface RecentActivity {
 export interface PopularLocation {
   id: string;
   name: string;
-  value: string;
-  pct: number;
   color: string;
+}
+
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
 }
 
 export interface NewsItem {
@@ -168,12 +173,12 @@ export const fetchPopularLocations = (): Promise<
 
 // Hotels
 export const fetchHotelsList = (page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: Hotel[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Hotel[]; page: any }>>(`/hotels?page=${page}&size=${size}`);
+  AxiosResponse<BackendResponse<{ content: Hotel[]; page: PageInfo }>>
+> => instance.get<BackendResponse<{ content: Hotel[]; page: PageInfo }>>(`/hotels?page=${page}&size=${size}`);
 
 export const searchHotelsByKeyword = (keyword: string, page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: Hotel[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Hotel[]; page: any }>>(`/hotels/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  AxiosResponse<BackendResponse<{ content: Hotel[]; page: PageInfo }>>
+> => instance.get<BackendResponse<{ content: Hotel[]; page: PageInfo }>>(`/hotels/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
 
 export const removeHotel = (
   id: string | number,
@@ -202,12 +207,12 @@ export const fetchHotelDetail = (
 
 // Restaurants
 export const fetchRestaurantsList = (page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: Restaurant[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Restaurant[]; page: any }>>(`/restaurants?page=${page}&size=${size}`);
+  AxiosResponse<BackendResponse<{ content: Restaurant[]; page: PageInfo }>>
+> => instance.get<BackendResponse<{ content: Restaurant[]; page: PageInfo }>>(`/restaurants?page=${page}&size=${size}`);
 
 export const searchRestaurantsByKeyword = (keyword: string, page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: Restaurant[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Restaurant[]; page: any }>>(`/restaurants/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  AxiosResponse<BackendResponse<{ content: Restaurant[]; page: PageInfo }>>
+> => instance.get<BackendResponse<{ content: Restaurant[]; page: PageInfo }>>(`/restaurants/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
 
 export const createRestaurant = (
   formData: FormData,
@@ -236,10 +241,10 @@ export const fetchRestaurantDetail = (
 
 // Users
 export const fetchUsersList = (page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: DbUser[]; page: any }>>
+  AxiosResponse<BackendResponse<{ content: DbUser[]; page: PageInfo }>>
 > => {
   const token = localStorage.getItem("accessToken");
-  return instance.get<BackendResponse<{ content: DbUser[]; page: any }>>(`/admin/users?page=${page}&size=${size}`, {
+  return instance.get<BackendResponse<{ content: DbUser[]; page: PageInfo }>>(`/admin/users?page=${page}&size=${size}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -247,10 +252,10 @@ export const fetchUsersList = (page = 0, size = 10): Promise<
 };
 
 export const searchUsersByKeyword = (keyword: string, page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: DbUser[]; page: any }>>
+  AxiosResponse<BackendResponse<{ content: DbUser[]; page: PageInfo }>>
 > => {
   const token = localStorage.getItem("accessToken");
-  return instance.get<BackendResponse<{ content: DbUser[]; page: any }>>(
+  return instance.get<BackendResponse<{ content: DbUser[]; page: PageInfo }>>(
     `/admin/users/search?keyword=${keyword}&page=${page}&size=${size}`, 
     {
       headers: {
@@ -261,10 +266,10 @@ export const searchUsersByKeyword = (keyword: string, page = 0, size = 10): Prom
 };
 
 export const fetchUsersByStatus = (isActive: boolean, page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: DbUser[]; page: any }>>
+  AxiosResponse<BackendResponse<{ content: DbUser[]; page: PageInfo }>>
 > => {
   const token = localStorage.getItem("accessToken");
-  return instance.get<BackendResponse<{ content: DbUser[]; page: any }>>(
+  return instance.get<BackendResponse<{ content: DbUser[]; page: PageInfo }>>(
     `/admin/users/filter/status?isActive=${isActive}&page=${page}&size=${size}`,
     {
       headers: {
@@ -286,7 +291,7 @@ export const fetchUserDetail = (
 };
 
 export const createUser = (
-  data: any,
+  data: Partial<DbUser>,
 ): Promise<AxiosResponse<BackendResponse<DbUser>>> => {
   const token = localStorage.getItem("accessToken");
   return instance.post<BackendResponse<DbUser>>("/admin/users", data, {
@@ -298,7 +303,7 @@ export const createUser = (
 
 export const updateUser = (
   id: string | number,
-  data: any,
+  data: Partial<DbUser>,
 ): Promise<AxiosResponse<BackendResponse<DbUser>>> => {
   const token = localStorage.getItem("accessToken");
   return instance.put<BackendResponse<DbUser>>(`/admin/users/${id}`, data, {
@@ -308,14 +313,14 @@ export const updateUser = (
   });
 };
 
-export const lockUser = (id: string | number): Promise<AxiosResponse<BackendResponse<any>>> => {
+export const lockUser = (id: string | number): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   const token = localStorage.getItem("accessToken");
   return instance.put(`/admin/users/${id}/lock`, {}, {
     headers: { Authorization: `Bearer ${token}` }
   });
 };
 
-export const unlockUser = (id: string | number): Promise<AxiosResponse<BackendResponse<any>>> => {
+export const unlockUser = (id: string | number): Promise<AxiosResponse<BackendResponse<unknown>>> => {
   const token = localStorage.getItem("accessToken");
   return instance.put(`/admin/users/${id}/unlock`, {}, {
     headers: { Authorization: `Bearer ${token}` }
@@ -335,12 +340,12 @@ export const removeUser = (
 
 // Attractions (Địa điểm)
 export const fetchAttractionsList = (page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: Destination[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Destination[]; page: any }>>(`/attractions?page=${page}&size=${size}`);
+  AxiosResponse<BackendResponse<{ content: Destination[]; page: PageInfo }>>
+> => instance.get<BackendResponse<{ content: Destination[]; page: PageInfo }>>(`/attractions?page=${page}&size=${size}`);
 
 export const searchAttractionsByKeyword = (keyword: string, page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: Destination[]; page: any }>>
-> => instance.get<BackendResponse<{ content: Destination[]; page: any }>>(`/attractions/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  AxiosResponse<BackendResponse<{ content: Destination[]; page: PageInfo }>>
+> => instance.get<BackendResponse<{ content: Destination[]; page: PageInfo }>>(`/attractions/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
 
 export const createAttraction = (
   formData: FormData,
@@ -371,10 +376,10 @@ export const fetchAttractionDetail = (
 
 // News / Posts
 export const fetchNewsList = (page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: NewsItem[]; page: any }>>
+  AxiosResponse<BackendResponse<{ content: NewsItem[]; page: PageInfo }>>
 > => {
   const token = localStorage.getItem("accessToken");
-  return instance.get<BackendResponse<{ content: NewsItem[]; page: any }>>(`/news/admin/all?page=${page}&size=${size}`, {
+  return instance.get<BackendResponse<{ content: NewsItem[]; page: PageInfo }>>(`/news/admin/all?page=${page}&size=${size}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 };
@@ -420,10 +425,10 @@ export const toggleNewsFeatured = (
 
 // Reviews
 export const fetchAdminReviewsList = (page = 0, size = 10): Promise<
-  AxiosResponse<BackendResponse<{ content: AdminReview[]; page: any }>>
+  AxiosResponse<BackendResponse<{ content: AdminReview[]; page: PageInfo }>>
 > => {
   const token = localStorage.getItem("accessToken");
-  return instance.get<BackendResponse<{ content: AdminReview[]; page: any }>>(
+  return instance.get<BackendResponse<{ content: AdminReview[]; page: PageInfo }>>(
     `/admin/reviews?page=${page}&size=${size}`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -468,9 +473,9 @@ export const fetchReviewsByTarget = (
   id: string | number,
   page = 0,
   size = 10
-): Promise<AxiosResponse<BackendResponse<{ content: AdminReview[]; page: any }>>> => {
+): Promise<AxiosResponse<BackendResponse<{ content: AdminReview[]; page: PageInfo }>>> => {
   const token = localStorage.getItem("accessToken");
-  return instance.get<BackendResponse<{ content: AdminReview[]; page: any }>>(
+  return instance.get<BackendResponse<{ content: AdminReview[]; page: PageInfo }>>(
     `/admin/reviews/${type}/${id}?page=${page}&size=${size}`,
     { headers: { Authorization: `Bearer ${token}` } }
   );

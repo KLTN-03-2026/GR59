@@ -34,11 +34,19 @@ export const postTravelPlan = async (
   };
   try {
     return await instance.post<BackendResponse<TravelPlan>>("/travel-plans", payload);
-  } catch (error) {
+  } catch {
     console.warn("Fake API fallback cho postTravelPlan");
     return {
-      data: { status: 201, message: "Lên lịch trình giả lập thành công", DT: { ...payload, id: Date.now() }, data: { ...payload, id: Date.now() } },
-      status: 201, statusText: "Created", headers: {}, config: {} as any
+      data: { 
+        status: 201, 
+        message: "Lên lịch trình giả lập thành công", 
+        DT: { ...payload, id: Date.now() } as TravelPlan, 
+        data: { ...payload, id: Date.now() } as TravelPlan 
+      },
+      status: 201, 
+      statusText: "Created", 
+      headers: {}, 
+      config: {} as import("axios").InternalAxiosRequestConfig
     };
   }
 };
@@ -49,11 +57,11 @@ export const getTravelPlans = async (): Promise<
 > => {
   try {
     return await instance.get<BackendResponse<TravelPlan[]>>("/travel-plans");
-  } catch (error) {
+  } catch {
     console.warn("Fake API fallback cho getTravelPlans");
     return {
       data: { status: 200, message: "Mock data", DT: [], data: [] },
-      status: 200, statusText: "OK", headers: {}, config: {} as any
+      status: 200, statusText: "OK", headers: {}, config: {} as import("axios").InternalAxiosRequestConfig
     };
   }
 };

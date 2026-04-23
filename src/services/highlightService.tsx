@@ -22,7 +22,6 @@ export interface HighlightItem {
   status?: string; // Trạng thái (ACTIVE, MAINTENANCE, etc.)
   uniqueId?: string; // Khóa duy nhất gộp từ type + id
 }
-
 export interface PaginatedData<T> {
   content: T[];
   page: {
@@ -33,23 +32,40 @@ export interface PaginatedData<T> {
   };
 }
 
+export interface BackendItem {
+  id: number | string;
+  name?: string;
+  provinceId?: number;
+  rating?: number;
+  reviewCount?: number;
+  imageUrl?: string;
+  image?: string;
+  description?: string;
+  category?: string;
+  cuisine?: string;
+  type?: string;
+  distance?: string | number;
+  previewVideo?: string;
+  averagePrice?: number;
+  status?: string;
+  gallery?: string[];
+}
+
 // Lập mapper chung cho cấu trúc dữ liệu của Attractions/Restaurants
-const mapBackendToHighlightItem = (item: any, type: "pin" | "food"): HighlightItem => ({
+const mapBackendToHighlightItem = (item: BackendItem, type: "pin" | "food"): HighlightItem => ({
   id: item.id.toString(),
   name: item.name || "BE đang thiếu name",
   location: 
-    item.provinceId === 1 ? "Thừa Thiên Huế" : 
-    item.provinceId === 2 ? "Đà Nẵng" : 
-    item.provinceId === 3 ? "Quảng Nam" :
-    item.provinceId === 4 ? "Hà Nội" : 
-    item.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${item.provinceId} (Đang cập nhật)`,
+    item.provinceId === 4 ? "Thừa Thiên Huế" : 
+    item.provinceId === 3 ? "Đà Nẵng" : 
+    item.provinceId === 6 ? "Quảng Nam" : `Khu vực ${item.provinceId} (Đang cập nhật)`,
   rating: item.rating || 0,
-  reviews: item.reviewCount?.toString() || (item as any).reviews?.toString() || "0 (BE đang thiếu reviews)",
+  reviews: item.reviewCount?.toString() || (item as BackendItem).reviewCount?.toString() || "0",
   image: item.imageUrl || item.image || "https://placehold.co/600x400?text=BE+dang+thieu+imageUrl",
   desc: item.description || `BE đang thiếu trường description cho ${item.name}`,
   type: type,
   category: item.category || item.cuisine || item.type || "Địa điểm",
-  distance: item.distance || (item as any).distance,
+  distance: item.distance?.toString() || (item as BackendItem).distance?.toString(),
   previewVideo: item.previewVideo || undefined,
   price: item.averagePrice || 0,
   provinceId: item.provinceId || 0,
@@ -59,10 +75,10 @@ const mapBackendToHighlightItem = (item: any, type: "pin" | "food"): HighlightIt
 /**
  * Lấy danh sách địa điểm tham quan từ API thật
  */
-export const getAttractions = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<any>>> => {
-  const response = await instance.get<BackendResponse<any>>(`/attractions?page=${page}&size=${size}`);
+export const getAttractions = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
+  const response = await instance.get<BackendResponse<PaginatedData<BackendItem>>>(`/attractions?page=${page}&size=${size}`);
   
-  const mappedContent = (response.data.data?.content || []).map((item: any) => mapBackendToHighlightItem(item, "pin"));
+  const mappedContent = (response.data.data?.content || []).map((item: BackendItem) => mapBackendToHighlightItem(item, "pin"));
 
   return {
     ...response,
@@ -71,9 +87,9 @@ export const getAttractions = async (page = 0, size = 10): Promise<AxiosResponse
       data: {
         ...response.data.data,
         content: mappedContent
-      }
+      } as PaginatedData<HighlightItem>
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>;
 };
 
 /**
@@ -87,7 +103,7 @@ export const getHighlightLocations = async (size = 10): Promise<AxiosResponse<Ba
       ...response.data,
       data: response.data.data?.content || []
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<HighlightItem[]>>;
 };
 
 /**
@@ -96,23 +112,21 @@ export const getHighlightLocations = async (size = 10): Promise<AxiosResponse<Ba
 export const getHighlightRestaurants = async (size = 10): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
   const response = await getRestaurants(0, size);
   
-  const mappedContent = (response.data.data?.content || []).map((item: any) => mapBackendToHighlightItem(item, "food"));
-
   return {
     ...response,
     data: {
       ...response.data,
-      data: mappedContent
+      data: response.data.data?.content || []
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<HighlightItem[]>>;
 };
 
 /**
  * Lấy danh sách địa điểm nổi bật (API mới đã được BE tối ưu)
  */
 export const getFeaturedAttractions = async (limit = 5): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
-  const response = await instance.get<BackendResponse<any[]>>(`/attractions/featured?limit=${limit}`);
-  const mappedData = (response.data.data || []).map((item: any) => mapBackendToHighlightItem(item, "pin"));
+  const response = await instance.get<BackendResponse<BackendItem[]>>(`/attractions/featured?limit=${limit}`);
+  const mappedData = (response.data.data || []).map((item: BackendItem) => mapBackendToHighlightItem(item, "pin"));
 
   return {
     ...response,
@@ -120,15 +134,15 @@ export const getFeaturedAttractions = async (limit = 5): Promise<AxiosResponse<B
       ...response.data,
       data: mappedData
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<HighlightItem[]>>;
 };
 
 /**
  * Tìm kiếm địa điểm theo từ khóa (Tên hoặc Vị trí)
  */
-export const getHighlightAttractionsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<any>>> => {
-  const response = await instance.get<BackendResponse<any>>(`/attractions/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
-  const mappedContent = (response.data.data?.content || []).map((item: any) => mapBackendToHighlightItem(item, "pin"));
+export const getHighlightAttractionsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
+  const response = await instance.get<BackendResponse<PaginatedData<BackendItem>>>(`/attractions/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  const mappedContent = (response.data.data?.content || []).map((item: BackendItem) => mapBackendToHighlightItem(item, "pin"));
 
   return {
     ...response,
@@ -137,17 +151,17 @@ export const getHighlightAttractionsByKeyword = async (keyword: string, page = 0
       data: {
         ...response.data.data,
         content: mappedContent
-      }
+      } as PaginatedData<HighlightItem>
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>;
 };
 
 /**
  * Tìm kiếm nhà hàng theo từ khóa (Tên hoặc Vị trí)
  */
-export const getHighlightRestaurantsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<any>>> => {
-  const response = await instance.get<BackendResponse<any>>(`/restaurants/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
-  const mappedContent = (response.data.data?.content || []).map((item: any) => mapBackendToHighlightItem(item, "food"));
+export const getHighlightRestaurantsByKeyword = async (keyword: string, page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
+  const response = await instance.get<BackendResponse<PaginatedData<BackendItem>>>(`/restaurants/search/by-keyword?keyword=${keyword}&page=${page}&size=${size}`);
+  const mappedContent = (response.data.data?.content || []).map((item: BackendItem) => mapBackendToHighlightItem(item, "food"));
 
   return {
     ...response,
@@ -156,7 +170,7 @@ export const getHighlightRestaurantsByKeyword = async (keyword: string, page = 0
       data: {
         ...response.data.data,
         content: mappedContent
-      }
+      } as PaginatedData<HighlightItem>
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>;
 };

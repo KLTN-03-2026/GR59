@@ -90,7 +90,7 @@ export interface BackendAttraction {
 /**
  * Mapper chuyển đổi dữ liệu từ BackendAttraction sang định dạng Destination hiển thị
  */
-export const mapBackendAttractionToFullDestination = (att: BackendAttraction | any): Destination => {
+export const mapBackendAttractionToFullDestination = (att: BackendAttraction | null | undefined): Destination => {
   if (!att) {
     return {
       id: "error",
@@ -121,11 +121,9 @@ export const mapBackendAttractionToFullDestination = (att: BackendAttraction | a
     name: att.name || "Địa điểm chưa cập nhật tên",
     location: 
       att.location || (
-        att.provinceId === 1 ? "Thừa Thiên Huế" : 
-        att.provinceId === 2 ? "Đà Nẵng" : 
-        att.provinceId === 3 ? "Quảng Nam" :
-        att.provinceId === 4 ? "Hà Nội" : 
-        att.provinceId === 5 ? "TP. Hồ Chí Minh" : "Toàn quốc"
+        att.provinceId === 4 ? "Thừa Thiên Huế" : 
+        att.provinceId === 3 ? "Đà Nẵng" : 
+        att.provinceId === 6 ? "Quảng Nam" : "Toàn quốc"
       ),
     heroImage: att.imageUrl || "https://placehold.co/1920x1080?text=Hình+ảnh+đang+cập+nhật",
     rating: (att.rating || 0).toString(),
@@ -187,5 +185,5 @@ export const getAttractionDetail = async (id: string | number): Promise<AxiosRes
       ...response.data,
       data: fullData
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<Destination>>;
 };

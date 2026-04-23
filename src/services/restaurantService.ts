@@ -50,11 +50,9 @@ export const getRestaurants = async (page = 0, size = 10): Promise<AxiosResponse
     id: rest.id.toString(),
     name: rest.name || "Đang cập nhật",
     location: 
-      rest.provinceId === 1 ? "Thừa Thiên Huế" : 
-      rest.provinceId === 2 ? "Đà Nẵng" : 
-      rest.provinceId === 3 ? "Quảng Nam" :
-      rest.provinceId === 4 ? "Hà Nội" : 
-      rest.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${rest.provinceId} (Đang cập nhật)`,
+      rest.provinceId === 4 ? "Thừa Thiên Huế" : 
+      rest.provinceId === 3 ? "Đà Nẵng" : 
+      rest.provinceId === 6 ? "Quảng Nam" : `Khu vực ${rest.provinceId} (Đang cập nhật)`,
     rating: rest.rating || 0,
     reviews: rest.reviewCount?.toString() || "0",
     image: rest.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",
@@ -76,13 +74,13 @@ export const getRestaurants = async (page = 0, size = 10): Promise<AxiosResponse
         content: mappedContent
       }
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>;
 };
 
 /**
  * Mapper chuyển đổi dữ liệu từ BackendRestaurant sang định dạng Destination (dùng cho DestinationDetail)
  */
-export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant | any): Destination => {
+export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant | null | undefined): Destination => {
   if (!rest) {
     return {
       id: "error",
@@ -115,11 +113,9 @@ export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant | 
     name: rest.name || "Nhà hàng chưa cập nhật tên",
     location: 
       rest.location || (
-        rest.provinceId === 1 ? "Thừa Thiên Huế" : 
-        rest.provinceId === 2 ? "Đà Nẵng" : 
-        rest.provinceId === 3 ? "Quảng Nam" :
-        rest.provinceId === 4 ? "Hà Nội" : 
-        rest.provinceId === 5 ? "TP. Hồ Chí Minh" : "Toàn quốc"
+        rest.provinceId === 4 ? "Thừa Thiên Huế" : 
+        rest.provinceId === 3 ? "Đà Nẵng" : 
+        rest.provinceId === 6 ? "Quảng Nam" : "Toàn quốc"
       ),
     heroImage: rest.imageUrl || "https://placehold.co/1920x1080?text=Hình+ảnh+đang+cập+nhật",
     rating: (rest.rating || 0).toString(),
@@ -181,5 +177,5 @@ export const getRestaurantDetail = async (id: string | number): Promise<AxiosRes
       ...response.data,
       data: fullData
     }
-  } as any;
+  } as AxiosResponse<BackendResponse<Destination>>;
 };

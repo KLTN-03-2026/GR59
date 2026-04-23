@@ -45,16 +45,16 @@ export const getSampleItineraryById = async (
   return await instance.get<BackendResponse<ItineraryType>>(`/travel/itineraries/demo/${id}`);
 };
 
-export const saveTravelPlan = async (planData: any): Promise<
-  AxiosResponse<BackendResponse<any>>
+export const saveTravelPlan = async (planData: Partial<ItineraryType>): Promise<
+  AxiosResponse<BackendResponse<ItineraryType>>
 > => {
-  return await instance.post<BackendResponse<any>>("/travel-plans", planData);
+  return await instance.post<BackendResponse<ItineraryType>>("/travel-plans", planData);
 };
 
-export const updateTravelPlan = async (id: string | number, points: any[]): Promise<
-  AxiosResponse<BackendResponse<any>>
+export const updateTravelPlan = async (id: string | number, points: ItineraryActivity[]): Promise<
+  AxiosResponse<BackendResponse<ItineraryType>>
 > => {
-  return await instance.put<BackendResponse<any>>(`/travel-plans/${id}`, { points });
+  return await instance.put<BackendResponse<ItineraryType>>(`/travel-plans/${id}`, { points });
 };
 
 /**
@@ -75,7 +75,7 @@ export const getTravelMetrics = async (p1: {lat: number, lng: number}, p2: {lat:
       };
     }
     throw new Error("No route found");
-  } catch (error) {
+  } catch {
     // Fallback: Haversine distance
     const R = 6371; // Earth radius in km
     const dLat = (p2.lat - p1.lat) * Math.PI / 180;
@@ -93,14 +93,14 @@ export const getTravelMetrics = async (p1: {lat: number, lng: number}, p2: {lat:
   }
 };
 
-export const getAISuggestedRoute = async (planData: any): Promise<
-  AxiosResponse<BackendResponse<any[]>>
+export const getAISuggestedRoute = async (planData: Partial<ItineraryType>): Promise<
+  AxiosResponse<BackendResponse<ItineraryType[]>>
 > => {
-  return await instance.post<BackendResponse<any[]>>("/travel-plans-ai", planData);
+  return await instance.post<BackendResponse<ItineraryType[]>>("/travel-plans-ai", planData);
 };
 
 export const getTravelPlans = async (): Promise<
-  AxiosResponse<BackendResponse<any[]>>
+  AxiosResponse<BackendResponse<ItineraryType[]>>
 > => {
-  return await instance.get<BackendResponse<any[]>>("/travel-plans");
+  return await instance.get<BackendResponse<ItineraryType[]>>("/travel-plans");
 };

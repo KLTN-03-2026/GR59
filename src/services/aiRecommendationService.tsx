@@ -69,11 +69,11 @@ const MOCK_RECOMMENDATIONS: AIRecommendation[] = [
 export const getAIRecommendations = async (): Promise<AxiosResponse<BackendResponse<AIRecommendation[]>>> => {
   try {
     return await instance.get<BackendResponse<AIRecommendation[]>>("/aiRecommendations");
-  } catch (error) {
+  } catch {
     console.warn("Fake API fallback cho AI Recommendations");
     return {
       data: { status: 200, message: "Mock data", DT: MOCK_RECOMMENDATIONS, data: MOCK_RECOMMENDATIONS },
-      status: 200, statusText: "OK", headers: {}, config: {} as any
+      status: 200, statusText: "OK", headers: {}, config: {} as import("axios").InternalAxiosRequestConfig
     };
   }
 };
