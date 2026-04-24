@@ -205,7 +205,7 @@ const Profile: React.FC = () => {
             data-aos="fade-left"
             data-aos-delay="600"
           >
-            <ProfileSidebar savedTrips={savedTrips} />
+            <ProfileSidebar />
           </aside>
         </div>
       </div>

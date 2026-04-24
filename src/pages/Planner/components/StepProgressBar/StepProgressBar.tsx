@@ -7,9 +7,8 @@ interface Props {
 
 const StepProgressBar: React.FC<Props> = ({ currentStep }) => {
   const steps = [
-    { id: 1, label: "Cơ bản" },
-    { id: 2, label: "Sở thích" },
-    { id: 3, label: "Hoàn tất" },
+    { id: 1, label: "Thông tin" },
+    { id: 2, label: "Hoàn tất" },
   ];
 
   return (
