@@ -216,14 +216,19 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel | null): De
 /**
  * Lấy danh sách khách sạn từ API thật và thực hiện mapping sang HighlightItem
  */
-export const getHotels = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
-  const response = await instance.get<BackendResponse<PaginatedData<BackendHotel>>>(`/hotels?page=${page}&size=${size}`);
+export const getHotels = async (page = 0, size = 10, provinceId?: number | string): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
+  let url = `/hotels?page=${page}&size=${size}`;
+  if (provinceId && provinceId !== "all") {
+    url += `&provinceId=${provinceId}`;
+  }
+  
+  const response = await instance.get<BackendResponse<PaginatedData<BackendHotel>>>(url);
   const data = response.data.data;
 
   // Thực hiện mapping dữ liệu ngay tại service để FE dễ sử dụng
   const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
     id: hotel.id.toString(),
-    name: hotel.name || "Đang cập nhật",
+    name: hotel.name || "",
     location: hotel.location || "Đang cập nhật",
     rating: hotel.rating || 0,
     reviews: hotel.reviewCount?.toString() || "0",

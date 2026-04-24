@@ -52,13 +52,18 @@ export interface BackendItem {
 }
 
 // Lập mapper chung cho cấu trúc dữ liệu của Attractions/Restaurants
-const mapBackendToHighlightItem = (item: BackendItem, type: "pin" | "food"): HighlightItem => ({
-  id: item.id.toString(),
-  name: item.name || "BE đang thiếu name",
-  location: 
+const mapBackendToHighlightItem = (item: BackendItem, type: "pin" | "food"): HighlightItem => {
+  const finalName = item.name || "";
+
+  return {
+    id: item.id.toString(),
+    name: finalName,
+    location: 
     item.provinceId === 4 ? "Thừa Thiên Huế" : 
     item.provinceId === 3 ? "Đà Nẵng" : 
-    item.provinceId === 6 ? "Quảng Nam" : `Khu vực ${item.provinceId} (Đang cập nhật)`,
+    item.provinceId === 6 ? "Quảng Nam" : 
+    item.provinceId === 1 ? "Hà Nội" : 
+    item.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${item.provinceId} (Đang cập nhật)`,
   rating: item.rating || 0,
   reviews: item.reviewCount?.toString() || (item as BackendItem).reviewCount?.toString() || "0",
   image: item.imageUrl || item.image || "https://placehold.co/600x400?text=BE+dang+thieu+imageUrl",
@@ -70,13 +75,19 @@ const mapBackendToHighlightItem = (item: BackendItem, type: "pin" | "food"): Hig
   price: item.averagePrice || 0,
   provinceId: item.provinceId || 0,
   status: item.status || "ACTIVE"
-});
+  };
+};
 
 /**
- * Lấy danh sách địa điểm tham quan từ API thật
+ * Lấy danh sách địa điểm tham quan từ API thật (Hỗ trợ lọc theo Tỉnh thành)
  */
-export const getAttractions = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
-  const response = await instance.get<BackendResponse<PaginatedData<BackendItem>>>(`/attractions?page=${page}&size=${size}`);
+export const getAttractions = async (page = 0, size = 10, provinceId?: number | string): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
+  let url = `/attractions?page=${page}&size=${size}`;
+  if (provinceId && provinceId !== "all") {
+    url += `&provinceId=${provinceId}`;
+  }
+  
+  const response = await instance.get<BackendResponse<PaginatedData<BackendItem>>>(url);
   
   const mappedContent = (response.data.data?.content || []).map((item: BackendItem) => mapBackendToHighlightItem(item, "pin"));
 
@@ -95,8 +106,8 @@ export const getAttractions = async (page = 0, size = 10): Promise<AxiosResponse
 /**
  * Lấy danh sách địa điểm tham quan nổi bật (cho trang chủ/explore)
  */
-export const getHighlightLocations = async (size = 10): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
-  const response = await getAttractions(0, size);
+export const getHighlightLocations = async (size = 10, provinceId?: number | string): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
+  const response = await getAttractions(0, size, provinceId);
   return {
     ...response,
     data: {
@@ -109,8 +120,8 @@ export const getHighlightLocations = async (size = 10): Promise<AxiosResponse<Ba
 /**
  * Lấy danh sách nhà hàng nổi bật (cho trang chủ/explore)
  */
-export const getHighlightRestaurants = async (size = 10): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
-  const response = await getRestaurants(0, size);
+export const getHighlightRestaurants = async (size = 10, provinceId?: number | string): Promise<AxiosResponse<BackendResponse<HighlightItem[]>>> => {
+  const response = await getRestaurants(0, size, provinceId);
   
   return {
     ...response,

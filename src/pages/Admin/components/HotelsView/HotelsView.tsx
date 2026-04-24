@@ -26,6 +26,7 @@ import { ErrorBanner, LoadingRows } from "../_shared/AdminFeedback";
 import AddEditModal from "../_shared/AddEditModal";
 import DetailModal from "../_shared/DetailModal";
 import { toast } from "react-toastify";
+import AddressDisplay from '../../../../components/Ui/AddressDisplay/AddressDisplay';
 
 const PAGE_SIZE = 10;
 
@@ -357,7 +358,7 @@ const HotelsView: React.FC = () => {
                     <td>
                       <div className={styles.locationCol}>
                         <MapPin size={16} color="#94a3b8" />
-                        <span>{hotel.location}</span>
+                        <span><AddressDisplay address={hotel.location} /></span>
                       </div>
                     </td>
                     <td>

@@ -33,6 +33,7 @@ import {
 } from "@phosphor-icons/react";
 import CustomSelect from "./CustomSelect";
 import { toast } from "react-toastify";
+import { geocode } from "../../../../utils/mapUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import type {
   Hotel,
@@ -182,6 +183,36 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
     setPrevIsOpen(isOpen);
     setFormData(getNormalizedData(initialData));
   }
+
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  const handleGeocode = async () => {
+    if (!fd.location || fd.location.length < 5) {
+      toast.warn("Vui lòng nhập địa chỉ cụ thể để tìm tọa độ");
+      return;
+    }
+
+    setIsGeocoding(true);
+    try {
+      // Tìm tên tỉnh từ provinceId
+      const provinceName = provinceOptions.find(p => p.value === Number(fd.provinceId))?.label || "";
+      
+      const coords = await geocode(fd.location, provinceName);
+      if (coords) {
+        const coordString = `${coords.lat}, ${coords.lng}`;
+        setFormData((prev) => ({ ...prev, location: coordString }));
+        toast.success(`Đã tìm thấy tọa độ tại ${provinceName}: ${coordString}`);
+      } else {
+        toast.error(
+          `Không tìm thấy tọa độ tại ${provinceName}. Vui lòng thử địa chỉ chi tiết hơn.`,
+        );
+      }
+    } catch (error) {
+      toast.error("Lỗi khi tìm tọa độ.");
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -841,13 +872,36 @@ const AddEditModal: React.FC<AddEditModalProps> = ({
                   </div>
 
                   <div className={styles.inputGroup}>
-                    <label>Địa điểm / Vị trí</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label>Địa điểm / Vị trí</label>
+                      <button 
+                        type="button" 
+                        onClick={handleGeocode}
+                        disabled={isGeocoding}
+                        style={{ 
+                          fontSize: '11px', 
+                          padding: '2px 8px', 
+                          borderRadius: '4px', 
+                          backgroundColor: '#0ea5e9', 
+                          color: 'white',
+                          border: 'none',
+                          cursor: 'pointer',
+                          marginBottom: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        {isGeocoding ? <div className={styles.spinnerSmall} style={{ width: '12px', height: '12px' }}></div> : <MapPin size={12} weight="fill" />}
+                        {isGeocoding ? "Đang tìm..." : "Lấy tọa độ từ địa chỉ"}
+                      </button>
+                    </div>
                     <input
                       type="text"
                       name="location"
                       value={fd.location || ""}
                       onChange={handleChange}
-                      placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh"
+                      placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh hoặc 16.05, 108.22"
                     />
                   </div>
 

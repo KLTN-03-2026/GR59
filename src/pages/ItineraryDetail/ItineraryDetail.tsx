@@ -33,6 +33,20 @@ export interface RoutePoint {
 
 import Navbar from '../../components/Layout/Navbar/Navbar';
 
+/**
+ * Hàm làm đẹp tên địa điểm từ Backend/AI
+ */
+const beautifyName = (name: string, location?: string): string => {
+  if (!name || name.toLowerCase().includes("unknown attraction") || name.toLowerCase().includes("be đang thiếu")) {
+    if (location && !location.toLowerCase().includes("unknown")) {
+      // Nếu có location cụ thể, dùng phần đầu của location làm tên
+      return location.split(',')[0].trim();
+    }
+    return "Địa điểm tham quan";
+  }
+  return name;
+};
+
 const ItineraryDetail: React.FC = () => {
   const [points, setPoints] = useState<RoutePoint[]>([]);
   const [activePointId, setActivePointId] = useState<string | null>(null);
@@ -145,7 +159,7 @@ const ItineraryDetail: React.FC = () => {
               dayPlan.activities.forEach((act: ItineraryActivity, idx: number) => {
                 flattenedPoints.push({
                   id: `sample-${sampleData.id}-${dayPlan.day}-${idx}`,
-                  name: act.location,
+                  name: beautifyName(act.location, act.location),
                   lat: act.lat || 11.94, // Real coordinate from data or fallback to central city
                   lng: act.lng || 108.44,
                   time: act.time,
@@ -174,7 +188,11 @@ const ItineraryDetail: React.FC = () => {
         try {
           const res = await getAISuggestedRoute(planData);
           if (res.data.status === 200 && res.data.data) {
-            setPoints(res.data.data);
+            const cleanedPoints = res.data.data.map((p: any) => ({
+              ...p,
+              name: beautifyName(p.name, p.location)
+            }));
+            setPoints(cleanedPoints);
             setTimeout(() => {
               setIsOptimizing(false);
               toast.success(`Lộ trình tại ${planData.destination} đã được tối ưu hóa!`);

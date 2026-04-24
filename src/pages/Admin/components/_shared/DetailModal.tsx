@@ -35,6 +35,7 @@ import {
   fetchReviewsByTarget,
 } from "../../../../services/adminService";
 import ProtectedImage from "../../../../components/ProtectedImage/ProtectedImage";
+import AddressDisplay from "../../../../components/Ui/AddressDisplay/AddressDisplay";
 
 interface DetailModalProps {
   isOpen: boolean;
@@ -176,7 +177,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
                 </div>
                 <div className={styles.infoLine}>
                   <MapPin size={20} />
-                  <span>{userData.address || "Chưa cập nhật địa chỉ"}</span>
+                  <span><AddressDisplay address={userData.address || "Chưa cập nhật địa chỉ"} /></span>
                 </div>
               </div>
             </div>
@@ -486,7 +487,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
             <h5>Mô tả chi tiết</h5>
             <div className={styles.locationFooter}>
               <MapPin size={18} weight="fill" />
-              <span>{placeData.location}</span>
+              <span><AddressDisplay address={placeData.location} /></span>
             </div>
           </div>
           <p className={styles.fullDescription}>

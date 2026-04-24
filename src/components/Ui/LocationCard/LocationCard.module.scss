@@ -1,5 +1,10 @@
 @use "../../styles/variables.scss" as vars;
 
+.cardContainer {
+  position: relative;
+  width: fit-content;
+}
+
 .cardWrapperLink {
   min-width: 380px;
   text-decoration: none;
@@ -92,10 +97,52 @@
   }
 }
 
-.hotTag {
+.favoriteBtn {
   position: absolute;
   top: 20px;
   right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: white;
+    color: #ef4444;
+    transform: scale(1.1) rotate(5deg);
+    border-color: white;
+  }
+
+  &.active {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+}
+
+@keyframes heartPop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.hotTag {
+  position: absolute;
+  top: 20px;
+  right: 75px;
   background: linear-gradient(135deg, #ff4d4d 0%, #f70000 100%);
   color: white;
   padding: 6px 14px;

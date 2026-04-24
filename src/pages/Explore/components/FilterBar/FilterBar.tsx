@@ -93,10 +93,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
   const provinceOptions = [
     { value: "all", label: "📍 Toàn quốc" },
-    { value: "1", label: "🏮 Thừa Thiên Huế" },
-    { value: "2", label: "🌉 Đà Nẵng" },
-    { value: "3", label: "🏺 Quảng Nam" },
-    { value: "4", label: "🏛️ Hà Nội" },
+    { value: "4", label: "🏮 Thừa Thiên Huế" },
+    { value: "3", label: "🌉 Đà Nẵng" },
+    { value: "6", label: "🏺 Quảng Nam" },
+    { value: "1", label: "🏛️ Hà Nội" },
     { value: "5", label: "🏙️ TP. Hồ Chí Minh" },
   ];
 

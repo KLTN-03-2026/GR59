@@ -85,7 +85,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
   };
 
   return (
-    <div className={styles.sectionCard}>
+    <div className={styles.sectionCard} id={mode === "info" ? "profile-info-section" : "profile-password-section"}>
       <div className={styles.cardHeader}>
         <div className={styles.iconBox}>
           {mode === "info" ? (
@@ -119,6 +119,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ title, mode, profile }) => {
                     <input
                       type="text"
                       name="fullName"
+                      id="fullNameInput"
                       defaultValue={profile?.fullName || ""}
                       placeholder="Nhập họ tên"
                     />

@@ -10,7 +10,7 @@
 }
 
 .coverPhoto {
-  height: 240px;
+  height: 400px;
   position: relative;
   overflow: hidden;
 
@@ -101,6 +101,16 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    .cameraIconWrapper {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      i{
+        font-size: 14px;
+      }
+    }
 
     &:hover {
       background: #00b8b8;
@@ -123,8 +133,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .ph-spin {
@@ -190,14 +204,41 @@
   }
 
   .editProfileBtn {
-    background: #1e293b;
-    border: 1px solid #1e293b;
+    background-image: linear-gradient(to top, #1e293b 0%, #33d7d1 80%, #ffffff 100%);
     color: white;
+    border: 1px solid #1e293b;
+    border-radius: 30px;
+    height: 44px;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
 
     &:hover {
-      background: #0f172a;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 
+        0 4px 3px 1px #ffffff, 
+        0 6px 8px rgba(51, 215, 209, 0.3), 
+        0 -4px 4px rgba(30, 41, 59, 0.1), 
+        0 -6px 4px #ffffff, 
+        inset 0 0 3px 3px rgba(30, 41, 59, 0.1);
       transform: translateY(-2px);
+    }
+
+    &:active {
+      box-shadow: 
+        0 4px 3px 1px #ffffff, 
+        0 6px 8px rgba(51, 215, 209, 0.3), 
+        0 -4px 4px rgba(30, 41, 59, 0.1), 
+        0 -6px 4px #ffffff, 
+        inset 0 0 5px 3px rgba(0, 0, 0, 0.2), 
+        inset 0 0 30px rgba(0, 0, 0, 0.1);
+      transform: translateY(0);
     }
   }
 }

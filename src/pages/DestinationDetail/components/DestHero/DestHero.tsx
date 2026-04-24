@@ -9,6 +9,7 @@ import {
 } from "phosphor-react";
 
 import styles from "./DestHero.module.scss";
+import AddressDisplay from "../../../../components/Ui/AddressDisplay/AddressDisplay";
 import type { Destination } from "../../../../services/destinationService";
 
 const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
@@ -20,7 +21,7 @@ const DestHero: React.FC<{ data: Destination }> = ({ data }) => {
       <div className={styles.heroOverlay} />
       <div className={styles.heroContent}>
         <div className={styles.locationTag}>
-          <MapPin size={18} weight="fill" /> {data.location}
+          <MapPin size={18} weight="fill" /> <AddressDisplay address={data.location} />
         </div>
         <h1 className={styles.heroTitle}>{data.name}</h1>
         <div className={styles.heroMeta}>

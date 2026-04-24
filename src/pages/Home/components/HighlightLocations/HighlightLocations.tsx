@@ -79,6 +79,19 @@ const HighlightLocations: React.FC<HighlightLocationsProps> = ({
         if (controller.signal.aborted) return;
 
         let filtered = [...allFetchedItems];
+        // Loại bỏ các địa điểm không có tên hợp lệ
+        filtered = filtered.filter(item => {
+          const name = (item.name || "").trim();
+          const invalidNames = [
+            "unknown attraction",
+            "địa điểm tham quan",
+            "be đang thiếu",
+            "đang cập nhật",
+            "null",
+            "undefined"
+          ];
+          return name && !invalidNames.some(invalid => name.toLowerCase().includes(invalid));
+        });
         filtered = filtered.filter(item => Number(item.rating) >= 4.0);
         filtered.sort((a, b) => Number(b.rating) - Number(a.rating));
 

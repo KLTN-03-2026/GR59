@@ -1,4 +1,4 @@
-import type { AxiosResponse } from "axios";
+  import type { AxiosResponse } from "axios";
 import instance from "../utils/AxiosCustomize";
 import { DEFAULT_TRAVEL_TIPS } from "./hotelService";
 
@@ -87,6 +87,33 @@ export interface BackendAttraction {
   gallery?: string[];
 }
 
+export interface NearbyService {
+  id: number;
+  locationId: number;
+  serviceType: string;
+  serviceName: string;
+  description: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  distanceKm: number;
+  phoneNumber: string | null;
+  openingHours: string;
+  rating: number;
+  reviewCount: number;
+  imageUrl: string | null;
+  priceLevel: string;
+  status: string;
+}
+
+/**
+ * Lấy danh sách dịch vụ lân cận theo locationId
+ */
+export const getNearbyServices = async (locationId: number | string): Promise<BackendResponse<NearbyService[]>> => {
+  const response = await instance.get(`/nearby-services/location/${locationId}`);
+  return response.data;
+};
+
 /**
  * Mapper chuyển đổi dữ liệu từ BackendAttraction sang định dạng Destination hiển thị
  */
@@ -116,14 +143,22 @@ export const mapBackendAttractionToFullDestination = (att: BackendAttraction | n
     };
   }
 
+  const rawName = att.name || "";
+  let finalName = rawName;
+  if (!rawName || rawName.toLowerCase().includes("unknown attraction") || rawName.toLowerCase().includes("địa điểm chưa cập nhật")) {
+    finalName = "Địa điểm tham quan";
+  }
+
   return {
     id: att.id,
-    name: att.name || "Địa điểm chưa cập nhật tên",
+    name: finalName,
     location: 
       att.location || (
         att.provinceId === 4 ? "Thừa Thiên Huế" : 
         att.provinceId === 3 ? "Đà Nẵng" : 
-        att.provinceId === 6 ? "Quảng Nam" : "Toàn quốc"
+        att.provinceId === 6 ? "Quảng Nam" : 
+        att.provinceId === 1 ? "Hà Nội" : 
+        att.provinceId === 5 ? "TP. Hồ Chí Minh" : "Toàn quốc"
       ),
     heroImage: att.imageUrl || "https://placehold.co/1920x1080?text=Hình+ảnh+đang+cập+nhật",
     rating: (att.rating || 0).toString(),

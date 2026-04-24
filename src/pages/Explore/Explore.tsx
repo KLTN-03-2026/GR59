@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import styles from "./Explore.module.scss";
 import VideoHome from "../../assets/video/Da_Nang.mp4";
+import { toast } from "react-toastify";
 
 import ExploreHero from "./components/ExploreHero/ExploreHero";
 import CategoryTabs from "./components/CategoryTabs/CategoryTabs";
@@ -20,8 +21,8 @@ import {
 import { getHotels, getHotelsByKeyword } from "../../services/hotelService";
 import {
   getSavedTrips,
-  addSavedTrip,
-  removeSavedTrip,
+  addFavorite,
+  removeFavorite,
   type SavedTrip,
 } from "../../services/profileService";
 import { getCache, setCache } from "../../utils/DataCache";
@@ -39,7 +40,7 @@ const Explore: React.FC = () => {
   const [filterSubCategory, setFilterSubCategory] = useState("all");
   const [sortBy, setSortBy] = useState("rating");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 9;
 
   // Cơ chế để xử lý Race Condition (Chạy đua dữ liệu)
   const lastRequestId = React.useRef(0);
@@ -66,7 +67,7 @@ const Explore: React.FC = () => {
   // 3. Hàm fetch dữ liệu chính (Hotels, Restaurants, Attractions)
   const fetchPlaces = useCallback(async () => {
     const requestId = ++lastRequestId.current;
-    const cacheKey = `explore-${activeCategory}-${debouncedSearch}`;
+    const cacheKey = `explore-${activeCategory}-${debouncedSearch}-${filterProvince}`;
     const cachedData = getCache(cacheKey);
 
     // Nếu đã có trong cache, hiển thị ngay lập tức và thoát (không hiện loading)
@@ -85,24 +86,24 @@ const Explore: React.FC = () => {
 
     try {
       const isSearching = debouncedSearch.trim().length > 0;
-      const limit = 8; 
+      const limit = 10; 
       
       let hotelsRes, restaurantsRes, attractionsRes;
       
       if (activeCategory === "all") {
-        // Tối ưu cực độ: chỉ lấy 4 mục mỗi loại cho tab Tổng hợp
-        const allLimit = 4;
+        // Tối ưu: lấy 10 mục mỗi loại cho tab Tổng hợp
+        const allLimit = 10;
         [hotelsRes, restaurantsRes, attractionsRes] = await Promise.all([
-          isSearching ? getHotelsByKeyword(debouncedSearch, 0, allLimit) : getHotels(0, allLimit),
-          isSearching ? getHighlightRestaurantsByKeyword(debouncedSearch, 0, allLimit) : getHighlightRestaurants(allLimit),
-          isSearching ? getHighlightAttractionsByKeyword(debouncedSearch, 0, allLimit) : getHighlightLocations(allLimit)
+          isSearching ? getHotelsByKeyword(debouncedSearch, 0, allLimit) : getHotels(0, allLimit, filterProvince),
+          isSearching ? getHighlightRestaurantsByKeyword(debouncedSearch, 0, allLimit) : getHighlightRestaurants(allLimit, filterProvince),
+          isSearching ? getHighlightAttractionsByKeyword(debouncedSearch, 0, allLimit) : getHighlightLocations(allLimit, filterProvince)
         ]);
       } else if (activeCategory === "bed") {
-        hotelsRes = isSearching ? await getHotelsByKeyword(debouncedSearch, 0, limit) : await getHotels(0, limit);
+        hotelsRes = isSearching ? await getHotelsByKeyword(debouncedSearch, 0, limit) : await getHotels(0, limit, filterProvince);
       } else if (activeCategory === "food") {
-        restaurantsRes = isSearching ? await getHighlightRestaurantsByKeyword(debouncedSearch, 0, limit) : await getHighlightRestaurants(limit);
+        restaurantsRes = isSearching ? await getHighlightRestaurantsByKeyword(debouncedSearch, 0, limit) : await getHighlightRestaurants(limit, filterProvince);
       } else if (activeCategory === "pin") {
-        attractionsRes = isSearching ? await getHighlightAttractionsByKeyword(debouncedSearch, 0, limit) : await getHighlightLocations(limit);
+        attractionsRes = isSearching ? await getHighlightAttractionsByKeyword(debouncedSearch, 0, limit) : await getHighlightLocations(limit, filterProvince);
       }
 
 
@@ -127,7 +128,26 @@ const Explore: React.FC = () => {
       }
 
       const uniqueItems = allItems
-        .filter(item => item && item.id)
+        .filter(item => {
+          if (!item || !item.id) return false;
+          const name = (item.name || "").trim();
+          
+          // Danh sách các tên cần loại bỏ (không có giá trị thực tế cho người dùng)
+          const invalidNames = [
+            "unknown attraction",
+            "địa điểm tham quan",
+            "be đang thiếu",
+            "đang cập nhật",
+            "null",
+            "undefined"
+          ];
+
+          if (!name || invalidNames.some(invalid => name.toLowerCase().includes(invalid))) {
+            return false;
+          }
+          
+          return true;
+        })
         .map(item => ({
           ...item,
           uniqueId: `${item.type || 'unknown'}-${item.id}`
@@ -155,7 +175,7 @@ const Explore: React.FC = () => {
         setIsLoading(false);
       }
     }
-  }, [debouncedSearch, activeCategory]);
+  }, [debouncedSearch, activeCategory, filterProvince]);
 
   useEffect(() => {
     fetchPlaces();
@@ -215,15 +235,66 @@ const Explore: React.FC = () => {
   };
 
   const handleToggleLike = async (location: HighlightItem) => {
-    const savedTrip = savedTrips.find((trip) => trip.id == location.id);
+    const savedTrip = savedTrips.find((trip) => trip.locationId == location.id);
     const originalSavedTrips = [...savedTrips];
+    
+    // Map internal type to backend locationType
+    const typeMap: Record<string, string> = {
+      pin: "ATTRACTION",
+      food: "RESTAURANT",
+      bed: "HOTEL"
+    };
+    const locationType = typeMap[location.type] || "ATTRACTION";
+
     if (savedTrip) {
-      setSavedTrips(savedTrips.filter((trip) => trip.id != location.id));
-      try { await removeSavedTrip(savedTrip.id); } catch { setSavedTrips(originalSavedTrips); }
+      // Optimistic UI: Remove from list
+      setSavedTrips(savedTrips.filter((trip) => trip.locationId != location.id));
+      try { 
+        await removeFavorite(location.id, locationType); 
+        toast.info(`Đã xóa khỏi danh sách yêu thích`);
+        console.log(`Đã bỏ thích: ${location.name}`);
+      } catch (err) { 
+        console.error("Lỗi khi xóa yêu thích:", err);
+        toast.error("Không thể xóa khỏi yêu thích");
+        setSavedTrips(originalSavedTrips); 
+      }
     } else {
-      const newTrip: SavedTrip = { id: location.id, title: location.name, image: location.image, timeAgo: "Vừa xong" };
-      setSavedTrips([...savedTrips, newTrip]);
-      try { await addSavedTrip(newTrip); } catch { setSavedTrips(originalSavedTrips); }
+      const favoriteData = {
+        locationId: location.id,
+        locationType: locationType,
+        locationName: location.name,
+        imageUrl: location.image,
+        rating: Number(location.rating) || 0,
+        address: location.location || "Đang cập nhật"
+      };
+
+      // Optimistic UI: Add to list (temp id)
+      const tempTrip: SavedTrip = { 
+        id: `temp-${Date.now()}`, 
+        locationId: location.id,
+        title: location.name, 
+        image: location.image, 
+        timeAgo: "Vừa xong" 
+      };
+      setSavedTrips([...savedTrips, tempTrip]);
+
+      try { 
+        const res = await addFavorite(favoriteData); 
+        if (res.data?.data) {
+          // Update temp ID with real ID from backend
+          const realFavorite = res.data.data;
+          setSavedTrips(prev => prev.map(t => t.locationId == location.id ? {
+            ...t,
+            id: realFavorite.id
+          } : t));
+          toast.success("Đã thêm vào danh sách yêu thích!");
+          console.log(`Đã thích: ${location.name}`, realFavorite);
+        }
+      } catch (err) { 
+        console.error("Lỗi khi thêm yêu thích:", err);
+        toast.error("Không thể thêm vào yêu thích");
+        setSavedTrips(originalSavedTrips); 
+      }
     }
   };
 
@@ -252,7 +323,7 @@ const Explore: React.FC = () => {
                 <TravelCard
                   image={location.image} title={location.name} rating={Number(location.rating)}
                   location={location.location} description={location.desc} isHot={location.isHot}
-                  previewVideo={location.previewVideo || VideoHome} isLiked={savedTrips.some((t) => t.id == location.id)}
+                  previewVideo={location.previewVideo || VideoHome} isLiked={savedTrips.some((t) => t.locationId == location.id)}
                   status={location.status} price={location.price} onToggleLike={() => handleToggleLike(location)}
                   onDetail={() => {
                     const path = location.type === 'bed' ? `/hotel/${location.id}` : location.type === 'food' ? `/restaurant/${location.id}` : `/attraction/${location.id}`;

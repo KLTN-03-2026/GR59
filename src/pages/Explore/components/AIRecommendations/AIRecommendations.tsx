@@ -15,12 +15,19 @@ const AIRecommendations: React.FC = () => {
         const data = response.data?.data || [];
         
         // Map HighlightItem sang AIRecommendation
-        const mappedData: AIRecommendation[] = data.map((item, idx) => ({
-          id: Number(item.id),
-          name: item.name,
-          image: item.image,
-          matchPercentage: 90 + (idx % 10), // Giả lập độ tương thích cao cho các địa điểm nổi bật
-        }));
+        const mappedData: AIRecommendation[] = data
+          .filter(item => {
+            const name = item.name || "";
+            return name && 
+                   !name.toLowerCase().includes("unknown attraction") && 
+                   !name.toLowerCase().includes("be đang thiếu");
+          })
+          .map((item, idx) => ({
+            id: Number(item.id),
+            name: item.name,
+            image: item.image,
+            matchPercentage: 90 + (idx % 10),
+          }));
 
         setRecommendations(mappedData);
       } catch {

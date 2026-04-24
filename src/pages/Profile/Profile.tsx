@@ -9,7 +9,7 @@ import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
 import UserReviews from "./components/UserReviews/UserReviews";
 import { getProfile, getSavedTrips } from "../../services/profileService";
 import type { ProfileData, SavedTrip } from "../../services/profileService";
-import { anhmatdinh } from "../../assets/images/img";
+import { anhmatdinh, cover } from "../../assets/images/img";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../redux/store";
 import { updateUserInfo } from "../../redux/slices/userSlice";
@@ -58,13 +58,10 @@ const Profile: React.FC = () => {
                 dt.avatar_url ||
                 dt.avatarUrl ||
                 anhmatdinh,
-              cover_url:
-                dt.cover_url ||
-                dt.cover ||
-                "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
-              badge: dt.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
+              cover_url: cover,
+              badge: (dt.role || userInfo?.role) === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
               joinDate: formattedJoinDate,
-              location: dt.address || "Việt Nam",
+              location: dt.address || userInfo?.address || "Việt Nam",
             };
           }
         } catch (apiErr) {
@@ -91,10 +88,7 @@ const Profile: React.FC = () => {
             address: userInfo.address || "",
             bio: "Sẵn sàng lên lịch trình tự động đi du lịch muôn nơi với TravelAI",
             avatar_url: userInfo.avatar_url || userInfo.avatarUrl || anhmatdinh,
-            cover_url:
-              userInfo.cover_url ||
-              userInfo.cover ||
-              "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg",
+            cover_url: cover,
             badge: userInfo.role === "ADMIN" ? "Quản trị viên" : "Thành viên Mới",
             joinDate: formattedJoinDate,
             location: userInfo.address || "Việt Nam",
@@ -132,6 +126,19 @@ const Profile: React.FC = () => {
     dispatch(updateUserInfo({ cover_url: newUrl }));
   };
 
+  const handleEditClick = () => {
+    setActiveTab("info");
+    // Đợi tab chuyển sang info rồi mới scroll/focus
+    setTimeout(() => {
+      const element = document.getElementById("profile-info-section");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        const input = document.getElementById("fullNameInput");
+        if (input) (input as HTMLInputElement).focus();
+      }
+    }, 100);
+  };
+
   if (!profile)
     return (
       <div
@@ -160,6 +167,7 @@ const Profile: React.FC = () => {
             location={profile.location}
             onAvatarUpdate={handleAvatarUpdate}
             onCoverUpdate={handleCoverUpdate}
+            onEditClick={handleEditClick}
           />
         </div>
 
@@ -184,7 +192,6 @@ const Profile: React.FC = () => {
               </>
             )}
             {activeTab === "reviews" && <UserReviews />}
-            {activeTab === "security" && <ProfileForm title="Đổi mật khẩu" mode="password" />}
             {activeTab === "trips" && (
               <div className={styles.emptyTab}>
                 <h3>Lịch trình đã lưu</h3>

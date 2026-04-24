@@ -1,8 +1,17 @@
 import React, { useRef, useState } from "react";
 import styles from "./ProfileHeader.module.scss";
-import { anhmatdinh } from "../../../../assets/images/img";
+import { anhmatdinh, cover as defaultCoverImg } from "../../../../assets/images/img";
 import { uploadImage } from "../../../../services/profileService";
 import { toast } from "react-toastify";
+import { 
+  Camera, 
+  CircleNotch, 
+  ShareNetwork, 
+  Crown, 
+  CalendarBlank, 
+  MapPin 
+} from "@phosphor-icons/react";
+import GlossyButton from "../../../../components/Ui/GlossyButton/GlossyButton";
 
 import ProtectedImage from "../../../../components/ProtectedImage/ProtectedImage";
 
@@ -16,6 +25,7 @@ interface Props {
   location: string;
   onAvatarUpdate?: (newUrl: string) => void;
   onCoverUpdate?: (newUrl: string) => void;
+  onEditClick?: () => void;
 }
 
 const ProfileHeader: React.FC<Props> = ({
@@ -28,6 +38,7 @@ const ProfileHeader: React.FC<Props> = ({
   location,
   onAvatarUpdate,
   onCoverUpdate,
+  onEditClick,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -53,15 +64,10 @@ const ProfileHeader: React.FC<Props> = ({
     try {
       setIsUploading(true);
       const res = await uploadImage(file);
-      // Phản hồi từ backend: { status: 200, data: "/api/v1/users/images/..." }
       if (res.data && res.data.status === 200 && res.data.data) {
         const path = res.data.data as string;
-        
-        // Cập nhật cả hai cùng lúc
         onAvatarUpdate?.(path);
-        onCoverUpdate?.(path);
-        
-        toast.success("Cập nhật ảnh đại diện và ảnh bìa thành công!");
+        toast.success("Cập nhật ảnh đại diện thành công!");
       } else {
         throw new Error("Không nhận được URL ảnh");
       }
@@ -75,14 +81,14 @@ const ProfileHeader: React.FC<Props> = ({
   };
 
   const defaultAvatar = anhmatdinh;
-  const defaultCover = "https://res.cloudinary.com/dwyzqwupm/image/upload/v1738733306/halong_lbbmro.jpg";
+  const defaultCover = defaultCoverImg;
 
   return (
     <div className={styles.profileHeaderWrapper}>
       <div className={styles.coverPhoto}>
-        <ProtectedImage 
-          src={cover_url} 
-          alt="Cover" 
+        <ProtectedImage
+          src={cover_url}
+          alt="Cover"
           fallbackSrc={defaultCover}
         />
         <input
@@ -97,15 +103,15 @@ const ProfileHeader: React.FC<Props> = ({
       <div className={styles.headerContent}>
         <div className={styles.avatarContainer}>
           <div className={styles.avatarWrapper}>
-            <ProtectedImage 
-              src={avatar_url} 
-              alt="Avatar" 
-              className={styles.avatar} 
+            <ProtectedImage
+              src={avatar_url}
+              alt="Avatar"
+              className={styles.avatar}
               fallbackSrc={defaultAvatar}
             />
             {isUploading && (
               <div className={styles.uploadOverlay}>
-                <i className="ph-bold ph-spinner ph-spin"></i>
+                <CircleNotch size={32} weight="bold" className={styles.spin} />
               </div>
             )}
             <button
@@ -114,7 +120,13 @@ const ProfileHeader: React.FC<Props> = ({
               disabled={isUploading}
               title="Thay đổi ảnh"
             >
-              <i className={`ph-bold ${isUploading ? "ph-spinner ph-spin" : "ph-camera"}`}></i>
+              <div className={styles.cameraIconWrapper}>
+                {isUploading ? (
+                  <CircleNotch size={18} weight="bold" className={styles.spin} />
+                ) : (
+                  <Camera size={18} weight="bold" />
+                )}
+              </div>
             </button>
           </div>
         </div>
@@ -125,26 +137,32 @@ const ProfileHeader: React.FC<Props> = ({
               <h1>{name}</h1>
               <span className={styles.email}>{email}</span>
             </div>
+
             <div className={styles.actions}>
               <button className={styles.shareBtn}>
-                <i className="ph-bold ph-share-network"></i>
+                <ShareNetwork size={18} weight="bold" />
                 Chia sẻ
               </button>
-              <button className={styles.editProfileBtn}>Chỉnh sửa hồ sơ</button>
+              <GlossyButton 
+                variant="primary"
+                onClick={onEditClick}
+              >
+                Chỉnh sửa hồ sơ
+              </GlossyButton>
             </div>
           </div>
 
           <div className={styles.metaRow}>
             <div className={styles.badge}>
-              <i className="ph-fill ph-crown"></i>
+              <Crown size={16} weight="fill" />
               {badge}
             </div>
             <div className={styles.statItem}>
-              <i className="ph-bold ph-calendar-blank"></i>
+              <CalendarBlank size={18} weight="bold" />
               Tham gia từ {joinDate}
             </div>
             <div className={styles.statItem}>
-              <i className="ph-bold ph-map-pin"></i>
+              <MapPin size={18} weight="bold" />
               {location}
             </div>
           </div>
@@ -154,4 +172,4 @@ const ProfileHeader: React.FC<Props> = ({
   );
 };
 
-export default ProfileHeader;
+export default ProfileHeader;

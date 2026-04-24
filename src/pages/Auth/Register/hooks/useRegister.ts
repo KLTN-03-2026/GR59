@@ -9,6 +9,8 @@ import {
   type AuthResponseData,
   type BackendResponse,
 } from "../../../../services/userService";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../../../../redux/slices/userSlice";
 
 // --- Constants ---
 const VALID_EMAIL_REGEX = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -24,7 +26,7 @@ export const useRegister = ({ onToggle }: UseRegisterProps) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [terms, setTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   /**
@@ -35,11 +37,12 @@ export const useRegister = ({ onToggle }: UseRegisterProps) => {
     if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
 
     const { user } = data;
+    dispatch(loginSuccess(user));
     localStorage.setItem("user", JSON.stringify(user));
     if (user.fullName) localStorage.setItem("username", user.fullName);
     if (user.email) localStorage.setItem("email", user.email);
     if (user.createdAt) localStorage.setItem("createdAt", user.createdAt);
-  }, []);
+  }, [dispatch]);
 
   /**
    * Xử lý đăng ký/đăng nhập thông qua Google hoặc Facebook

@@ -16,7 +16,8 @@ import {
   type AuthResponseData,
   type BackendResponse,
 } from "../../../services/userService";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../../../redux/slices/userSlice";
 import InputGroup from "../../../components/Ui/InputGroup/InputGroup";
 import PremiumButton from "../../../components/Ui/PremiumButton/PremiumButton";
 
@@ -30,6 +31,7 @@ interface Props {
 
 const Login: React.FC<Props> = ({ onToggle }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -39,6 +41,10 @@ const Login: React.FC<Props> = ({ onToggle }) => {
     const { user, accessToken, refreshToken } = data;
     if (accessToken) localStorage.setItem("accessToken", accessToken);
     if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+    
+    // Dispatch to Redux
+    dispatch(loginSuccess(user));
+    
     localStorage.setItem("user", JSON.stringify(user));
     if (user.fullName) localStorage.setItem("username", user.fullName);
     if (user.email) localStorage.setItem("email", user.email);

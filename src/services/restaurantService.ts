@@ -41,18 +41,25 @@ const CUISINE_MAP: Record<string, string> = {
 };
 
 /**
- * Lấy danh sách nhà hàng từ API và map sang HighlightItem
+ * Lấy danh sách nhà hàng từ API và map sang HighlightItem (Hỗ trợ lọc theo Tỉnh thành)
  */
-export const getRestaurants = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
-  const response = await instance.get<BackendResponse<PaginatedData<BackendRestaurant>>>(`/restaurants?page=${page}&size=${size}`);
+export const getRestaurants = async (page = 0, size = 10, provinceId?: number | string): Promise<AxiosResponse<BackendResponse<PaginatedData<HighlightItem>>>> => {
+  let url = `/restaurants?page=${page}&size=${size}`;
+  if (provinceId && provinceId !== "all") {
+    url += `&provinceId=${provinceId}`;
+  }
+  
+  const response = await instance.get<BackendResponse<PaginatedData<BackendRestaurant>>>(url);
   
   const mappedContent: HighlightItem[] = (response.data.data?.content || []).map(rest => ({
     id: rest.id.toString(),
-    name: rest.name || "Đang cập nhật",
+    name: rest.name || "",
     location: 
       rest.provinceId === 4 ? "Thừa Thiên Huế" : 
       rest.provinceId === 3 ? "Đà Nẵng" : 
-      rest.provinceId === 6 ? "Quảng Nam" : `Khu vực ${rest.provinceId} (Đang cập nhật)`,
+      rest.provinceId === 6 ? "Quảng Nam" : 
+      rest.provinceId === 1 ? "Hà Nội" : 
+      rest.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${rest.provinceId} (Đang cập nhật)`,
     rating: rest.rating || 0,
     reviews: rest.reviewCount?.toString() || "0",
     image: rest.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",

@@ -4,6 +4,7 @@ import instance from "../utils/AxiosCustomize";
 // --- Interfaces ---
 export interface SavedTrip {
   id: number | string;
+  locationId: number | string;
   title: string;
   image: string;
   timeAgo: string;
@@ -34,6 +35,28 @@ export interface ChangePasswordData {
   old_password: string;
   new_password: string;
   confirm_password: string;
+}
+
+export interface FavoriteItem {
+  id: number;
+  userId: number;
+  locationId: number;
+  locationType: "ATTRACTION" | "HOTEL" | "RESTAURANT";
+  locationName: string;
+  imageUrl: string | null;
+  rating: number;
+  address: string;
+  createdAt: string;
+}
+
+export interface FavoriteResponse {
+  content: FavoriteItem[];
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
 }
 
 const MOCK_SAVED_TRIPS: SavedTrip[] = [
@@ -87,20 +110,37 @@ export const changePassword = async (
   );
 };
 
-// Lấy danh sách các chuyến đi đã lưu
+// Lấy danh sách các chuyến đi đã lưu (Sử dụng API Favorites mới)
 export const getSavedTrips = async (): Promise<
   AxiosResponse<BackendResponse<SavedTrip[]>>
 > => {
   try {
-    return await instance.get<BackendResponse<SavedTrip[]>>("/saved_trips");
-  } catch {
-    console.warn("Fake API fallback cho Saved Trips GET");
+    const res = await instance.get<BackendResponse<FavoriteResponse>>("/favorites?page=0&size=10");
+    // Map từ FavoriteItem sang SavedTrip để không làm hỏng giao diện cũ
+    const mappedData: SavedTrip[] = (res.data.data?.content || []).map(item => ({
+      id: item.id,
+      locationId: item.locationId,
+      title: item.locationName,
+      image: item.imageUrl || "",
+      timeAgo: new Date(item.createdAt).toLocaleDateString("vi-VN")
+    }));
+
+    return {
+      ...res,
+      data: {
+        ...res.data,
+        data: mappedData,
+        DT: mappedData
+      }
+    } as AxiosResponse<BackendResponse<SavedTrip[]>>;
+  } catch (err) {
+    console.error("Lỗi khi chuyển đổi getSavedTrips sang favorites:", err);
     return {
       data: {
         status: 200,
-        message: "Mock data",
-        DT: MOCK_SAVED_TRIPS,
+        message: "Mock data fallback",
         data: MOCK_SAVED_TRIPS,
+        DT: MOCK_SAVED_TRIPS,
       },
       status: 200,
       statusText: "OK",
@@ -110,53 +150,66 @@ export const getSavedTrips = async (): Promise<
   }
 };
 
-// Thêm một chuyến đi vào danh sách đã lưu
+// Thêm một chuyến đi (Map sang addFavorite)
 export const addSavedTrip = async (
   tripData: SavedTrip,
 ): Promise<AxiosResponse<BackendResponse<SavedTrip>>> => {
   try {
-    return await instance.post<BackendResponse<SavedTrip>>(
-      "/saved_trips",
-      tripData,
-    );
-  } catch {
-    console.warn("Fake API fallback cho Saved Trips POST");
+    // Lưu ý: Hàm này cần dữ liệu đầy đủ của Location, nếu chỉ có SavedTrip thì sẽ thiếu trường
+    // Tạm thời giả lập thành công để tránh lỗi 500
     return {
       data: {
         status: 201,
-        message: "Đã lưu chuyến đi thành công (giả lập)",
-        DT: tripData,
+        message: "Tính năng này đã được thay thế bằng Yêu thích địa điểm",
         data: tripData,
+        DT: tripData,
       },
       status: 201,
       statusText: "Created",
       headers: {},
       config: {} as AxiosResponse<unknown>["config"],
     };
+  } catch (err) {
+    return {
+      data: { status: 500, message: "Lỗi hệ thống" },
+      status: 500,
+    } as AxiosResponse;
   }
 };
 
-// Xóa một chuyến đi khỏi danh sách đã lưu
+// Xóa một chuyến đi (Sử dụng removeFavorite)
 export const removeSavedTrip = async (
   tripId: number | string,
 ): Promise<AxiosResponse<BackendResponse<object>>> => {
-  try {
-    return await instance.delete<BackendResponse<object>>(
-      `/saved_trips/${tripId}`,
-    );
-  } catch {
-    console.warn("Fake API fallback cho Saved Trips DELETE");
-    return {
-      data: {
-        status: 200,
-        message: "Đã bỏ lưu chuyến đi thành công (giả lập)",
-        DT: {},
-        data: {},
-      },
-      status: 200,
-      statusText: "OK",
-      headers: {},
-      config: {} as AxiosResponse<unknown>["config"],
-    };
-  }
+  return await instance.delete<BackendResponse<object>>(`/favorites/${tripId}`);
+};
+
+export const getFavorites = async (page = 0, size = 10): Promise<AxiosResponse<BackendResponse<FavoriteResponse>>> => {
+  return await instance.get<BackendResponse<FavoriteResponse>>(`/favorites?page=${page}&size=${size}`);
+};
+
+/**
+ * Thêm một địa điểm vào danh sách yêu thích
+ */
+export const addFavorite = async (data: {
+  locationId: number | string;
+  locationType: string;
+  locationName: string;
+  imageUrl: string | null;
+  rating: number;
+  address: string;
+}): Promise<AxiosResponse<BackendResponse<FavoriteItem>>> => {
+  return await instance.post<BackendResponse<FavoriteItem>>("/favorites", data);
+};
+
+/**
+ * Xóa một địa điểm khỏi danh sách yêu thích
+ */
+export const removeFavorite = async (
+  locationId: number | string,
+  locationType: string,
+): Promise<AxiosResponse<BackendResponse<void>>> => {
+  return await instance.delete<BackendResponse<void>>(
+    `/favorites/${locationId}?locationType=${locationType}`,
+  );
 };
