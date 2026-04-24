@@ -44,6 +44,7 @@ export interface BackendHotel {
   name: string;
   description: string | null;
   location: string | null;
+  addressDetailed?: string | null;
   rating: number;
   reviewCount: number | null;
   imageUrl: string | null;
@@ -142,7 +143,7 @@ export const mapBackendHotelToFullDestination = (hotel: BackendHotel | null): De
   return {
     id: hotel.id.toString(),
     name: hotel.name || "Khách sạn chưa cập nhật tên",
-    location: hotel.location || "Đang cập nhật vị trí",
+    location: hotel.addressDetailed || hotel.location || "Đang cập nhật vị trí",
     heroImage: hotel.imageUrl || "https://placehold.co/1920x1080?text=Hình+ảnh+đang+cập+nhật",
     rating: (hotel.rating || 0).toString(),
     reviews: hotel.reviewCount?.toString() || "0",
@@ -229,7 +230,7 @@ export const getHotels = async (page = 0, size = 10, provinceId?: number | strin
   const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
     id: hotel.id.toString(),
     name: hotel.name || "",
-    location: hotel.location || "Đang cập nhật",
+    location: hotel.addressDetailed || hotel.location || "Đang cập nhật",
     rating: hotel.rating || 0,
     reviews: hotel.reviewCount?.toString() || "0",
     image: hotel.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",
@@ -282,7 +283,7 @@ export const getHotelsByKeyword = async (keyword: string, page = 0, size = 10): 
   const mappedContent: HighlightItem[] = (data?.content || []).map((hotel: BackendHotel) => ({
     id: hotel.id.toString(),
     name: hotel.name || "Đang cập nhật",
-    location: hotel.location || "Đang cập nhật",
+    location: hotel.addressDetailed || hotel.location || "Đang cập nhật",
     rating: hotel.rating || 0,
     reviews: hotel.reviewCount?.toString() || "0",
     image: hotel.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",

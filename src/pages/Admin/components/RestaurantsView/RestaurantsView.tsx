@@ -127,7 +127,7 @@ const RestaurantsView: React.FC = () => {
     const rows = filtered.map((r) => [
       r.id,
       `"${r.name}"`,
-      `"${r.location}"`,
+      `"${r.addressDetailed || r.location}"`,
       r.rating,
       `"${r.reviewCount}"`,
       `"${r.category}"`,
@@ -372,7 +372,7 @@ const RestaurantsView: React.FC = () => {
                     <td>
                       <div className={styles.locationCol}>
                         <MapPin size={16} color="#94a3b8" />
-                        <span><AddressDisplay address={res.location} /></span>
+                        <span><AddressDisplay address={res.addressDetailed || res.location} /></span>
                       </div>
                     </td>
                     <td>

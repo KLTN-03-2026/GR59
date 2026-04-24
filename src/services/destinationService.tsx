@@ -75,6 +75,7 @@ export interface BackendAttraction {
   name: string;
   description: string | null;
   location: string | null;
+  addressDetailed: string | null;
   rating: number;
   reviewCount: number | null;
   category: string | null;
@@ -153,6 +154,7 @@ export const mapBackendAttractionToFullDestination = (att: BackendAttraction | n
     id: att.id,
     name: finalName,
     location: 
+      att.addressDetailed || 
       att.location || (
         att.provinceId === 4 ? "Thừa Thiên Huế" : 
         att.provinceId === 3 ? "Đà Nẵng" : 

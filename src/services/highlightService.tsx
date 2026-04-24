@@ -41,6 +41,7 @@ export interface BackendItem {
   imageUrl?: string;
   image?: string;
   description?: string;
+  addressDetailed?: string;
   category?: string;
   cuisine?: string;
   type?: string;
@@ -59,11 +60,12 @@ const mapBackendToHighlightItem = (item: BackendItem, type: "pin" | "food"): Hig
     id: item.id.toString(),
     name: finalName,
     location: 
-    item.provinceId === 4 ? "Thừa Thiên Huế" : 
-    item.provinceId === 3 ? "Đà Nẵng" : 
-    item.provinceId === 6 ? "Quảng Nam" : 
-    item.provinceId === 1 ? "Hà Nội" : 
-    item.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${item.provinceId} (Đang cập nhật)`,
+    item.addressDetailed || 
+    (item.provinceId === 4 ? "Thừa Thiên Huế" : 
+     item.provinceId === 3 ? "Đà Nẵng" : 
+     item.provinceId === 6 ? "Quảng Nam" : 
+     item.provinceId === 1 ? "Hà Nội" : 
+     item.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${item.provinceId} (Đang cập nhật)`),
   rating: item.rating || 0,
   reviews: item.reviewCount?.toString() || (item as BackendItem).reviewCount?.toString() || "0",
   image: item.imageUrl || item.image || "https://placehold.co/600x400?text=BE+dang+thieu+imageUrl",

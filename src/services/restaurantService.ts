@@ -10,6 +10,7 @@ export interface BackendRestaurant {
   name: string;
   description: string | null;
   location?: string | null;
+  addressDetailed?: string | null;
   rating: number;
   reviewCount: number | null;
   category: string | null; // Đổi từ cuisine
@@ -55,11 +56,12 @@ export const getRestaurants = async (page = 0, size = 10, provinceId?: number | 
     id: rest.id.toString(),
     name: rest.name || "",
     location: 
-      rest.provinceId === 4 ? "Thừa Thiên Huế" : 
-      rest.provinceId === 3 ? "Đà Nẵng" : 
-      rest.provinceId === 6 ? "Quảng Nam" : 
-      rest.provinceId === 1 ? "Hà Nội" : 
-      rest.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${rest.provinceId} (Đang cập nhật)`,
+      rest.addressDetailed || 
+      (rest.provinceId === 4 ? "Thừa Thiên Huế" : 
+       rest.provinceId === 3 ? "Đà Nẵng" : 
+       rest.provinceId === 6 ? "Quảng Nam" : 
+       rest.provinceId === 1 ? "Hà Nội" : 
+       rest.provinceId === 5 ? "TP. Hồ Chí Minh" : `Khu vực ${rest.provinceId} (Đang cập nhật)`),
     rating: rest.rating || 0,
     reviews: rest.reviewCount?.toString() || "0",
     image: rest.imageUrl || "https://placehold.co/600x400?text=Hình+ảnh+đang+cập+nhật",
@@ -119,6 +121,7 @@ export const mapBackendRestaurantToFullDestination = (rest: BackendRestaurant | 
     id: rest.id,
     name: rest.name || "Nhà hàng chưa cập nhật tên",
     location: 
+      rest.addressDetailed || 
       rest.location || (
         rest.provinceId === 4 ? "Thừa Thiên Huế" : 
         rest.provinceId === 3 ? "Đà Nẵng" : 

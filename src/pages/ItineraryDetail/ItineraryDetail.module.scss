@@ -44,7 +44,7 @@
     font-weight: 800;
     color: vars.$bg-dark-card;
     margin: 24px 0 12px;
-    background: vars.$premium-gradient;
+    background: vars.$primary-cyan-gradient;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -102,7 +102,7 @@
   left: 0;
   height: 100%;
   width: 0;
-  background: vars.$premium-gradient;
+  background: vars.$primary-cyan-gradient;
   border-radius: 10px;
   animation: progressLoad 3s linear forwards;
 }

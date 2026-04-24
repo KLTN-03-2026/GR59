@@ -7,6 +7,7 @@ export interface Hotel {
   id: string | number;
   name: string;
   location: string;
+  addressDetailed: string | null;
   rating: number;
   reviewCount: number;
   category: string | null;
@@ -24,6 +25,7 @@ export interface Restaurant {
   id: string | number;
   name: string;
   location: string;
+  addressDetailed: string | null;
   rating: number;
   reviewCount: number;
   category: string | null;
@@ -47,6 +49,7 @@ export interface Destination {
   id: string | number;
   name: string;
   location: string;
+  addressDetailed: string | null;
   rating: number;
   reviewCount: number;
   category: string | null;
