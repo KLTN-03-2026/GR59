@@ -19,7 +19,6 @@ import com.java.kltn.repositories.HotelRepository;
 import com.java.kltn.repositories.RestaurantRepository;
 import com.java.kltn.repositories.UserActivityRepository;
 import com.java.kltn.repositories.UserRepository;
-import com.java.kltn.services.ITrackingService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
