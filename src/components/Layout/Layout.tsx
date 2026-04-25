@@ -4,6 +4,7 @@ import Navbar from "./Navbar/Navbar";
 import Footer from "./Footer/Footer";
 import AOS from "aos"; // Import AOS
 import "aos/dist/aos.css"; // Import file CSS của AOS
+import ScrollToTop from "../ScrollToTop/ScrollToTop";
 
 const Layout: React.FC = () => {
   useEffect(() => {
@@ -20,6 +21,7 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };
